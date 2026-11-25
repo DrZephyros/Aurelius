@@ -1,0 +1,18 @@
+/* Meridian — theme: night-side ocean + sunrise gold, Fraunces serif */
+:root {
+  --bg: #030812;
+  --accent: #ffbf5e;
+  --glass: rgba(8, 16, 30, 0.5);
+  --font-display: 'Fraunces', Georgia, serif;
+}
+.h-xl, .h-lg { font-weight: 400; letter-spacing: -0.04em; }
+.h-xl { max-width: 7ch; }
+#s1 { padding-bottom: 9vh; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.facts span { padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--glass); backdrop-filter: blur(10px); font: 500 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; }
+.facts span:last-child { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+.btn { background: var(--accent); border-color: var(--accent); color: #1b1203; }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
+.readout { position: fixed; left: var(--pad); bottom: 30px; z-index: 10; display: flex; gap: 22px; font-size: 11px; letter-spacing: 0.18em; color: var(--muted); }
+.readout b { color: var(--accent); font-weight: 500; }
+@media (max-width: 760px) { .readout { display: none; } }

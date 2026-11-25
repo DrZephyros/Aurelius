@@ -1,0 +1,20 @@
+/* Ledgerline — theme: deep emerald-black + mint, technical grotesk */
+:root {
+  --bg: #030a08;
+  --fg: #eafff6;
+  --muted: rgba(234, 255, 246, 0.6);
+  --accent: #3dffb0;
+  --glass: rgba(6, 18, 14, 0.55);
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+}
+.h-xl, .h-lg { font-weight: 600; letter-spacing: -0.05em; line-height: 0.92; }
+.h-xl { font-size: clamp(3.2rem, 9.4vw, 9.6rem); max-width: 8ch; }
+.h-lg { font-size: clamp(2.3rem, 5.2vw, 5rem); }
+.h-xl em, .h-lg em { font-style: normal; color: var(--accent); }
+.btn { background: var(--accent); border-color: var(--accent); color: #02130c; }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
+.wide { width: 100%; max-width: 1100px; margin-inline: auto; text-align: center; }
+.wide .eyebrow { justify-content: center; }
+.rows { list-style: none; margin-top: 34px; border-top: 1px solid var(--line); }
+.rows li { display: flex; align-items: baseline; gap: 18px; padding: 15px 0; border-bottom: 1px solid var(--line); font: 600 22px var(--font-display); letter-spacing: -0.02em; }
+.rows li em { margin-left: auto; font: 500 12px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-style: normal; }

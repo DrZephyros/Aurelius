@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quire — 3D website for blogs, magazines &amp; newsletters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Quire</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Setting the type</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>The Quire Journal</a>
+    <ul><li><a href="#s2">Featured</a></li><li><a href="#s3">Latest</a></li><li><a href="#s4">About</a></li><li><a href="#s5">Newsletter</a></li></ul>
+    <a class="cta" href="#s5">Subscribe</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>The Quire Journal · Issue 24</div>
+        <h1 class="h-xl" data-split>Notes on making things.</h1>
+        <p class="lead" data-reveal style="--d:300ms">Essays, interviews and field notes on design, software and the slow craft of building something good — one considered issue at a time.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s2">Read the latest</a><a class="btn ghost" href="#s5">Get it by email</a></div>
+      </div>
+    </section>
+
+    <section class="sec end tall" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Featured essay</div>
+        <h2 class="h-lg" data-split>The case for finishing small things.</h2>
+        <p class="lead" data-reveal>Big projects get the glory, but a drawer full of finished little ones is how craft actually compounds. A love letter to the weekend project.</p>
+        <div class="byline mono" data-reveal><span>Maya Okafor</span><span>12 March 2026</span><span>9 min read</span></div>
+        <div class="row" data-reveal><a class="btn" href="#">Read the essay →</a></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s3" data-sec>
+      <div class="wide">
+        <div class="eyebrow" data-reveal>02 — Latest</div>
+        <h2 class="h-lg" data-split>Fresh from the desk.</h2>
+        <div class="grid3 posts" data-reveal style="margin:48px auto 0;text-align:left">
+          <a class="panel post" href="#"><span class="num">Design · 6 min</span><h3>Why every grid wants to be broken</h3><p>Constraints are a gift, until they aren't. A short guide to knowing the difference.</p><span class="mono date">Mar 08, 2026</span></a>
+          <a class="panel post" href="#"><span class="num">Software · 11 min</span><h3>Notes from a year of boring technology</h3><p>What changed when we stopped chasing the new stack and started shipping on the old one.</p><span class="mono date">Feb 27, 2026</span></a>
+          <a class="panel post" href="#"><span class="num">Interview · 14 min</span><h3>Ines Duarte on type that disappears</h3><p>The typographer behind three national newspapers on invisible craft.</p><span class="mono date">Feb 15, 2026</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — About the journal</div>
+        <h2 class="h-lg" data-split>Independent, ad-free, reader-funded.</h2>
+        <p class="lead" data-reveal>Quire is written by practitioners, edited by humans and paid for by readers. No tracking, no pop-ups, no algorithmic feed.</p>
+        <div class="stats" data-reveal>
+          <div class="stat"><b>24</b><span>Issues</span></div>
+          <div class="stat"><b>38k</b><span>Readers</span></div>
+          <div class="stat"><b>112</b><span>Contributors</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>The Sunday letter</div>
+        <h2 class="h-xl" data-split>One good email a week.</h2>
+        <p class="lead" data-reveal>Join 38,000 readers. One essay, three links worth your time, nothing else. Unsubscribe whenever.</p>
+        <form class="sub" data-reveal onsubmit="event.preventDefault(); this.classList.add('sent'); this.querySelector('button').textContent = 'Thank you ✓';">
+          <input type="email" required placeholder="you@email.com" aria-label="Email address" />
+          <button class="btn" type="submit">Subscribe</button>
+        </form>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 The Quire Journal</span><span>RSS · Mastodon · Archive</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

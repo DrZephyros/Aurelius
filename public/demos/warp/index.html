@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Warpgate — hyperspace tunnel 3D landing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,500;0,700;0,800;1,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Warpgate</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Charging drive</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+  <div class="reticle"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Warpgate</a>
+    <ul><li><a href="#s1">Launch</a></li><li><a href="#s2">Engine</a></li><li><a href="#s3">Network</a></li><li><a href="#s4">Fleet</a></li></ul>
+    <a class="cta" href="#s5">Enlist</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll to accelerate</div>
+  <div class="gauge"><span>Velocity</span><b id="speed">0000</b><span>× c / 1000</span></div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Hyperdrive online</div>
+        <h1 class="h-xl" data-split>Faster than thought.</h1>
+        <p class="lead" data-reveal style="--d:300ms">Ship at the speed of light. A high-energy launch page with a tunnel that reacts to every flick of the wheel.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Engage drive</a><a class="btn ghost" href="#s2">Inspect engine</a></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Engine</div>
+        <h2 class="h-lg" data-split>Speed is a feature.</h2>
+        <p class="lead" data-reveal>Instant deploys, instant rollbacks, instant everything. Streaks stretch with velocity so users literally feel it.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Network</div>
+        <h2 class="h-lg" data-split>Every node, one jump away.</h2>
+        <p class="lead" data-reveal>Global edge routing puts your product within 20 ms of anyone, anywhere. Gates open on demand.</p>
+        <div class="stats" data-reveal><div class="stat"><b>310</b><span>Edge sites</span></div><div class="stat"><b>20ms</b><span>Global p95</span></div><div class="stat"><b>∞</b><span>Scale</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Fleet</div>
+        <h2 class="h-lg" data-split>Built for crews that don’t slow down.</h2>
+        <p class="lead" data-reveal>Role-based access, audit trails and real-time presence keep a thousand-person fleet in perfect formation.</p>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Clear for departure</div>
+        <h2 class="h-xl" data-split>Jump now.</h2>
+        <div class="row" data-reveal><a class="btn" href="#">Start free trial</a><a class="btn ghost" href="#">Talk to flight control</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Warpgate Systems</span><span>No limits, only velocity</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

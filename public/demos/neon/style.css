@@ -1,0 +1,15 @@
+/* Afterglow — theme: synthwave magenta + cyan */
+:root {
+  --bg: #07030f;
+  --accent: #ff2bd6;
+  --glass: rgba(18, 6, 30, 0.5);
+  --line: rgba(255, 120, 235, 0.25);
+  --font-display: 'Chakra Petch', system-ui, sans-serif;
+}
+.h-xl, .h-lg { text-transform: uppercase; font-weight: 700; letter-spacing: -0.02em; }
+.h-xl { font-size: clamp(3rem, 8.4vw, 8.4rem); line-height: 0.92; max-width: 11ch; text-shadow: 0 0 40px rgba(255, 43, 214, 0.35); }
+.btn { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 30px -6px var(--accent); }
+.btn.ghost { background: var(--glass); border-color: var(--line); }
+.readout { position: fixed; left: var(--pad); bottom: 30px; z-index: 10; display: flex; gap: 22px; font: 11px var(--font-mono); letter-spacing: 0.18em; color: var(--muted); }
+.readout b { color: #22e6ff; font-weight: 500; }
+@media (max-width: 760px) { .readout { display: none; } }

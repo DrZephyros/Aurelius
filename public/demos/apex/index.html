@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Apex Kestrel — 3D website for car brands, hypercar launches &amp; mobility startups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Apex</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Warming the engine</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Apex</a>
+    <ul><li><a href="#s2">Design</a></li><li><a href="#s3">Performance</a></li><li><a href="#s4">Specs</a></li><li><a href="#s5">Reserve</a></li></ul>
+    <a class="cta" href="#s5">Reserve yours</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>The all-electric hypercar · Kestrel R</div>
+        <h1 class="h-xl" data-split>Built to <em>outrun.</em></h1>
+        <p class="lead" data-reveal style="--d:300ms">The Kestrel: 1,020 horsepower, a wedge cut by the wind and a wing that tilts as you accelerate.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Reserve yours</a><a class="btn ghost" href="#s2">Explore the car</a></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Design</div>
+        <h2 class="h-lg" data-split>Shaped by the <em>wind.</em></h2>
+        <p class="lead" data-reveal>Four hundred hours in the wind tunnel gave us a drag coefficient of 0.19 — and a profile that looks fast standing still.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Performance</div>
+        <h2 class="h-lg" data-split>Zero to <em>sixty,</em> gone.</h2>
+        <div class="stats" data-reveal><div class="stat"><b>2.1s</b><span>0 – 100 km/h</span></div><div class="stat"><b>1,020</b><span>Horsepower</span></div><div class="stat"><b>330</b><span>km/h top speed</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Specs</div>
+        <h2 class="h-lg" data-split>The numbers, <em>laid bare.</em></h2>
+        <ul class="rows" data-reveal>
+          <li>Battery <em>112 kWh</em></li>
+          <li>Range (WLTP) <em>640 km</em></li>
+          <li>Charging 10–80% <em>14 min</em></li>
+          <li>Drive <em>Tri-motor AWD</em></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy wide">
+        <div class="eyebrow" data-reveal>Deliveries from spring 2027</div>
+        <h2 class="h-xl" data-split>Reserve your <em>place.</em></h2>
+        <div class="row" data-reveal><a class="btn" href="#">Reserve · €1,000</a><a class="btn ghost" href="#">Book a test drive</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Apex Motors</span><span>Built to outrun</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

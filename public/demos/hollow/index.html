@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hollow — moonlit forest with fireflies 3D site</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Hollow</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Waking the woods</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Hollow</a>
+    <ul><li><a href="#s1">Welcome</a></li><li><a href="#s2">Stay</a></li><li><a href="#s3">Wander</a></li><li><a href="#s4">Cabin</a></li></ul>
+    <a class="cta" href="#s5">Book</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll to walk</div>
+
+  <main id="top">
+    <section class="sec" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Forest retreat · Open year-round</div>
+        <h1 class="h-xl" data-split>Follow the light home.</h1>
+        <p class="lead" data-reveal style="--d:300ms">Off-grid cabins hidden deep in the old-growth forest. Walk in, switch off, and let the fireflies lead the way.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Find a cabin</a><a class="btn ghost" href="#s2">Take the path</a></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Stay</div>
+        <h2 class="h-lg" data-split>Quiet enough to hear yourself think.</h2>
+        <p class="lead" data-reveal>No signal, no schedule. Just a wood stove, a deep bath and a sky full of stars.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Wander</div>
+        <h2 class="h-lg" data-split>Trails that go on and on.</h2>
+        <p class="lead" data-reveal>Forty kilometres of marked paths, hidden lakes and a ridge where the whole valley turns silver at midnight.</p>
+        <div class="stats" data-reveal><div class="stat"><b>40km</b><span>Trails</span></div><div class="stat"><b>9</b><span>Cabins</span></div><div class="stat"><b>0</b><span>Wi-Fi</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Cabin</div>
+        <h2 class="h-lg" data-split>A warm window in the dark.</h2>
+        <p class="lead" data-reveal>Hand-built from reclaimed timber, heated by fire, lit by lantern. Sleeps two. Remembers you.</p>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Now booking autumn</div>
+        <h2 class="h-xl" data-split>Come and get lost.</h2>
+        <div class="row" data-reveal><a class="btn" href="#">Reserve a cabin</a><a class="btn ghost" href="#">Gift a night</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Hollow Retreats</span><span>Leave no trace</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

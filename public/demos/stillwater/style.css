@@ -1,0 +1,15 @@
+/* Stillwater — theme: dusk teal + peach, light-weight Outfit */
+:root {
+  --bg: #08161d;
+  --accent: #ffb38a;
+  --glass: rgba(10, 28, 36, 0.5);
+  --font-display: 'Outfit', system-ui, sans-serif;
+}
+.h-xl, .h-lg { font-weight: 300; letter-spacing: -0.045em; line-height: 0.96; }
+.h-xl { max-width: 8ch; }
+#s1 { padding-bottom: 9vh; }
+.btn { background: linear-gradient(135deg, #ffd2b5, #ff9f78); border-color: transparent; color: #2a1208; }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
+.wide { width: 100%; max-width: 1100px; margin-inline: auto; text-align: center; }
+.grid3 .panel { background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025)); }
+.grid3 .panel h3 { font-weight: 400; font-size: 22px; }

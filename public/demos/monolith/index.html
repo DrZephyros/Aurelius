@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Monolith — cinematic 3D product showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Monolith</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Loading scene</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Monolith</a>
+    <ul><li><a href="#s1">Overview</a></li><li><a href="#s2">Anatomy</a></li><li><a href="#s3">Craft</a></li><li><a href="#s4">Specs</a></li></ul>
+    <a class="cta" href="#s5">Pre-order</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <div class="label" id="l1">Aerospace titanium shell</div>
+  <div class="label" id="l2">Adaptive glass surface</div>
+  <div class="label" id="l3">Sealed to 30 metres</div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Series One · Now shipping</div>
+        <h1 class="h-xl" data-split>Built to outlast the noise.</h1>
+        <p class="lead" data-reveal style="--d:300ms">Monolith One is a single, uncompromising object — machined from solid titanium and tuned for the moments that matter.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Pre-order — $499</a><a class="btn ghost" href="#s2">Explore anatomy</a></div>
+      </div>
+    </section>
+
+    <section class="sec end tall" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Anatomy</div>
+        <h2 class="h-lg" data-split>Every surface has a job.</h2>
+        <p class="lead" data-reveal>Follow the lines. The shell, the glass and the seals are designed as one continuous system — nothing decorative, nothing missing.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Craft</div>
+        <h2 class="h-lg" data-split>Machined, not molded.</h2>
+        <p class="lead" data-reveal>Each unit starts as a 2 kg billet and finishes at 94 grams, polished by hand to a tolerance of five microns.</p>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Specs</div>
+        <h2 class="h-lg" data-split>Numbers that earn their place.</h2>
+        <div class="stats" data-reveal>
+          <div class="stat"><b>94g</b><span>Weight</span></div>
+          <div class="stat"><b>72h</b><span>Battery</span></div>
+          <div class="stat"><b>5µm</b><span>Tolerance</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Reserve yours</div>
+        <h2 class="h-xl" data-split>Own the signal.</h2>
+        <p class="lead" data-reveal>Limited first run. Ships worldwide in spring.</p>
+        <div class="row" data-reveal><a class="btn" href="#">Pre-order now</a><a class="btn ghost" href="#">Join the waitlist</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Monolith Labs</span><span>Designed for the next decade</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

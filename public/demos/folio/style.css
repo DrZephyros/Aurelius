@@ -1,0 +1,18 @@
+/* Folio — theme: graphite studio + signal orange */
+:root {
+  --bg: #08080b;
+  --accent: #ff5c35;
+  --glass: rgba(14, 14, 20, 0.5);
+  --font-display: 'Manrope', system-ui, sans-serif;
+}
+.h-xl, .h-lg { font-weight: 800; letter-spacing: -0.05em; }
+.h-xl { max-width: 8ch; }
+#s1 { padding-bottom: 9vh; }
+.list { list-style: none; margin-top: 34px; border-top: 1px solid var(--line); }
+.list li { display: flex; align-items: baseline; gap: 18px; padding: 15px 0; border-bottom: 1px solid var(--line); font: 600 19px var(--font-display); letter-spacing: -0.02em; }
+.list li span { font-size: 11px; letter-spacing: 0.2em; color: var(--accent); }
+.list li em { margin-left: auto; font: 400 12px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.now { position: fixed; left: var(--pad); bottom: 30px; z-index: 10; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); display: flex; gap: 10px; opacity: 0; transition: opacity 0.6s; }
+.now b { color: var(--fg); font-weight: 500; }
+html.show-now .now { opacity: 1; }
+@media (max-width: 760px) { .now { display: none; } }

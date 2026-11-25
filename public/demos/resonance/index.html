@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resonance — 3D website for festivals, venues &amp; artists</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Resonance</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Soundcheck</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Resonance</a>
+    <ul><li><a href="#s2">Lineup</a></li><li><a href="#s3">Venue</a></li><li><a href="#s4">Tickets</a></li><li><a href="#s5">Info</a></li></ul>
+    <a class="cta" href="#s4">Get tickets</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>14 — 16 August · Warehouse District</div>
+        <h1 class="h-xl" data-split>Feel the <em>frequency.</em></h1>
+        <p class="lead" data-reveal style="--d:300ms">Three nights, forty artists and one converted power station that shakes in time with the bass. Resonance Festival returns.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s4">Get tickets</a><a class="btn ghost" href="#s2">See the lineup</a></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Lineup</div>
+        <h2 class="h-lg" data-split>Forty acts. <em>Zero filler.</em></h2>
+        <ul class="rows" data-reveal>
+          <li><span>FRI</span>Nova Kline <em>Live · 23:00</em></li>
+          <li><span>FRI</span>Okonkwo b2b Ysabel <em>DJ · 01:30</em></li>
+          <li><span>SAT</span>The Lanterns <em>Band · 22:00</em></li>
+          <li><span>SAT</span>Halcyon Drift <em>Live · 00:30</em></li>
+          <li><span>SUN</span>Miro Valentine <em>Closing · 21:00</em></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — The venue</div>
+        <h2 class="h-lg" data-split>Inside the <em>sound.</em></h2>
+        <p class="lead" data-reveal>A 360° speaker ring, a floor built on springs and a room tuned by acousticians. You don’t just hear it — you stand inside it.</p>
+        <div class="stats" data-reveal><div class="stat"><b>360°</b><span>Sound ring</span></div><div class="stat"><b>120k</b><span>Watts</span></div><div class="stat"><b>6</b><span>Stages</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s4" data-sec>
+      <div class="wide">
+        <div class="eyebrow" data-reveal>03 — Tickets</div>
+        <h2 class="h-lg" data-split>Pick your <em>night.</em></h2>
+        <div class="grid3" style="margin: 44px auto 0" data-reveal>
+          <div class="panel"><div class="num">DAY PASS</div><h3>£65</h3><p>Single night entry, any day. Includes cloakroom and late-night shuttle.</p></div>
+          <div class="panel hot"><div class="num">FULL WEEKEND</div><h3>£149</h3><p>All three nights, fast-lane entry and the Sunday sunrise session.</p></div>
+          <div class="panel"><div class="num">BACKSTAGE</div><h3>£320</h3><p>Weekend pass, artist lounge, front-of-stage viewing deck and open bar.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy wide">
+        <div class="eyebrow" data-reveal>Doors open 18:00</div>
+        <h2 class="h-xl" data-split>See you on the <em>floor.</em></h2>
+        <div class="row" data-reveal><a class="btn" href="#">Join the waitlist</a><a class="btn ghost" href="#">Getting there</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Resonance Festival</span><span>Feel the frequency</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

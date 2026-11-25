@@ -1,0 +1,31 @@
+/* Lyceum — theme: parchment (light) + ink blue, classical serif */
+:root {
+  --bg: #f1ead9;
+  --fg: #17203d;
+  --muted: rgba(23, 32, 61, 0.66);
+  --line: rgba(23, 32, 61, 0.18);
+  --accent: #2a3f9d;
+  --glass: rgba(255, 251, 240, 0.62);
+  --font-display: 'Playfair Display', Georgia, serif;
+}
+.h-xl, .h-lg { font-weight: 600; letter-spacing: -0.035em; line-height: 0.96; }
+.h-xl { font-size: clamp(3.2rem, 8.6vw, 8.6rem); max-width: 10ch; }
+.h-lg { font-size: clamp(2.4rem, 5.2vw, 5rem); }
+.h-xl em, .h-lg em { font-style: italic; color: var(--accent); font-weight: 500; }
+.nav ul a:hover { background: rgba(0, 0, 0, 0.06); }
+.btn { color: #fff; background: var(--accent); border-color: var(--accent); }
+.btn:hover { box-shadow: 0 12px 44px -10px rgba(42, 63, 157, 0.6); }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
+.hud { --c: rgba(23, 32, 61, 0.3); }
+.dots a.on { box-shadow: none; }
+.wide { width: 100%; max-width: 1100px; margin-inline: auto; text-align: center; }
+.wide .eyebrow { justify-content: center; }
+.rows { list-style: none; margin-top: 34px; border-top: 1px solid var(--line); }
+.rows li { display: flex; align-items: baseline; gap: 18px; padding: 15px 0; border-bottom: 1px solid var(--line); font: 500 26px var(--font-display); letter-spacing: -0.01em; }
+.rows li span { font: 500 12px var(--font-mono); letter-spacing: 0.2em; color: var(--accent); width: 28px; }
+.rows li em { margin-left: auto; font: 400 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-style: normal; }
+.ticks { list-style: none; margin-top: 30px; display: grid; gap: 12px; }
+.ticks li { display: flex; align-items: center; gap: 14px; font: 500 16px var(--font-body); }
+.ticks li::before { content: ''; width: 9px; height: 9px; background: var(--accent); transform: rotate(45deg); flex: none; }
+.stat b { font-family: var(--font-display); font-weight: 600; }
+#loader { color: var(--fg); }

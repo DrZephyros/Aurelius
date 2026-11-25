@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Before / after slider</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root { --bg: #0a0f0e; --fg: #eaf4f1; --muted: #7f948f; --line: rgba(255,255,255,.1); --accent: #4dd6a8; --sans: 'Inter', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1); --pos: 50; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--sans); display: grid; place-items: center; padding: 24px; -webkit-font-smoothing: antialiased; background-image: radial-gradient(50% 50% at 50% 0%, rgba(77,214,168,.12), transparent 70%); }
+  .wrap { width: min(900px, 100%); } .hd { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; } .hd h1 { font-size: clamp(1.7rem, 4vw, 2.6rem); letter-spacing: -.045em; line-height: 1; } .hd h1 em { font-style: normal; color: var(--accent); } .hd p { font: 500 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .cmp { position: relative; aspect-ratio: 16 / 9; border-radius: 26px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 50px 90px -40px rgba(0,0,0,.9); cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none; outline: none; }
+  .cmp:focus-visible { box-shadow: 0 0 0 3px var(--accent), 0 50px 90px -40px rgba(0,0,0,.9); }
+  .layer { position: absolute; inset: 0; } .layer svg { width: 100%; height: 100%; display: block; }
+  .before { clip-path: inset(0 calc((100 - var(--pos)) * 1%) 0 0); } .before svg { filter: grayscale(1) contrast(.72) brightness(.78) blur(.7px); } .before::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 1px, transparent 1px 3px); }
+  .tag { position: absolute; top: 18px; padding: 8px 14px; border-radius: 99px; background: rgba(8,12,11,.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.2); font: 500 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; z-index: 3; pointer-events: none; transition: opacity .3s; } .tag.l { left: 18px; } .tag.r { right: 18px; color: var(--accent); }
+  .handle { position: absolute; top: 0; bottom: 0; left: calc(var(--pos) * 1%); width: 2px; margin-left: -1px; background: #fff; z-index: 4; box-shadow: 0 0 24px rgba(255,255,255,.6); }
+  .knob { position: absolute; top: 50%; left: 50%; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%; background: #fff; color: #0a0f0e; display: grid; place-items: center; box-shadow: 0 10px 30px rgba(0,0,0,.5), 0 0 0 6px rgba(255,255,255,.2); transition: transform .5s var(--ease), box-shadow .5s; } .cmp:hover .knob, .cmp.drag .knob { transform: scale(1.12); box-shadow: 0 14px 36px rgba(0,0,0,.5), 0 0 0 10px rgba(255,255,255,.22); } .cmp.drag .knob { transform: scale(.95); }
+  .knob svg { width: 26px; height: 26px; }
+  .hint { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 3; padding: 8px 16px; border-radius: 99px; background: rgba(8,12,11,.65); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.18); font-size: 13px; font-weight: 600; pointer-events: none; transition: opacity .5s; display: flex; gap: 8px; align-items: center; } .cmp.used .hint { opacity: 0; }
+  .meta { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-top: 16px; flex-wrap: wrap; } .meta .stats { display: flex; gap: 22px; font: 500 12px var(--mono); color: var(--muted); } .meta b { color: var(--fg); }
+  .seg { display: inline-flex; padding: 4px; border-radius: 12px; background: rgba(255,255,255,.06); } .seg button { border: 0; background: none; color: var(--muted); font: 600 13px var(--sans); padding: 8px 15px; border-radius: 9px; cursor: pointer; transition: .3s; } .seg button.on { background: var(--accent); color: #04140e; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd"><h1>See the <em>difference.</em></h1><p>Drag · click · use ← →</p></div>
+  <div class="cmp" id="cmp" role="slider" tabindex="0" aria-label="Before and after comparison" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+    <div class="layer after" id="after"></div>
+    <div class="layer before" id="before"></div>
+    <span class="tag l">Before</span><span class="tag r">After</span>
+    <div class="handle"><div class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></div></div>
+    <div class="hint">↔ Drag to compare</div>
+  </div>
+  <div class="meta"><div class="seg" id="seg"><button class="on" data-s="0">Alpine lake</button><button data-s="1">Desert dusk</button></div><div class="stats"><span>Position <b id="pv">50%</b></span><span>Exposure <b id="ev">+1.4 EV</b></span></div></div>
+</div>
+<script>
+(() => {
+  const SCENES = [
+    `<svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="s0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a2a6c"/><stop offset=".55" stop-color="#e96d71"/><stop offset="1" stop-color="#fdbb6d"/></linearGradient><linearGradient id="l0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6a56f"/><stop offset="1" stop-color="#173b63"/></linearGradient><radialGradient id="sun0"><stop offset="0" stop-color="#fff6c8"/><stop offset=".5" stop-color="#ffd27a"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs><rect width="800" height="450" fill="url(#s0)"/><circle cx="540" cy="250" r="170" fill="url(#sun0)"/><circle cx="540" cy="255" r="34" fill="#fff3c2"/><path d="M0 285 L90 190 L170 250 L270 140 L380 262 L470 200 L560 270 L680 160 L800 255 V300 H0Z" fill="#3b2f63"/><path d="M0 310 L120 235 L220 290 L330 210 L450 300 L560 250 L690 305 L800 270 V330 H0Z" fill="#1f2a55"/><rect y="300" width="800" height="150" fill="url(#l0)"/><g opacity=".5" stroke="#fff3c2" stroke-width="3"><line x1="505" y1="320" x2="575" y2="320"/><line x1="490" y1="340" x2="590" y2="340"/><line x1="510" y1="362" x2="570" y2="362"/><line x1="480" y1="390" x2="600" y2="390"/></g><path d="M0 395 Q200 365 400 410 T800 390 V450 H0Z" fill="#0c1f35"/><g fill="#0a1a2d"><path d="M40 420 l14 -62 l14 62z"/><path d="M70 420 l12 -48 l12 48z"/><path d="M700 425 l16 -70 l16 70z"/><path d="M735 425 l12 -52 l12 52z"/></g></svg>`,
+    `<svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="s1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b1055"/><stop offset=".5" stop-color="#d4418e"/><stop offset="1" stop-color="#ff9a3c"/></linearGradient></defs><rect width="800" height="450" fill="url(#s1)"/><g fill="#fff" opacity=".8"><circle cx="90" cy="60" r="1.6"/><circle cx="220" cy="100" r="1.2"/><circle cx="360" cy="48" r="1.8"/><circle cx="640" cy="80" r="1.4"/><circle cx="730" cy="40" r="1.6"/></g><circle cx="400" cy="270" r="95" fill="#ffd36e"/><path d="M0 300 Q150 250 300 295 T600 285 T800 300 V450 H0Z" fill="#b2392f"/><path d="M0 345 Q200 300 400 350 T800 335 V450 H0Z" fill="#7d1f2e"/><path d="M0 395 Q220 360 430 400 T800 385 V450 H0Z" fill="#3d0f27"/><g fill="#1c0817"><path d="M560 400 v-70 h8 v70z"/><path d="M542 352 h44 v8 h-44z M550 335 h28 v8 h-28z"/><path d="M140 410 v-50 h6 v50z"/><path d="M126 372 h34 v6 h-34z"/></g></svg>`,
+  ];
+  const cmp = document.getElementById('cmp'), root = document.documentElement, pv = document.getElementById('pv'), ev = document.getElementById('ev');
+  let pos = 50, anim, used = false;
+  const set = (p) => { pos = Math.max(0, Math.min(100, p)); root.style.setProperty('--pos', pos); cmp.setAttribute('aria-valuenow', Math.round(pos)); pv.textContent = Math.round(pos) + '%'; ev.textContent = '+' + (pos / 100 * 2.8).toFixed(1) + ' EV'; };
+  const scene = (i) => { document.getElementById('after').innerHTML = SCENES[i]; document.getElementById('before').innerHTML = SCENES[i].replace(/id="(\w+)"/g, 'id="b$1"').replace(/url\(#(\w+)\)/g, 'url(#b$1)'); };
+  scene(0);
+  const to = (target, dur = 700, ease = (k) => 1 - Math.pow(1 - k, 4)) => { cancelAnimationFrame(anim); const from = pos, t0 = performance.now(); const f = (t) => { const k = Math.min(1, (t - t0) / dur); set(from + (target - from) * ease(k)); if (k < 1 && !used === !used) anim = requestAnimationFrame(f); }; anim = requestAnimationFrame(f); };
+  const use = () => { if (!used) { used = true; cmp.classList.add('used'); } cancelAnimationFrame(anim); clearTimeout(demo); };
+  const frac = (x) => { const r = cmp.getBoundingClientRect(); return ((x - r.left) / r.width) * 100; };
+  let dragging = false, moved = false, sx = 0;
+  cmp.addEventListener('pointerdown', (e) => { use(); dragging = true; moved = false; sx = e.clientX; cmp.setPointerCapture(e.pointerId); cmp.classList.add('drag'); });
+  cmp.addEventListener('pointermove', (e) => { if (!dragging) return; if (Math.abs(e.clientX - sx) > 3) moved = true; set(frac(e.clientX)); });
+  const end = (e) => { if (!dragging) return; dragging = false; cmp.classList.remove('drag'); if (!moved) to(frac(e.clientX), 600); };
+  cmp.addEventListener('pointerup', end); cmp.addEventListener('pointercancel', () => { dragging = false; cmp.classList.remove('drag'); });
+  cmp.addEventListener('keydown', (e) => { const s = e.shiftKey ? 10 : 2; if (e.key === 'ArrowLeft') { use(); set(pos - s); e.preventDefault(); } if (e.key === 'ArrowRight') { use(); set(pos + s); e.preventDefault(); } if (e.key === 'Home') { use(); set(0); } if (e.key === 'End') { use(); set(100); } });
+  document.querySelectorAll('#seg button').forEach((b) => b.onclick = () => { document.querySelectorAll('#seg button').forEach((x) => x.classList.toggle('on', x === b)); scene(+b.dataset.s); });
+  /* auto demo teaches the gesture */
+  let demo; const seq = [22, 78, 50]; let si = 0; const run = () => { if (used) return; to(seq[si++], 1300, (k) => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2); if (si < seq.length) demo = setTimeout(run, 1500); };
+  set(50); demo = setTimeout(run, 700);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+/* Atelier — theme: champagne silk (light) + garnet, high-contrast serif */
+:root {
+  --bg: #efe6dc;
+  --fg: #231612;
+  --muted: rgba(35, 22, 18, 0.64);
+  --line: rgba(35, 22, 18, 0.16);
+  --accent: #8c2f39;
+  --glass: rgba(255, 248, 240, 0.6);
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+}
+.h-xl, .h-lg { font-weight: 500; letter-spacing: -0.03em; line-height: 0.9; }
+.h-xl { font-size: clamp(3.8rem, 12vw, 12rem); max-width: 8ch; }
+.h-lg { font-size: clamp(2.8rem, 6.4vw, 6.2rem); }
+.h-xl em, .h-lg em { font-style: italic; color: var(--accent); }
+.nav ul a:hover { background: rgba(0, 0, 0, 0.06); }
+.btn { color: #fff; background: var(--fg); border-color: var(--fg); }
+.btn:hover { box-shadow: 0 12px 44px -10px rgba(140, 47, 57, 0.6); }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
+.panel { background: linear-gradient(180deg, rgba(255, 252, 247, 0.85), rgba(255, 248, 240, 0.5)); box-shadow: 0 30px 70px -36px rgba(80, 40, 30, 0.45); }
+.grid3 .panel h3 { font-family: var(--font-display); font-weight: 600; font-size: 34px; font-style: italic; letter-spacing: -0.01em; }
+.grid3 .panel p b { color: var(--accent); font-weight: 600; }
+.wide { width: 100%; max-width: 1100px; margin-inline: auto; text-align: center; }
+.wide .eyebrow { justify-content: center; }
+.ticks { list-style: none; margin-top: 30px; display: grid; gap: 12px; }
+.ticks li { display: flex; align-items: center; gap: 14px; font: 500 16px var(--font-body); }
+.ticks li::before { content: ''; width: 9px; height: 9px; background: var(--accent); transform: rotate(45deg); flex: none; }
+.stat b { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.6rem, 5vw, 4.4rem); }
+#loader { color: var(--fg); }

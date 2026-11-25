@@ -1,0 +1,12 @@
+/* Hollow — theme: moonlit teal + firefly lime */
+:root {
+  --bg: #060c12;
+  --accent: #d4ff6b;
+  --glass: rgba(6, 16, 20, 0.5);
+  --line: rgba(190, 255, 200, 0.2);
+  --font-display: 'Marcellus', Georgia, serif;
+}
+.h-xl, .h-lg { font-weight: 400; letter-spacing: -0.02em; }
+.h-xl { max-width: 9ch; font-size: clamp(3rem, 8.4vw, 8.2rem); line-height: 0.95; }
+.btn { background: var(--accent); border-color: var(--accent); color: #101c00; }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }

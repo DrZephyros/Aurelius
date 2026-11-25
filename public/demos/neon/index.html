@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Afterglow — neon city fly-through</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Afterglow</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Booting district</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Afterglow</a>
+    <ul><li><a href="#s1">Start</a></li><li><a href="#s2">Features</a></li><li><a href="#s3">Live</a></li><li><a href="#s4">Districts</a></li></ul>
+    <a class="cta" href="#s5">Get access</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll to drive</div>
+  <div class="readout"><span>SPD <b id="spd">000</b> KM/H</span><span>DIST <b id="dst">0000</b> M</span></div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>District 07 · Open all night</div>
+        <h1 class="h-xl" data-split>The city never switches off.</h1>
+        <p class="lead" data-reveal style="--d:300ms">A launch page for products that live after dark. Rain, neon, motion and a camera that follows your scroll.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Get early access</a><a class="btn ghost" href="#s2">Take the tour</a></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s2" data-sec>
+      <div>
+        <div class="eyebrow" data-reveal>01 — Features</div>
+        <h2 class="h-lg" data-split style="margin-bottom:44px">Built for after hours.</h2>
+        <div class="grid3" style="margin-inline:auto;text-align:left">
+          <div class="panel" data-reveal><span class="num">01</span><h3>Realtime everything</h3><p>Sync across every device in under 40 ms, even when the grid is crowded.</p></div>
+          <div class="panel" data-reveal style="--d:120ms"><span class="num">02</span><h3>Zero-trust by default</h3><p>End-to-end encryption on every channel. Your data stays yours.</p></div>
+          <div class="panel" data-reveal style="--d:240ms"><span class="num">03</span><h3>Made to be hacked</h3><p>An open API, webhooks and a plugin system for the tinkerers.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Live</div>
+        <h2 class="h-lg" data-split>Still awake at 3 a.m.</h2>
+        <p class="lead" data-reveal>Thousands of teams ship at night. Afterglow keeps up — fast, quiet and always on.</p>
+        <div class="stats" data-reveal><div class="stat"><b>40ms</b><span>Latency</span></div><div class="stat"><b>99.99%</b><span>Uptime</span></div><div class="stat"><b>2.4M</b><span>Daily users</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Districts</div>
+        <h2 class="h-lg" data-split>Pick a neighborhood.</h2>
+        <p class="lead" data-reveal>Starter, Studio and Syndicate plans — scale from a solo crew to a whole skyline without changing a thing.</p>
+        <div class="row" data-reveal><a class="btn ghost" href="#s5">Compare plans</a></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Join the night shift</div>
+        <h2 class="h-xl" data-split>See you after dark.</h2>
+        <div class="row" data-reveal><a class="btn" href="#">Create account</a><a class="btn ghost" href="#">Book a demo</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Afterglow</span><span>Neon is a state of mind</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Toast notifications</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root { --bg: #f5f3ef; --ink: #1d1a17; --muted: #81796f; --line: #e6e0d7; --accent: #ff7a59; --ok: #1f9d6b; --bad: #e0443a; --info: #3b6cf6; --sans: 'DM Sans', system-ui, sans-serif; --serif: 'DM Serif Display', Georgia, serif; --ease: cubic-bezier(.16,1,.3,1); --h: 74px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: var(--bg); color: var(--ink); font-family: var(--sans); display: grid; place-items: center; padding: 24px; -webkit-font-smoothing: antialiased; overflow: hidden; background-image: radial-gradient(50% 50% at 0% 0%, #ffe7de, transparent 70%), radial-gradient(40% 40% at 100% 100%, #e3ebff, transparent 70%); }
+  .wrap { width: min(560px, 100%); } h1 { font: 400 clamp(2.2rem, 6vw, 3.4rem)/1 var(--serif); letter-spacing: -.02em; } h1 em { color: var(--accent); } .lead { color: var(--muted); margin-top: 12px; font-size: 16px; max-width: 40ch; line-height: 1.5; }
+  .btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 34px; } .b { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-radius: 18px; border: 1.5px solid var(--line); background: #fff; color: var(--ink); font: 600 15px var(--sans); cursor: pointer; text-align: left; transition: transform .5s var(--ease), box-shadow .5s var(--ease), border-color .3s; } .b:hover { transform: translateY(-3px); box-shadow: 0 14px 28px -16px rgba(60,40,20,.35); border-color: var(--ink); } .b:active { transform: scale(.98); }
+  .b i { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; font-style: normal; font-size: 17px; flex: none; } .b small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; margin-top: 1px; } .b.wide { grid-column: span 2; background: var(--ink); color: #fff; border-color: var(--ink); } .b.wide small { color: #b7aea3; }
+  .tip { margin-top: 26px; font-size: 13px; color: var(--muted); display: flex; gap: 10px; align-items: center; } kbd { font: 600 11px var(--sans); padding: 3px 7px; border-radius: 6px; background: #fff; border: 1px solid var(--line); }
+  /* toasts */
+  .stack { position: fixed; right: 22px; bottom: 22px; width: min(370px, calc(100vw - 32px)); height: var(--h); z-index: 50; pointer-events: none; }
+  .stack:hover .t, .stack.hov .t { transform: translateY(calc(var(--i) * (var(--h) + 10px) * -1)) scale(1); opacity: 1 !important; }
+  .t { position: absolute; left: 0; right: 0; bottom: 0; height: var(--h); pointer-events: auto; border-radius: 20px; background: #fff; border: 1px solid var(--line); box-shadow: 0 20px 40px -18px rgba(60,40,20,.4), 0 2px 6px rgba(60,40,20,.06); padding: 14px 16px; display: flex; align-items: center; gap: 14px; overflow: hidden; touch-action: pan-y; user-select: none; cursor: grab;
+    transform: translateY(calc(var(--i) * -14px)) scale(calc(1 - var(--i) * .05)); transform-origin: bottom center; opacity: calc(1 - var(--i) * .22); transition: transform .6s var(--ease), opacity .4s, left .5s var(--ease); z-index: calc(100 - var(--i)); }
+  .t.in { animation: tin .7s var(--ease); } @keyframes tin { from { transform: translateY(60px) scale(.9); opacity: 0; } }
+  .t.out { opacity: 0 !important; transform: translateX(120%) !important; pointer-events: none; transition: transform .5s var(--ease), opacity .4s; }
+  .t.drag { transition: none; cursor: grabbing; }
+  .ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none; color: #fff; font-size: 18px; font-weight: 700; } .ic.ok { background: var(--ok); } .ic.bad { background: var(--bad); } .ic.info { background: var(--info); } .ic.load { background: #f1ede6; }
+  .sp { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid #d9d2c6; border-top-color: var(--ink); animation: s .7s linear infinite; } @keyframes s { to { transform: rotate(360deg); } }
+  .tx { flex: 1; min-width: 0; } .tx b { display: block; font-size: 14.5px; font-weight: 700; letter-spacing: -.01em; } .tx span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .act { border: 0; background: #f5f3ef; color: var(--ink); padding: 8px 13px; border-radius: 10px; font: 700 13px var(--sans); cursor: pointer; transition: .3s; } .act:hover { background: var(--ink); color: #fff; }
+  .x { border: 0; background: none; color: #a79e92; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; } .x:hover { color: var(--ink); }
+  .bar { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--c, var(--accent)); transform-origin: left; animation: bar var(--d, 4.5s) linear forwards; } .stack:hover .bar, .stack.hov .bar { animation-play-state: paused; } @keyframes bar { to { transform: scaleX(0); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Notifications that <em>behave.</em></h1><p class="lead">Fire a few, then hover the stack. Swipe one away. Hit Undo. Every toast pauses while you read it.</p>
+  <div class="btns">
+    <button class="b" data-k="ok"><i style="background:#e0f5ea">✅</i><div>Success<small>Plain confirmation</small></div></button>
+    <button class="b" data-k="bad"><i style="background:#fde5e3">⚠️</i><div>Error<small>Something went wrong</small></div></button>
+    <button class="b" data-k="info"><i style="background:#e3ebff">💬</i><div>Message<small>New activity</small></div></button>
+    <button class="b" data-k="undo"><i style="background:#fff0d9">🗂️</i><div>With undo<small>Archive an email</small></div></button>
+    <button class="b wide" data-k="promise"><i style="background:rgba(255,255,255,.12)">⏳</i><div>Promise toast<small>Loading → success (or fail)</small></div></button>
+  </div>
+  <p class="tip"><kbd>Hover</kbd> the stack to fan it out · <kbd>Drag</kbd> sideways to dismiss</p>
+</div>
+<div class="stack" id="stack"></div>
+<script>
+(() => {
+  const stack = document.getElementById('stack'); let list = [], uid = 0;
+  const COL = { ok: '#1f9d6b', bad: '#e0443a', info: '#3b6cf6', load: '#1d1a17' };
+  const layout = () => { list.forEach((t, i) => t.el.style.setProperty('--i', list.length - 1 - i)); };
+  function remove(t) { if (t.gone) return; t.gone = true; clearTimeout(t.timer); t.el.classList.add('out'); list = list.filter((x) => x !== t); layout(); setTimeout(() => t.el.remove(), 500); }
+  function arm(t, ms) { clearTimeout(t.timer); t.left = ms; t.start = Date.now(); t.timer = setTimeout(() => remove(t), ms); t.el.querySelector('.bar')?.style.setProperty('--d', ms + 'ms'); }
+  function toast({ type = 'info', title, text = '', action, duration = 4500, id }) {
+    const el = document.createElement('div'); el.className = 't in'; el.setAttribute('role', 'status');
+    const ico = { ok: '✓', bad: '!', info: '✦', load: '<span class="sp"></span>' }[type];
+    el.innerHTML = `<div class="ic ${type}">${ico}</div><div class="tx"><b></b><span></span></div>${action ? '<button class="act"></button>' : ''}<button class="x" aria-label="Dismiss">×</button><i class="bar" style="--c:${COL[type]}"></i>`;
+    el.querySelector('b').textContent = title; el.querySelector('.tx span').textContent = text;
+    const t = { el, id: id || ++uid }; if (action) { const b = el.querySelector('.act'); b.textContent = action.label; b.onclick = () => { action.run(); remove(t); }; }
+    el.querySelector('.x').onclick = () => remove(t);
+    list.push(t); if (list.length > 5) remove(list[0]); stack.appendChild(el); layout(); if (duration) arm(t, duration); else el.querySelector('.bar').remove();
+    /* pause on hover */
+    const pause = () => { if (!t.timer || !duration) return; clearTimeout(t.timer); t.left -= Date.now() - t.start; }, resume = () => { if (duration && !t.gone) { t.start = Date.now(); t.timer = setTimeout(() => remove(t), Math.max(600, t.left)); } };
+    stack.addEventListener('pointerenter', pause); stack.addEventListener('pointerleave', resume);
+    /* swipe */
+    let sx = 0, dx = 0, down = false;
+    el.addEventListener('pointerdown', (e) => { if (e.target.closest('button')) return; down = true; sx = e.clientX; el.classList.add('drag'); el.setPointerCapture(e.pointerId); });
+    el.addEventListener('pointermove', (e) => { if (!down) return; dx = e.clientX - sx; el.style.transform = `translateX(${dx}px) rotate(${dx * .02}deg)`; el.style.opacity = 1 - Math.min(1, Math.abs(dx) / 260); });
+    const up = () => { if (!down) return; down = false; el.classList.remove('drag'); if (Math.abs(dx) > 90) { el.style.transition = 'transform .4s var(--ease), opacity .3s'; el.style.transform = `translateX(${dx > 0 ? 130 : -130}%)`; el.style.opacity = 0; remove(t); } else { el.style.transform = ''; el.style.opacity = ''; } dx = 0; };
+    el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+    return t;
+  }
+  const act = {
+    ok: () => toast({ type: 'ok', title: 'Changes saved', text: 'Your profile is up to date.' }),
+    bad: () => toast({ type: 'bad', title: 'Couldn’t reach the server', text: 'Check your connection and try again.', action: { label: 'Retry', run: () => toast({ type: 'ok', title: 'Back online', text: 'Everything is syncing again.' }) } }),
+    info: () => { const n = ['Priya mentioned you in #launch', 'Jonas shared “Q3 roadmap”', 'Maya commented on your design'][Math.floor(Math.random() * 3)]; toast({ type: 'info', title: 'New message', text: n }); },
+    undo: () => toast({ type: 'ok', title: 'Conversation archived', text: '1 message moved to Archive.', duration: 6000, action: { label: 'Undo', run: () => toast({ type: 'info', title: 'Restored', text: 'The conversation is back in your inbox.' }) } }),
+    promise: () => { const t = toast({ type: 'load', title: 'Saving 14 changes…', text: 'Hang tight', duration: 0 }); setTimeout(() => { remove(t); Math.random() > .25 ? toast({ type: 'ok', title: 'All changes saved', text: '14 edits synced just now.' }) : toast({ type: 'bad', title: 'Save failed', text: 'We kept your edits locally.' }); }, 2200); },
+  };
+  document.querySelectorAll('.b').forEach((b) => b.onclick = () => act[b.dataset.k]());
+  setTimeout(act.ok, 500); setTimeout(act.info, 1000); setTimeout(act.undo, 1500);
+})();
+</script>
+</body>
+</html>

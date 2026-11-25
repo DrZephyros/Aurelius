@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mercury — liquid chrome 3D hero</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Mercury</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Pouring metal</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Mercury</a>
+    <ul><li><a href="#s1">Studio</a></li><li><a href="#s2">Work</a></li><li><a href="#s3">Process</a></li><li><a href="#s4">Numbers</a></li></ul>
+    <a class="cta" href="#s5">Let’s talk</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec mid" id="s1" data-sec>
+      <div class="copy wide">
+        <div class="eyebrow" data-reveal>Independent design studio</div>
+        <h1 class="h-xl" data-split>Fluid by <em>design.</em></h1>
+        <p class="lead" data-reveal style="--d:300ms">We shape brands and products that feel alive — responsive, tactile and impossible to ignore.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Start a project</a><a class="btn ghost" href="#s2">See our work</a></div>
+      </div>
+      <div class="marquee"><div><span>Branding</span><span>Websites</span><span>Motion</span><span>Product</span><span>Strategy</span><span>Branding</span><span>Websites</span><span>Motion</span><span>Product</span><span>Strategy</span></div></div>
+    </section>
+
+    <section class="sec end" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Work</div>
+        <h2 class="h-lg" data-split>Shapes that <em>respond.</em></h2>
+        <p class="lead" data-reveal>Move your cursor. The surface bends, the light follows, the whole scene breathes. Interaction is the brand.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Process</div>
+        <h2 class="h-lg" data-split>Molten first, <em>polished</em> later.</h2>
+        <p class="lead" data-reveal>We prototype in the browser from day one, so you feel the final product long before it ships.</p>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Numbers</div>
+        <h2 class="h-lg" data-split>Quietly <em>obsessive.</em></h2>
+        <div class="stats" data-reveal><div class="stat"><b>120+</b><span>Launches</span></div><div class="stat"><b>14</b><span>Awards</span></div><div class="stat"><b>9y</b><span>In motion</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy wide">
+        <div class="eyebrow" data-reveal>Now booking</div>
+        <h2 class="h-xl" data-split>Make it <em>flow.</em></h2>
+        <div class="row" data-reveal><a class="btn" href="#">hello@mercury.studio</a><a class="btn ghost" href="#">View showreel</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Mercury Studio</span><span>Fluid by design</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

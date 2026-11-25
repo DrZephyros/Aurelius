@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pelagic — deep ocean descent 3D scroll site</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Pelagic</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Equalising pressure</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Pelagic</a>
+    <ul><li><a href="#s1">Surface</a></li><li><a href="#s2">Twilight</a></li><li><a href="#s3">Midnight</a></li><li><a href="#s4">Abyss</a></li></ul>
+    <a class="cta" href="#s5">Dive in</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll to descend</div>
+  <div class="readout"><span>DEPTH <b id="depth">0000</b> M</span><span>PRESSURE <b id="pres">1.0</b> ATM</span></div>
+
+  <main id="top">
+    <section class="sec" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Ocean research collective</div>
+        <h1 class="h-xl" data-split>Dive deeper.</h1>
+        <p class="lead" data-reveal style="--d:300ms">Ninety percent of the ocean has never been seen. A scroll-driven descent from sunlit shallows to the floor of the deep.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Begin descent</a><a class="btn ghost" href="#s2">What lives below</a></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>200 m — Twilight zone</div>
+        <h2 class="h-lg" data-split>The light begins to leave.</h2>
+        <p class="lead" data-reveal>Colours disappear in order. Reds first, then oranges, until everything is the same deep blue.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>1,000 m — Midnight zone</div>
+        <h2 class="h-lg" data-split>Life makes its own light.</h2>
+        <p class="lead" data-reveal>Three quarters of deep-sea animals glow. Signals, lures and warnings, flashing in total darkness.</p>
+        <div class="stats" data-reveal><div class="stat"><b>76%</b><span>Bioluminescent</span></div><div class="stat"><b>110</b><span>atm pressure</span></div><div class="stat"><b>4°C</b><span>Water</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>4,000 m — The abyss</div>
+        <h2 class="h-lg" data-split>Silence, at scale.</h2>
+        <p class="lead" data-reveal>Here the pace is geological. Snow falls for weeks. Every creature is an event.</p>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Join the expedition</div>
+        <h2 class="h-xl" data-split>Go further down.</h2>
+        <div class="row" data-reveal><a class="btn" href="#">Support the mission</a><a class="btn ghost" href="#">Read the logbook</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Pelagic Collective</span><span>Protect what you can’t see</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

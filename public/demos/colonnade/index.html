@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gravitas — 3D website for law, finance &amp; consulting firms</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Gravitas</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Opening the hall</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Hargrove &amp; Stein</a>
+    <ul><li><a href="#s2">Firm</a></li><li><a href="#s3">Practice</a></li><li><a href="#s4">Results</a></li><li><a href="#s5">Contact</a></li></ul>
+    <a class="cta" href="#s5">Book a consultation</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Counsel &amp; advisory · Est. 1987</div>
+        <h1 class="h-xl" data-split>Counsel for what matters.</h1>
+        <p class="lead" data-reveal style="--d:300ms">Hargrove &amp; Stein advises founders, families and institutions on the decisions that define them — with judgement, discretion and a very long memory.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Book a consultation</a><a class="btn ghost" href="#s3">Our practice</a></div>
+      </div>
+    </section>
+
+    <section class="sec end tall" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — The firm</div>
+        <h2 class="h-lg" data-split>Built on judgement, not volume.</h2>
+        <p class="lead" data-reveal>We keep our team deliberately small. Every client works directly with a partner, and every partner answers the phone. Thirty-seven years on, most of our clients have never left.</p>
+        <ul class="ticks" data-reveal>
+          <li>Partner-led on every matter</li>
+          <li>Fixed-fee scoping before we begin</li>
+          <li>Strict confidentiality, always</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s3" data-sec>
+      <div class="wide">
+        <div class="eyebrow" data-reveal>02 — Practice areas</div>
+        <h2 class="h-lg" data-split>Three disciplines, one standard.</h2>
+        <div class="grid3" data-reveal style="margin:48px auto 0;text-align:left">
+          <div class="panel"><span class="num">I</span><h3>Corporate &amp; M&amp;A</h3><p>Formations, financings, acquisitions and exits — structured to protect value on both sides of the table.</p></div>
+          <div class="panel"><span class="num">II</span><h3>Disputes &amp; regulation</h3><p>Commercial litigation, arbitration and regulatory defence, resolved quietly wherever the facts allow.</p></div>
+          <div class="panel"><span class="num">III</span><h3>Private wealth</h3><p>Succession, trusts and family governance for people with more to protect than a will can hold.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Track record</div>
+        <h2 class="h-lg" data-split>Results that stand up.</h2>
+        <div class="stats" data-reveal>
+          <div class="stat"><b>$48bn</b><span>Transactions advised</span></div>
+          <div class="stat"><b>96%</b><span>Matters settled favourably</span></div>
+          <div class="stat"><b>37</b><span>Years in practice</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Confidential · No obligation</div>
+        <h2 class="h-xl" data-split>Speak with a partner.</h2>
+        <p class="lead" data-reveal>Tell us the outline of your situation. A partner will respond within one business day — and your enquiry never leaves the firm.</p>
+        <div class="row" data-reveal><a class="btn" href="mailto:counsel@hargrovestein.com">counsel@hargrovestein.com</a><a class="btn ghost" href="tel:+442070000000">+44 20 7000 0000</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Hargrove &amp; Stein LLP</span><span>Authorised &amp; regulated · 14 Chancery Lane</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

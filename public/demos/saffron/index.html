@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Saffron — 3D website for restaurants, cafés &amp; bars</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Saffron</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Lighting the candles</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Saffron</a>
+    <ul><li><a href="#s2">Story</a></li><li><a href="#s3">Menu</a></li><li><a href="#s4">Visit</a></li><li><a href="#s5">Reserve</a></li></ul>
+    <a class="cta" href="#s5">Reserve a table</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Wood-fired kitchen · Lisbon</div>
+        <h1 class="h-xl" data-split>Fire, salt &amp; patience.</h1>
+        <p class="lead" data-reveal style="--d:300ms">One long table, one open fire and a menu that follows the season. Come hungry, stay for hours.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Reserve a table</a><a class="btn ghost" href="#s3">See the menu</a></div>
+      </div>
+    </section>
+
+    <section class="sec end tall" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Our story</div>
+        <h2 class="h-lg" data-split>Cooked slowly, served together.</h2>
+        <p class="lead" data-reveal>Saffron began as a Sunday supper for friends. Today we still cook everything over oak and vine cuttings, buy from farms within an hour of the kitchen, and seat you at one shared table.</p>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s3" data-sec>
+      <div class="wide">
+        <div class="eyebrow" data-reveal>02 — The menu</div>
+        <h2 class="h-lg" data-split>Tonight, from the fire.</h2>
+        <div class="grid3" data-reveal style="margin:48px auto 0;text-align:left">
+          <div class="panel"><span class="num">To start</span><h3>Charred leeks, hazelnut, brown butter</h3><p>Smoked over vine cuttings, finished with sherry vinegar.</p><b class="price">€12</b></div>
+          <div class="panel"><span class="num">To share</span><h3>Whole turbot, saffron beurre blanc</h3><p>Grilled on the bone and carved at the table for two.</p><b class="price">€64</b></div>
+          <div class="panel"><span class="num">To finish</span><h3>Burnt honey tart, crème fraîche</h3><p>Baked in the embers, served warm with sea salt.</p><b class="price">€9</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Visit</div>
+        <h2 class="h-lg" data-split>Open Tuesday to Sunday.</h2>
+        <p class="lead" data-reveal>Dinner from 18:00, Sunday long lunch from 13:00. Walk-ins welcome at the bar; the long table is by reservation.</p>
+        <div class="stats" data-reveal>
+          <div class="stat"><b>18:00</b><span>First seating</span></div>
+          <div class="stat"><b>24</b><span>At the table</span></div>
+          <div class="stat"><b>6</b><span>Local farms</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Bookings open 30 days ahead</div>
+        <h2 class="h-xl" data-split>Save me a seat.</h2>
+        <p class="lead" data-reveal>Reserve online or call us between 12:00 and 22:00. Parties of eight or more: ask about the private room.</p>
+        <div class="row" data-reveal><a class="btn" href="#">Reserve a table</a><a class="btn ghost" href="tel:+351210000000">+351 21 000 0000</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Saffron Restaurant</span><span>Rua das Flores 24 · Lisbon</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

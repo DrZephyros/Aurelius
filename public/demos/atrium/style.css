@@ -1,0 +1,41 @@
+/* Atrium — theme: warm paper (light), editorial serif */
+:root {
+  --bg: #ece8e1;
+  --fg: #16140f;
+  --muted: rgba(22, 20, 15, 0.55);
+  --line: rgba(22, 20, 15, 0.16);
+  --accent: #ff4d2e;
+  --glass: rgba(255, 255, 255, 0.55);
+  --font-display: 'Playfair Display', Georgia, serif;
+}
+html, body { height: 100%; overflow: hidden; }
+body { cursor: grab; }
+body:active { cursor: grabbing; }
+.nav ul a:hover { background: rgba(0, 0, 0, 0.06); }
+.nav .cta:hover { background: var(--fg); color: var(--bg); }
+.btn { color: var(--bg); }
+.meta { position: fixed; top: 92px; z-index: 10; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); display: flex; gap: 28px; padding-inline: var(--pad); }
+.meta.left { left: 0; } .meta.right { right: 0; }
+.meta b { color: var(--fg); font-weight: 500; }
+.caption { position: fixed; left: var(--pad); bottom: 44px; z-index: 10; pointer-events: none; }
+.tag { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; transition: opacity 0.5s, transform 0.7s var(--ease); }
+.title { font: 400 clamp(2.4rem, 6.2vw, 6rem)/0.95 var(--font-display); letter-spacing: -0.03em; font-style: italic; transition: opacity 0.5s, transform 0.9s var(--ease), filter 0.6s; }
+.caption.swap .title { opacity: 0; transform: translateY(24px); filter: blur(10px); transition-duration: 0s; }
+.caption.swap .tag { opacity: 0; transform: translateY(10px); transition-duration: 0s; }
+.arrows { position: fixed; right: var(--pad); bottom: 48px; z-index: 10; display: flex; gap: 10px; }
+.arrows button { width: 54px; height: 54px; border-radius: 50%; border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(12px); font-size: 18px; color: var(--fg); cursor: pointer; transition: background 0.3s, color 0.3s, transform 0.5s var(--ease); }
+.arrows button:hover { background: var(--fg); color: var(--bg); transform: scale(1.06); }
+.hud { --c: rgba(0, 0, 0, 0.28); }
+#loader { color: var(--fg); }
+
+/* ── landing layer: the gallery is the hero, so give it a headline and a way to convert ── */
+.intro { position: fixed; left: var(--pad); top: 138px; z-index: 10; max-width: 380px; }
+.intro h1 { font: 400 clamp(1.7rem, 2.6vw, 2.5rem)/1.05 var(--font-display); letter-spacing: -0.02em; }
+.intro h1 em { color: var(--accent); }
+.intro p { margin-top: 14px; font-size: 14px; color: var(--muted); max-width: 34ch; }
+.intro .row { margin-top: 22px; }
+.intro .btn { padding: 13px 22px; }
+.proof { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 10; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); display: flex; gap: 14px; align-items: center; white-space: nowrap; }
+.proof i { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+@media (max-width: 760px) { .intro { top: 100px; max-width: 260px; } .intro p, .proof { display: none; } }
+html.embed .intro, html.embed .proof { display: none; }

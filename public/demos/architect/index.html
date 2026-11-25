@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plinth — 3D website for architects &amp; design studios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Plinth</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Drawing the plans</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Plinth Studio</a>
+    <ul><li><a href="#s2">Studio</a></li><li><a href="#s3">Details</a></li><li><a href="#s4">Awards</a></li><li><a href="#s5">Contact</a></li></ul>
+    <a class="cta" href="#s5">Start a project</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <div class="label" id="l1">Nine-metre cantilever</div>
+  <div class="label" id="l2">Board-formed concrete core</div>
+  <div class="label" id="l3">Passive-solar glazing</div>
+  <div class="phase mono"><span>Phase</span><b id="phase">Survey</b><i><u id="phase-bar"></u></i></div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Architecture &amp; interiors · Est. 2009</div>
+        <h1 class="h-xl" data-split>Buildings that belong.</h1>
+        <p class="lead" data-reveal style="--d:300ms">Plinth is an independent studio shaping homes, cultural spaces and workplaces that sit quietly in their landscape and last for generations.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s2">View the studio</a><a class="btn ghost" href="#s5">Commission us</a></div>
+      </div>
+    </section>
+
+    <section class="sec end tall" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Studio</div>
+        <h2 class="h-lg" data-split>Drawn first. <em>Built better.</em></h2>
+        <p class="lead" data-reveal>We begin on site, with a pencil. Light, wind, views and local material set the brief long before a single wall is drawn — then we stay through construction to protect the idea.</p>
+        <ul class="rows" data-reveal>
+          <li><span class="mono">01</span>Residential <em>Houses &amp; apartments</em></li>
+          <li><span class="mono">02</span>Cultural <em>Galleries &amp; libraries</em></li>
+          <li><span class="mono">03</span>Workplace <em>Offices &amp; studios</em></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Details</div>
+        <h2 class="h-lg" data-split>Every joint is a decision.</h2>
+        <p class="lead" data-reveal>Thin edges, honest materials, daylight that moves through the plan. We detail at full scale so the finished building looks effortless.</p>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Recognition</div>
+        <h2 class="h-lg" data-split>Fifteen years, forty-one buildings.</h2>
+        <div class="stats" data-reveal>
+          <div class="stat"><b>41</b><span>Completed</span></div>
+          <div class="stat"><b>17</b><span>Awards</span></div>
+          <div class="stat"><b>6</b><span>Countries</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>New commissions · Spring intake</div>
+        <h2 class="h-xl" data-split>Let's draw the first line.</h2>
+        <p class="lead" data-reveal>Tell us about the site, the budget and the feeling you want. We answer every enquiry personally.</p>
+        <div class="row" data-reveal><a class="btn" href="mailto:studio@plinth.design">studio@plinth.design</a><a class="btn ghost" href="#">Download portfolio (PDF)</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Plinth Studio Architects</span><span>RIBA chartered practice</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>404 — Page not found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root { --bg: #1b2cff; --fg: #fff; --accent: #d7ff5f; --ink: #0b1070; --display: 'Unbounded', 'Inter', system-ui, sans-serif; --sans: 'Inter', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; } body { background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; display: grid; place-items: center; position: relative;
+    background-image: radial-gradient(60% 50% at 50% 40%, rgba(255,255,255,.14), transparent 70%), radial-gradient(circle at 1px 1px, rgba(255,255,255,.15) 1px, transparent 1.4px); background-size: auto, 28px 28px; }
+  .shape { position: fixed; pointer-events: none; transition: transform .8s var(--ease); will-change: transform; } .s1 { width: 120px; height: 120px; border-radius: 50%; background: var(--accent); left: 8%; top: 14%; } .s2 { width: 90px; height: 90px; border: 6px solid #fff; border-radius: 24px; right: 10%; top: 18%; transform: rotate(18deg); } .s3 { width: 0; height: 0; border-left: 50px solid transparent; border-right: 50px solid transparent; border-bottom: 88px solid #ff6ad5; left: 14%; bottom: 14%; } .s4 { width: 180px; height: 18px; border-radius: 18px; background: #fff; right: 12%; bottom: 20%; opacity: .9; } .s5 { width: 56px; height: 56px; border-radius: 50%; border: 6px dashed var(--accent); left: 46%; top: 8%; }
+  .box { position: relative; z-index: 2; text-align: center; padding: 24px; width: min(720px, 100%); }
+  .label { font: 500 13px var(--mono); letter-spacing: .14em; text-transform: uppercase; display: inline-flex; gap: 10px; align-items: center; padding: 8px 16px; border-radius: 99px; background: rgba(0,0,0,.2); }
+  .label i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pl 1.4s infinite; } @keyframes pl { 50% { opacity: .2; } }
+  .num { display: flex; justify-content: center; align-items: center; gap: clamp(6px, 2vw, 18px); font: 900 clamp(7rem, 24vw, 15rem)/.9 var(--display); letter-spacing: -.06em; margin: 22px 0 10px; text-shadow: 0 10px 0 rgba(0,0,50,.25); }
+  .eye { position: relative; width: .74em; height: .74em; border-radius: 50%; background: #fff; display: grid; place-items: center; overflow: hidden; box-shadow: inset 0 -8px 0 rgba(0,0,60,.12), 0 14px 0 rgba(0,0,50,.25); cursor: pointer; transition: transform .5s var(--ease); flex: none; } .eye:hover { transform: scale(1.06) rotate(-4deg); }
+  .pupil { width: 34%; height: 34%; border-radius: 50%; background: var(--ink); position: relative; transition: transform .08s linear; } .pupil::after { content: ''; position: absolute; width: 28%; height: 28%; border-radius: 50%; background: #fff; left: 18%; top: 16%; }
+  .lid { position: absolute; inset: -2px; background: var(--accent); transform: translateY(-101%); }
+  .eye.blink .lid { animation: blink .22s ease-in-out; } @keyframes blink { 50% { transform: translateY(0); } }
+  .eye.ouch .lid { animation: ouch .9s var(--ease); } @keyframes ouch { 20%, 70% { transform: translateY(-38%); } }
+  .bubble { position: absolute; top: 4%; left: 50%; transform: translate(-50%, 10px) scale(.7); background: #fff; color: var(--ink); font: 700 15px var(--sans); padding: 10px 16px; border-radius: 16px; opacity: 0; transition: .5s var(--ease); pointer-events: none; white-space: nowrap; z-index: 4; } .bubble.on { opacity: 1; transform: translate(-50%, -26px) scale(1); }
+  h1 { font: 700 clamp(1.5rem, 3.4vw, 2.3rem)/1.1 var(--display); letter-spacing: -.04em; } .sub { margin: 14px auto 0; max-width: 46ch; color: rgba(255,255,255,.78); font-size: 17px; line-height: 1.5; }
+  .search { position: relative; margin: 32px auto 0; max-width: 480px; text-align: left; } .search svg { position: absolute; left: 20px; top: 19px; width: 20px; height: 20px; color: #7b83b8; z-index: 1; }
+  .search input { width: 100%; height: 58px; padding: 0 20px 0 52px; border-radius: 99px; border: 3px solid transparent; background: #fff; color: var(--ink); font: 600 16px var(--sans); outline: none; transition: .3s; box-shadow: 0 16px 0 -6px rgba(0,0,50,.25); } .search input:focus { border-color: var(--accent); }
+  .res { position: absolute; left: 12px; right: 12px; top: 66px; background: #fff; border-radius: 20px; padding: 8px; box-shadow: 0 30px 60px -20px rgba(0,0,40,.6); display: none; z-index: 5; } .res.on { display: block; animation: dn .4s var(--ease); } @keyframes dn { from { opacity: 0; transform: translateY(-8px); } }
+  .res a { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 13px; color: var(--ink); text-decoration: none; font-weight: 600; cursor: pointer; transition: background .2s; } .res a.sel, .res a:hover { background: #eef0ff; } .res a small { margin-left: auto; font: 500 12px var(--mono); color: #7b83b8; } .res a em { font-style: normal; font-size: 20px; } .res mark { background: var(--accent); color: var(--ink); border-radius: 3px; } .res p { padding: 14px; color: #7b83b8; font-size: 14px; }
+  .acts { display: flex; gap: 12px; justify-content: center; margin-top: 30px; flex-wrap: wrap; } .btn { height: 56px; padding: 0 30px; border-radius: 99px; border: 0; background: var(--accent); color: var(--ink); font: 700 16px var(--sans); cursor: pointer; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; transition: transform .5s var(--ease), box-shadow .5s var(--ease); box-shadow: 0 8px 0 rgba(0,0,50,.3); } .btn:hover { transform: translateY(-3px); box-shadow: 0 12px 0 rgba(0,0,50,.3); } .btn:active { transform: translateY(5px); box-shadow: 0 2px 0 rgba(0,0,50,.3); }
+  .btn.o { background: transparent; color: #fff; box-shadow: none; border: 2px solid rgba(255,255,255,.5); } .btn.o:hover { background: rgba(255,255,255,.12); box-shadow: none; }
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translate(-50%, 200%); background: #fff; color: var(--ink); padding: 14px 22px; border-radius: 16px; font-weight: 700; transition: transform .6s var(--ease); z-index: 9; } .toast.on { transform: translate(-50%, 0); }
+  @media (max-width: 640px) { .shape { opacity: .5; } .s4 { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .eye.blink .lid { animation: none; } }
+</style>
+</head>
+<body>
+<i class="shape s1" data-d="1.6"></i><i class="shape s2" data-d="-1.2"></i><i class="shape s3" data-d="1"></i><i class="shape s4" data-d="-2"></i><i class="shape s5" data-d="2.4"></i>
+<main class="box">
+  <span class="label"><i></i>Error 404 · /this-page-went-on-holiday</span>
+  <div class="num" aria-label="404"><span>4</span><div class="eye" id="eye" role="button" aria-label="Poke the eye"><div class="pupil" id="pupil"></div><div class="lid"></div><div class="bubble" id="bub">Ouch!</div></div><span>4</span></div>
+  <h1>We looked everywhere.</h1>
+  <p class="sub">This page has moved, vanished or never existed. Try the search, or let's get you somewhere real.</p>
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.500-3.500"/></svg>
+    <input id="q" placeholder="Search pages…" autocomplete="off" aria-label="Search pages" />
+    <div class="res" id="res" role="listbox"></div>
+  </div>
+  <div class="acts"><a class="btn" id="home" href="#">← Take me home</a><a class="btn o" id="back" href="#">Go back</a></div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const eye = $('#eye'), pupil = $('#pupil');
+  let mx = innerWidth / 2, my = innerHeight / 2;
+  const look = () => { const r = eye.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, a = Math.atan2(my - cy, mx - cx), d = Math.min(r.width * .24, Math.hypot(mx - cx, my - cy) / 6); pupil.style.transform = `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d}px)`; };
+  addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; look(); document.querySelectorAll('.shape').forEach((s) => { const k = +s.dataset.d, x = (mx / innerWidth - .5) * 30 * k, y = (my / innerHeight - .5) * 30 * k; s.style.transform = `translate(${x}px, ${y}px) rotate(${x * .6}deg)`; }); });
+  addEventListener('resize', look); look();
+  /* idle wandering so the eye is alive before the first mouse move */
+  let idle = 0; setInterval(() => { if (Date.now() - idle > 2500 && !matchMedia('(pointer: fine)').matches === false) { mx = innerWidth * (.2 + Math.random() * .6); my = innerHeight * (.2 + Math.random() * .6); look(); } }, 1600);
+  addEventListener('pointermove', () => idle = Date.now());
+  const blink = () => { eye.classList.remove('blink'); void eye.offsetWidth; eye.classList.add('blink'); setTimeout(blink, 1800 + Math.random() * 3200); }; setTimeout(blink, 1200);
+  let n = 0; eye.onclick = () => { n++; eye.classList.remove('ouch'); void eye.offsetWidth; eye.classList.add('ouch'); $('#bub').textContent = ['Ouch!', 'Hey!', 'Stop that!', 'Okay, okay…', 'Ow. Seriously.', 'I forgive you.'][(n - 1) % 6]; $('#bub').classList.add('on'); setTimeout(() => $('#bub').classList.remove('on'), 1000); };
+
+  const PAGES = [['🏠', 'Home', '/'], ['💳', 'Pricing', '/pricing'], ['📊', 'Dashboard', '/dashboard'], ['🔑', 'Sign in', '/sign-in'], ['✨', 'Create an account', '/sign-up'], ['⚙️', 'Settings', '/settings'], ['📚', 'Documentation', '/docs'], ['✉️', 'Contact support', '/contact'], ['📰', 'Blog', '/blog']];
+  const q = $('#q'), res = $('#res'); let sel = 0, list = [];
+  const toast = (m) => { $('#toast').textContent = m; $('#toast').classList.add('on'); setTimeout(() => $('#toast').classList.remove('on'), 1800); };
+  const go = (p) => { toast('Navigating to ' + p[1] + ' (demo)'); res.classList.remove('on'); q.value = ''; };
+  const hi = (t, v) => { const i = t.toLowerCase().indexOf(v); return i < 0 || !v ? t : t.slice(0, i) + '<mark>' + t.slice(i, i + v.length) + '</mark>' + t.slice(i + v.length); };
+  const render = () => { const v = q.value.trim().toLowerCase(); if (!v) { res.classList.remove('on'); return; } list = PAGES.filter((p) => p[1].toLowerCase().includes(v) || p[2].includes(v)); sel = 0; res.classList.add('on'); res.innerHTML = list.length ? list.map((p, i) => `<a class="${i === 0 ? 'sel' : ''}" data-i="${i}" role="option"><em>${p[0]}</em><span>${hi(p[1], v)}</span><small>${p[2]}</small></a>`).join('') : `<p>No pages named “${q.value}”. Maybe it's on holiday too.</p>`; res.querySelectorAll('a').forEach((a) => a.onclick = () => go(list[+a.dataset.i])); };
+  q.addEventListener('input', render);
+  q.addEventListener('keydown', (e) => { if (!list.length) return; if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length; res.querySelectorAll('a').forEach((a, i) => a.classList.toggle('sel', i === sel)); } if (e.key === 'Enter') go(list[sel]); if (e.key === 'Escape') res.classList.remove('on'); });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.search')) res.classList.remove('on'); });
+  $('#home').onclick = (e) => { e.preventDefault(); toast('Heading home (demo)'); }; $('#back').onclick = (e) => { e.preventDefault(); toast('Going back (demo)'); };
+})();
+</script>
+</body>
+</html>

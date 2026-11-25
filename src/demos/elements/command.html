@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Command menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root { --bg: #0a0d12; --fg: #eaf0f8; --muted: #7e8aa0; --line: rgba(255,255,255,.08); --panel: rgba(18,23,32,.88); --accent: #7cf5ff; --sans: 'Inter', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1); }
+  body.light { --bg: #eef2f7; --fg: #101826; --muted: #66738a; --line: rgba(0,0,0,.09); --panel: rgba(255,255,255,.9); --accent: #0a84a8; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; transition: background .5s, color .5s; overflow: hidden; }
+  .app { display: grid; grid-template-columns: 200px 1fr; height: 100vh; filter: none; transition: filter .5s var(--ease), transform .6s var(--ease); } body.open .app { filter: blur(3px) brightness(.7); transform: scale(.992); }
+  .sb { border-right: 1px solid var(--line); padding: 22px 16px; } .sb b { display: flex; gap: 10px; align-items: center; font-size: 15px; margin-bottom: 22px; } .sb b i { width: 22px; height: 22px; border-radius: 7px; background: var(--accent); } .sb div { height: 34px; border-radius: 10px; margin-bottom: 6px; background: var(--line); opacity: .5; } .sb div:nth-child(2) { opacity: 1; background: color-mix(in srgb, var(--accent) 18%, transparent); }
+  .main { padding: 34px; display: flex; flex-direction: column; gap: 18px; } .main h1 { font-size: 28px; letter-spacing: -.04em; } .main p { color: var(--muted); } .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; } .row div { height: 110px; border-radius: 18px; border: 1px solid var(--line); background: linear-gradient(180deg, var(--line), transparent); } .row div:first-child { background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 24%, transparent), transparent); }
+  .trigger { display: inline-flex; align-items: center; gap: 12px; align-self: flex-start; height: 46px; padding: 0 12px 0 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); font: 500 14px var(--sans); cursor: pointer; transition: .3s; } .trigger:hover { border-color: var(--accent); color: var(--fg); } kbd { font: 500 11px var(--mono); padding: 4px 7px; border-radius: 7px; border: 1px solid var(--line); background: var(--line); color: var(--muted); }
+  .ov { position: fixed; inset: 0; z-index: 10; display: none; align-items: flex-start; justify-content: center; padding-top: min(16vh, 120px); background: rgba(3,5,9,.45); } body.open .ov { display: flex; animation: fade .3s; } @keyframes fade { from { opacity: 0; } }
+  .pal { width: min(620px, calc(100% - 28px)); background: var(--panel); backdrop-filter: blur(30px) saturate(1.4); border: 1px solid var(--line); border-radius: 22px; box-shadow: 0 50px 100px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04) inset; overflow: hidden; animation: pop .45s var(--ease); } @keyframes pop { from { opacity: 0; transform: translateY(-16px) scale(.96); } }
+  .in { display: flex; align-items: center; gap: 14px; padding: 0 20px; height: 62px; border-bottom: 1px solid var(--line); } .in svg { width: 20px; height: 20px; color: var(--muted); flex: none; } .in input { flex: 1; background: none; border: 0; outline: 0; color: var(--fg); font: 500 17px var(--sans); }
+  .list { max-height: min(46vh, 380px); overflow-y: auto; padding: 8px; scroll-padding: 40px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; } .g { font: 500 11px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 12px 12px 6px; }
+  .it { display: flex; align-items: center; gap: 14px; padding: 11px 12px; border-radius: 13px; cursor: pointer; position: relative; } .it.sel { background: color-mix(in srgb, var(--accent) 14%, transparent); } .it.sel::before { content: ''; position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 3px; background: var(--accent); }
+  .it .ic { width: 34px; height: 34px; border-radius: 10px; background: var(--line); display: grid; place-items: center; font-size: 16px; flex: none; } .it .t { flex: 1; font-size: 15px; font-weight: 500; } .it .t mark { background: none; color: var(--accent); font-weight: 700; } .it .t small { display: block; color: var(--muted); font-size: 12.5px; font-weight: 400; margin-top: 1px; }
+  .it .k { display: flex; gap: 4px; } .empty { padding: 40px 20px; text-align: center; color: var(--muted); } .empty b { display: block; font-size: 30px; margin-bottom: 8px; }
+  .ft { display: flex; gap: 18px; align-items: center; padding: 12px 18px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); } .ft span { display: flex; gap: 6px; align-items: center; } .ft .r { margin-left: auto; }
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translate(-50%, 200%); z-index: 20; background: var(--fg); color: var(--bg); padding: 13px 20px; border-radius: 14px; font-weight: 600; font-size: 14.5px; transition: transform .6s var(--ease); box-shadow: 0 20px 40px -12px rgba(0,0,0,.5); display: flex; gap: 10px; } .toast.on { transform: translate(-50%, 0); }
+  @media (max-width: 640px) { .app { grid-template-columns: 1fr; } .sb { display: none; } }
+</style>
+</head>
+<body>
+<div class="app"><div class="sb"><b><i></i>Cadence</b><div></div><div></div><div></div><div></div></div>
+  <div class="main"><h1>Good evening, Sam.</h1><p>Everything you need is one shortcut away.</p>
+    <button class="trigger" id="open"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.500-3.500"/></svg>Search or run a command… <kbd id="kb">⌘ K</kbd></button>
+    <div class="row"><div></div><div></div><div></div></div><div class="row"><div></div><div></div><div></div></div></div></div>
+<div class="ov" id="ov"><div class="pal" role="dialog" aria-label="Command menu">
+  <div class="in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.500-3.500"/></svg><input id="q" placeholder="Type a command or search…" autocomplete="off" spellcheck="false" /><kbd>esc</kbd></div>
+  <div class="list" id="list" role="listbox"></div>
+  <div class="ft"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> select</span><span class="r">Cadence</span></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  $('#kb').textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘ K' : 'Ctrl K';
+  const A = [
+    ['Suggestions', '📝', 'Create new document', 'Start from a blank page', 'N'], ['Suggestions', '🔍', 'Search in workspace', 'Find files, people and messages', '/'], ['Suggestions', '✨', 'Ask Cadence AI', 'Get an answer in seconds', 'A'],
+    ['Navigation', '🏠', 'Go to Home', '', 'G H'], ['Navigation', '📊', 'Go to Analytics', '', 'G A'], ['Navigation', '👥', 'Go to Team', '', 'G T'], ['Navigation', '⚙️', 'Open Settings', '', ','],
+    ['Actions', '🌗', 'Toggle theme', 'Switch between dark and light', 'T'], ['Actions', '👋', 'Invite teammate', 'Send an invite link', 'I'], ['Actions', '⌨️', 'Keyboard shortcuts', '', '?'], ['Actions', '🚪', 'Sign out', '', ''],
+  ];
+  let sel = 0, shown = [];
+  const score = (q, t) => { q = q.toLowerCase(); t = t.toLowerCase(); let qi = 0, s = 0, last = -2; const hit = []; for (let i = 0; i < t.length && qi < q.length; i++) if (t[i] === q[qi]) { s += last === i - 1 ? 5 : 1; if (i === 0 || t[i - 1] === ' ') s += 4; hit.push(i); last = i; qi++; } return qi === q.length ? { s, hit } : null; };
+  const mark = (t, hit) => hit && hit.length ? [...t].map((c, i) => (hit.includes(i) ? `<mark>${c}</mark>` : c)).join('') : t;
+  function render() {
+    const q = $('#q').value.trim();
+    shown = A.map((a) => { const m = q ? score(q, a[2]) : { s: 0, hit: [] }; return m && { a, m }; }).filter(Boolean);
+    if (q) shown.sort((x, y) => y.m.s - x.m.s);
+    sel = 0; const list = $('#list');
+    if (!shown.length) { list.innerHTML = `<div class="empty"><b>🔭</b>No results for “${q.replace(/</g, '&lt;')}”</div>`; return; }
+    let html = '', g = '';
+    shown.forEach((x, i) => { const [grp, ic, t, d, k] = x.a; if (!q && grp !== g) { g = grp; html += `<div class="g">${grp}</div>`; } html += `<div class="it ${i ? '' : 'sel'}" data-i="${i}" role="option"><span class="ic">${ic}</span><span class="t">${mark(t, x.m.hit)}${d ? `<small>${d}</small>` : ''}</span><span class="k">${k ? k.split(' ').map((c) => `<kbd>${c}</kbd>`).join('') : ''}</span></div>`; });
+    if (q) html = '<div class="g">Results</div>' + html; list.innerHTML = html;
+    list.querySelectorAll('.it').forEach((el) => { el.onmouseenter = () => pick(+el.dataset.i, false); el.onclick = () => run(+el.dataset.i); });
+  }
+  function pick(i, scroll = true) { sel = (i + shown.length) % shown.length; document.querySelectorAll('.it').forEach((el, k) => el.classList.toggle('sel', k === sel)); if (scroll) document.querySelectorAll('.it')[sel].scrollIntoView({ block: 'nearest' }); }
+  let tt; const toast = (m) => { $('#toast').textContent = m; $('#toast').classList.add('on'); clearTimeout(tt); tt = setTimeout(() => $('#toast').classList.remove('on'), 1800); };
+  function run(i) { const a = shown[i].a; close(); if (a[2] === 'Toggle theme') { document.body.classList.toggle('light'); toast('Theme switched'); } else toast(a[1] + '  ' + a[2]); }
+  function open() { document.body.classList.add('open'); $('#q').value = ''; render(); setTimeout(() => $('#q').focus(), 20); }
+  function close() { document.body.classList.remove('open'); }
+  $('#open').onclick = open; $('#ov').addEventListener('pointerdown', (e) => { if (e.target.id === 'ov') close(); });
+  $('#q').addEventListener('input', render);
+  addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); document.body.classList.contains('open') ? close() : open(); return; }
+    if (!document.body.classList.contains('open')) return;
+    if (e.key === 'Escape') close(); else if (e.key === 'ArrowDown') { e.preventDefault(); pick(sel + 1); } else if (e.key === 'ArrowUp') { e.preventDefault(); pick(sel - 1); } else if (e.key === 'Enter' && shown.length) run(sel);
+  });
+  setTimeout(open, 400);
+})();
+</script>
+</body>
+</html>

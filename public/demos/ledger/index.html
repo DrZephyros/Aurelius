@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ledgerline — 3D website for fintech, crypto &amp; web3 products</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Ledgerline</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Syncing the chain</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Ledgerline</a>
+    <ul><li><a href="#s2">Protocol</a></li><li><a href="#s3">Security</a></li><li><a href="#s4">Network</a></li><li><a href="#s5">Build</a></li></ul>
+    <a class="cta" href="#s5">Launch app</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Settlement infrastructure · Mainnet live</div>
+        <h1 class="h-xl" data-split>Trust, <em>verified.</em></h1>
+        <p class="lead" data-reveal style="--d:300ms">A programmable settlement layer for payments, assets and apps — final in under half a second and auditable by anyone.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Launch app</a><a class="btn ghost" href="#s2">Read the docs</a></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Protocol</div>
+        <h2 class="h-lg" data-split>Every block, <em>a promise kept.</em></h2>
+        <p class="lead" data-reveal>Transactions are batched, hashed and chained together. Once a block is confirmed it can never be rewritten — not by us, not by anyone.</p>
+        <ul class="rows" data-reveal><li>Settlement <em>0.4s finality</em></li><li>Custody <em>Self-sovereign keys</em></li><li>Auditing <em>Public & real-time</em></li></ul>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Security</div>
+        <h2 class="h-lg" data-split>Audited. Then <em>audited again.</em></h2>
+        <p class="lead" data-reveal>Six independent audits, a standing bug bounty and formally verified core contracts. Security is the product, not a feature.</p>
+        <div class="stats" data-reveal><div class="stat"><b>6</b><span>Independent audits</span></div><div class="stat"><b>$5M</b><span>Bug bounty</span></div><div class="stat"><b>99.99%</b><span>Uptime</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Network</div>
+        <h2 class="h-lg" data-split>Built by <em>thousands.</em></h2>
+        <div class="stats" data-reveal><div class="stat"><b>48k</b><span>TPS capacity</span></div><div class="stat"><b>2,400</b><span>Validators</span></div><div class="stat"><b>190</b><span>Countries</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy wide">
+        <div class="eyebrow" data-reveal>Open source · MIT licensed</div>
+        <h2 class="h-xl" data-split>Start <em>building.</em></h2>
+        <div class="row" data-reveal><a class="btn" href="#">npm create ledgerline</a><a class="btn ghost" href="#">View on GitHub</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Ledgerline Labs</span><span>Trust, verified</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

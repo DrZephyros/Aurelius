@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pricing — Orbit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root {
+    --bg: #07090f; --fg: #eef0f6; --muted: #8b91a5; --line: rgba(255,255,255,.09); --card: #0d1018;
+    --accent: #7b93ff; --accent-2: #b48cff; --ok: #67e3a4;
+    --sans: 'Geist', 'Inter', system-ui, sans-serif; --mono: 'Geist Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; min-height: 100vh; overflow-x: hidden;
+    background-image: radial-gradient(50% 40% at 50% -5%, rgba(123,147,255,.22), transparent 70%), radial-gradient(30% 30% at 90% 30%, rgba(180,140,255,.1), transparent 70%); }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 64px 64px; mask-image: radial-gradient(60% 50% at 50% 0%, #000, transparent 75%); -webkit-mask-image: radial-gradient(60% 50% at 50% 0%, #000, transparent 75%); pointer-events: none; }
+  .wrap { position: relative; max-width: 1120px; margin: 0 auto; padding: 72px 24px 90px; }
+  .head { text-align: center; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 99px; border: 1px solid var(--line); background: rgba(255,255,255,.04); font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  h1 { font-size: clamp(2.6rem, 6vw, 4.8rem); font-weight: 700; letter-spacing: -.05em; line-height: 1; margin-top: 22px; }
+  h1 span { background: linear-gradient(100deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { color: var(--muted); max-width: 520px; margin: 18px auto 0; font-size: 17px; line-height: 1.5; }
+  .toggle { display: inline-flex; align-items: center; gap: 4px; margin-top: 34px; padding: 5px; border-radius: 99px; border: 1px solid var(--line); background: rgba(255,255,255,.04); position: relative; }
+  .toggle button { position: relative; z-index: 1; border: 0; background: none; color: var(--muted); font: 500 14px var(--sans); padding: 10px 22px; border-radius: 99px; cursor: pointer; transition: color .3s; display: flex; align-items: center; gap: 8px; }
+  .toggle button.on { color: #0a0c14; } .toggle .thumb { position: absolute; top: 5px; bottom: 5px; border-radius: 99px; background: #fff; transition: .6s var(--ease); }
+  .save { font: 600 11px var(--mono); padding: 3px 8px; border-radius: 99px; background: rgba(103,227,164,.16); color: var(--ok); } .toggle button.on .save { background: #d9f7e8; color: #0d7c4a; }
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 56px; align-items: stretch; }
+  .plan { position: relative; padding: 32px; border-radius: 28px; background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012)); border: 1px solid var(--line); display: flex; flex-direction: column; overflow: hidden; isolation: isolate; transition: transform .7s var(--ease), border-color .4s; }
+  .plan::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(123,147,255,.18), transparent 60%); opacity: 0; transition: opacity .4s; }
+  .plan:hover { transform: translateY(-6px); border-color: rgba(255,255,255,.2); } .plan:hover::before { opacity: 1; }
+  .plan.hot { background: linear-gradient(180deg, rgba(123,147,255,.16), rgba(123,147,255,.03)); border-color: rgba(123,147,255,.5); box-shadow: 0 40px 100px -40px rgba(123,147,255,.55); }
+  .tag { position: absolute; top: 20px; right: 20px; font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 5px 10px; border-radius: 99px; background: linear-gradient(100deg, var(--accent), var(--accent-2)); color: #0a0c14; }
+  .plan h3 { font-size: 18px; font-weight: 600; } .plan .d { color: var(--muted); font-size: 14px; margin-top: 6px; min-height: 42px; line-height: 1.5; }
+  .price { display: flex; align-items: baseline; gap: 6px; margin: 26px 0 4px; }
+  .price b { font-size: 60px; font-weight: 700; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; } .price sup { font-size: 24px; color: var(--muted); font-weight: 600; align-self: flex-start; margin-top: 8px; } .price span { color: var(--muted); font-size: 14px; }
+  .bill { color: var(--muted); font: 400 12.5px var(--mono); min-height: 18px; }
+  .seats { margin: 20px 0 4px; } .seats div { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 10px; } .seats b { color: var(--fg); font-family: var(--mono); }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 6px; outline: none; background: linear-gradient(90deg, var(--accent) var(--v, 10%), rgba(255,255,255,.12) var(--v, 10%)); cursor: pointer; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 5px rgba(123,147,255,.3), 0 4px 10px rgba(0,0,0,.4); transition: transform .3s var(--ease); }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); } input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border: 0; border-radius: 50%; background: #fff; }
+  .cta { margin: 24px 0; height: 50px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.06); color: var(--fg); font: 600 15px var(--sans); cursor: pointer; transition: .5s var(--ease); } .cta:hover { background: rgba(255,255,255,.12); transform: translateY(-2px); }
+  .hot .cta { background: linear-gradient(100deg, var(--accent), var(--accent-2)); border: 0; color: #0a0c14; } .hot .cta:hover { box-shadow: 0 16px 40px -12px var(--accent); }
+  .cta.done { background: var(--ok); color: #05190f; border: 0; }
+  ul { list-style: none; display: grid; gap: 13px; font-size: 14.5px; margin-top: auto; } li { display: flex; gap: 12px; align-items: flex-start; color: #c9cde0; line-height: 1.4; }
+  li svg { flex: none; width: 18px; height: 18px; margin-top: 1px; color: var(--accent); }
+  .compare { text-align: center; margin-top: 44px; } .compare button { border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--fg); padding: 13px 22px; border-radius: 99px; font: 500 14px var(--sans); cursor: pointer; transition: .4s; } .compare button:hover { background: rgba(255,255,255,.1); }
+  .compare svg { width: 14px; height: 14px; margin-left: 8px; vertical-align: -2px; transition: transform .5s var(--ease); } .compare.open svg { transform: rotate(180deg); }
+  .table { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .8s var(--ease); } .table.open { grid-template-rows: 1fr; } .table > div { overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; margin-top: 28px; font-size: 14.5px; } th, td { padding: 16px 12px; text-align: center; border-bottom: 1px solid var(--line); } th { font: 600 14px var(--sans); color: var(--fg); } td:first-child, th:first-child { text-align: left; color: #c9cde0; }
+  td.g { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); padding-top: 28px; text-align: left; } .y { color: var(--ok); } .n { color: #4a4f63; } td.h { background: rgba(123,147,255,.05); }
+  .faq { max-width: 720px; margin: 90px auto 0; } .faq h2 { font-size: 32px; letter-spacing: -.04em; text-align: center; margin-bottom: 28px; }
+  details { border-bottom: 1px solid var(--line); } summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 4px; cursor: pointer; font-size: 17px; font-weight: 500; } summary::-webkit-details-marker { display: none; }
+  summary i { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-style: normal; color: var(--muted); transition: .5s var(--ease); flex: none; } details[open] summary i { transform: rotate(45deg); background: var(--accent); color: #0a0c14; border-color: var(--accent); }
+  details p { color: var(--muted); padding: 0 4px 24px; line-height: 1.6; max-width: 60ch; animation: dn .5s var(--ease); } @keyframes dn { from { opacity: 0; transform: translateY(-8px); } }
+  .logos { margin-top: 80px; text-align: center; color: #555b70; } .logos p { font: 500 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; } .logos div { display: flex; flex-wrap: wrap; gap: 14px 46px; justify-content: center; margin-top: 22px; font: 700 22px var(--sans); letter-spacing: -.04em; opacity: .7; }
+  @media (max-width: 880px) { .plans { grid-template-columns: 1fr; max-width: 460px; margin-inline: auto; } .table table { font-size: 12.5px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <span class="pill"><i></i>Pricing</span>
+    <h1>Simple pricing that <span>scales with you.</span></h1>
+    <p class="lead">Start free, upgrade when your team is ready. No sales calls, no hidden fees, cancel in two clicks.</p>
+    <div class="toggle" id="toggle" role="tablist"><i class="thumb"></i><button class="on" data-b="m" role="tab">Monthly</button><button data-b="y" role="tab">Yearly <span class="save">−20%</span></button></div>
+  </div>
+
+  <div class="plans">
+    <article class="plan">
+      <h3>Starter</h3><p class="d">For side projects and curious individuals.</p>
+      <div class="price"><sup>$</sup><b data-p="0">0</b><span>/month</span></div><div class="bill">Free forever</div>
+      <button class="cta">Get started</button>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>3 active projects</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>1,000 events / month</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>Community support</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>7-day history</li></ul>
+    </article>
+    <article class="plan hot">
+      <span class="tag">Most popular</span>
+      <h3>Pro</h3><p class="d">For professionals who ship every week.</p>
+      <div class="price"><sup>$</sup><b data-p="19">19</b><span>/month</span></div><div class="bill" id="proBill">Billed monthly</div>
+      <button class="cta">Start 14-day trial</button>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>Unlimited projects</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>1M events / month</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>Custom domains &amp; branding</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>Priority email support</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>1-year history &amp; exports</li></ul>
+    </article>
+    <article class="plan">
+      <h3>Team</h3><p class="d">For companies that need control and collaboration.</p>
+      <div class="price"><sup>$</sup><b data-p="60" id="teamPrice">60</b><span>/month</span></div><div class="bill" id="teamBill">5 seats × $12</div>
+      <div class="seats"><div><span>Seats</span><b id="seatN">5</b></div><input type="range" id="seats" min="2" max="50" value="5" aria-label="Number of seats" /></div>
+      <button class="cta">Talk to us</button>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>Everything in Pro</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>SSO &amp; audit log</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>Roles &amp; permissions</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"/></svg>99.9% uptime SLA</li></ul>
+    </article>
+  </div>
+
+  <div class="compare" id="cmp"><button id="cmpBtn" type="button">Compare all features<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button></div>
+  <div class="table" id="tbl"><div>
+    <table>
+      <thead><tr><th></th><th>Starter</th><th>Pro</th><th>Team</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div></div>
+
+  <div class="faq">
+    <h2>Questions, answered</h2>
+    <details><summary>Can I change plans later?<i>+</i></summary><p>Any time. Upgrades apply immediately and we prorate the difference; downgrades take effect at the end of your billing period.</p></details>
+    <details><summary>What happens when I hit my event limit?<i>+</i></summary><p>Nothing breaks. We keep collecting for 7 days, email you twice, and only then pause ingestion. You never lose data silently.</p></details>
+    <details><summary>Do you offer discounts for nonprofits or students?<i>+</i></summary><p>Yes — 50% off Pro for verified nonprofits, students and open-source maintainers. Just reply to any email from us.</p></details>
+    <details><summary>Is there a free trial for Team?<i>+</i></summary><p>Every paid plan starts with 14 days free. No card required, and we'll remind you before it ends.</p></details>
+  </div>
+  <div class="logos"><p>Trusted by teams at</p><div><span>Northwind</span><span>Fieldnote</span><span>Tidal</span><span>Parcel</span><span>Kiln</span></div></div>
+</div>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  let yearly = false;
+  const tick = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.500l4.500 4.500L19 7.500"/></svg>';
+  const cross = '<span style="font-size:18px">—</span>';
+  const rows = [['Usage'], ['Projects', '3', 'Unlimited', 'Unlimited'], ['Events / month', '1K', '1M', '10M+'], ['History', '7 days', '1 year', 'Unlimited'], ['Collaboration'], ['Team members', '1', '3', 'Unlimited'], ['Roles & permissions', 0, 0, 1], ['SSO & audit log', 0, 0, 1], ['Support'], ['Email support', 0, 1, 1], ['Priority response', 0, 1, 1], ['99.9% uptime SLA', 0, 0, 1]];
+  $('#tb').innerHTML = rows.map((r) => r.length === 1 ? `<tr><td class="g" colspan="4">${r[0]}</td></tr>` : `<tr><td>${r[0]}</td>${[1, 2, 3].map((i) => `<td class="${i === 2 ? 'h' : ''}">${r[i] === 1 ? '<span class="y">' + tick + '</span>' : r[i] === 0 ? '<span class="n">' + cross + '</span>' : r[i]}</td>`).join('')}</tr>`).join('');
+
+  /* rolling numbers */
+  const roll = (el, to) => {
+    const from = +el.dataset.cur || 0; el.dataset.cur = to; const t0 = performance.now(), dur = 700;
+    cancelAnimationFrame(el._r);
+    const f = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 4); el.textContent = Math.round(from + (to - from) * e); if (k < 1) el._r = requestAnimationFrame(f); };
+    el._r = requestAnimationFrame(f);
+  };
+  const seatsEl = $('#seats');
+  const seatPrice = () => (yearly ? 12 * .8 : 12);
+  const render = () => {
+    roll($('[data-p="19"]'), Math.round(yearly ? 19 * .8 : 19));
+    const n = +seatsEl.value, p = seatPrice();
+    roll($('#teamPrice'), Math.round(n * p));
+    $('#seatN').textContent = n; $('#teamBill').textContent = `${n} seats × $${p.toFixed(p % 1 ? 2 : 0)}${yearly ? ' · billed yearly' : ''}`;
+    $('#proBill').textContent = yearly ? 'Billed $182 yearly · save $46' : 'Billed monthly';
+    seatsEl.style.setProperty('--v', ((n - 2) / 48) * 100 + '%');
+  };
+  const thumb = $('.thumb'), btns = $$('#toggle button');
+  const place = () => { const on = $('#toggle .on'); thumb.style.left = on.offsetLeft + 'px'; thumb.style.width = on.offsetWidth + 'px'; };
+  btns.forEach((b) => b.onclick = () => { btns.forEach((x) => x.classList.toggle('on', x === b)); yearly = b.dataset.b === 'y'; place(); render(); });
+  seatsEl.addEventListener('input', render);
+  document.fonts && document.fonts.ready.then(place); place(); addEventListener('resize', place);
+  $$('[data-p]').forEach((e) => e.dataset.cur = e.dataset.p); render();
+  $$('.plan').forEach((p) => p.addEventListener('pointermove', (e) => { const r = p.getBoundingClientRect(); p.style.setProperty('--mx', e.clientX - r.left + 'px'); p.style.setProperty('--my', e.clientY - r.top + 'px'); }));
+  $('#cmpBtn').onclick = () => { $('#tbl').classList.toggle('open'); $('#cmp').classList.toggle('open'); if ($('#tbl').classList.contains('open')) setTimeout(() => $('#tbl').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); };
+  $$('.cta').forEach((c) => c.addEventListener('click', () => { const t = c.textContent; c.textContent = '✓ Great choice'; c.classList.add('done'); setTimeout(() => { c.textContent = t; c.classList.remove('done'); }, 1800); }));
+})();
+</script>
+</body>
+</html>
