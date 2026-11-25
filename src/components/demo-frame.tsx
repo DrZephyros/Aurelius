@@ -1,18 +1,14 @@
+"use client";
+
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "@/lib/router";
-import { demoSource, downloadDemo, type Demo } from "@/lib/collections";
-import { PREVIEW_BRIDGE } from "@/lib/demo";
+import { downloadDemo, kitUrl, type Demo } from "@/lib/collections";
 import { ScrubSurface } from "./scrub";
 
 const W = 1280;
 const H = 800;
 
 /** Lazy, scaled, non-interactive thumbnail of a real demo page. Only renders while on screen. */
-const withBridge = (html: string) => {
-  const tag = `<script>${PREVIEW_BRIDGE}</script>`;
-  return /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (m) => m + tag) : tag + html;
-};
-
 export function DemoThumb({ demo, ratio = "aspect-[16/10]", frameRef, onFrameLoad }: { demo: Demo; ratio?: string; frameRef?: import("react").RefObject<HTMLIFrameElement | null>; onFrameLoad?: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [live, setLive] = useState(false);
@@ -42,7 +38,7 @@ export function DemoThumb({ demo, ratio = "aspect-[16/10]", frameRef, onFrameLoa
       {live && (
         <iframe
           ref={frameRef}
-          srcDoc={withBridge(demoSource(demo.kind, demo.slug))}
+          src={kitUrl(demo, "embed=card")}
           title={`${demo.name} preview`}
           tabIndex={-1}
           loading="lazy"

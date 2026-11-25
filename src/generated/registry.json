@@ -1,0 +1,991 @@
+{
+ "categories": [
+  {
+   "slug": "text-effects",
+   "name": "Text effects",
+   "icon": "Aa",
+   "blurb": "Import one onto any heading or paragraph — scramble, shimmer, split-reveal, rotating words, typewriter, scroll-lit, marker highlight, glitch, count-up."
+  },
+  {
+   "slug": "backgrounds",
+   "name": "Backgrounds",
+   "icon": "◐",
+   "blurb": "Aurora, interactive gradients, dot grids, constellations, meteors and spotlight grids — drop behind any hero or section."
+  },
+  {
+   "slug": "buttons-cards",
+   "name": "Buttons & cards",
+   "icon": "▣",
+   "blurb": "Magnetic and shimmering buttons; spotlight, tilt, glow-border and flip cards that react to the pointer."
+  },
+  {
+   "slug": "navigation",
+   "name": "Navigation",
+   "icon": "☰",
+   "blurb": "A floating dock, sliding tabs, a navbar that hides on scroll, a progress bar and a scroll-spy table of contents."
+  },
+  {
+   "slug": "scroll-motion",
+   "name": "Scroll & motion",
+   "icon": "↕",
+   "blurb": "Reveal-on-scroll, marquees, parallax, a custom cursor, pinned horizontal scroll and stacking cards."
+  },
+  {
+   "slug": "sections",
+   "name": "Landing sections",
+   "icon": "▤",
+   "blurb": "The blocks every landing page needs: hero, bento grid, pricing, FAQ, testimonials, logos, stats, timeline and CTA."
+  },
+  {
+   "slug": "forms",
+   "name": "Forms",
+   "icon": "✎",
+   "blurb": "Floating-label inputs, OTP entry, a password meter and a waitlist form with a ready-made API route."
+  },
+  {
+   "slug": "overlays",
+   "name": "Overlays & feedback",
+   "icon": "◫",
+   "blurb": "Accessible modal / drawer / sheet, toasts, tooltips, a cookie banner and a command palette."
+  },
+  {
+   "slug": "data",
+   "name": "Data & charts",
+   "icon": "▥",
+   "blurb": "Dependency-free sparklines, animated bar charts, radial progress and KPI cards for dashboards."
+  },
+  {
+   "slug": "utilities",
+   "name": "Utilities",
+   "icon": "⚙",
+   "blurb": "Theme toggle with no flash, copy button, scroll-to-top, skeleton loaders and confetti."
+  }
+ ],
+ "items": [
+  {
+   "category": "backgrounds",
+   "slug": "aurora-background",
+   "name": "Aurora background",
+   "tagline": "Slow-drifting aurora light behind any section",
+   "tags": [
+    "hero",
+    "gradient",
+    "ambient",
+    "css-only"
+   ],
+   "deps": [],
+   "file": "aurora-background.tsx",
+   "lines": 47,
+   "order": 1
+  },
+  {
+   "category": "navigation",
+   "slug": "floating-dock",
+   "name": "Floating dock",
+   "tagline": "A macOS-style dock whose icons magnify as you glide across",
+   "tags": [
+    "nav",
+    "mac",
+    "icons",
+    "portfolio"
+   ],
+   "deps": [],
+   "file": "floating-dock.tsx",
+   "lines": 50,
+   "order": 1
+  },
+  {
+   "category": "forms",
+   "slug": "floating-label-input",
+   "name": "Floating label input",
+   "tagline": "A text field with a floating label, focus ring, hint and error state",
+   "tags": [
+    "form",
+    "input",
+    "accessible",
+    "validation"
+   ],
+   "deps": [],
+   "file": "floating-label-input.tsx",
+   "lines": 38,
+   "order": 1
+  },
+  {
+   "category": "sections",
+   "slug": "hero-centered",
+   "name": "Hero (centred)",
+   "tagline": "A finished landing hero: badge, headline, subcopy, CTAs and a glowing grid backdrop",
+   "tags": [
+    "hero",
+    "landing",
+    "saas",
+    "above-the-fold"
+   ],
+   "deps": [],
+   "file": "hero-centered.tsx",
+   "lines": 46,
+   "order": 1
+  },
+  {
+   "category": "buttons-cards",
+   "slug": "magnetic-button",
+   "name": "Magnetic button",
+   "tagline": "A button that leans toward the cursor with a parallax label",
+   "tags": [
+    "cta",
+    "hover",
+    "pointer"
+   ],
+   "deps": [],
+   "file": "magnetic-button.tsx",
+   "lines": 46,
+   "order": 1
+  },
+  {
+   "category": "overlays",
+   "slug": "modal",
+   "name": "Modal / drawer / sheet",
+   "tagline": "One accessible overlay: centred dialog, right-hand drawer or bottom sheet",
+   "tags": [
+    "dialog",
+    "drawer",
+    "sheet",
+    "accessible"
+   ],
+   "deps": [],
+   "file": "modal.tsx",
+   "lines": 81,
+   "order": 1
+  },
+  {
+   "category": "scroll-motion",
+   "slug": "reveal",
+   "name": "Reveal",
+   "tagline": "Fade, slide, scale or blur anything in as it scrolls into view",
+   "tags": [
+    "scroll",
+    "entrance",
+    "wrapper",
+    "essential"
+   ],
+   "deps": [],
+   "file": "reveal.tsx",
+   "lines": 49,
+   "order": 1
+  },
+  {
+   "category": "text-effects",
+   "slug": "scramble-text",
+   "name": "Scramble text",
+   "tagline": "Text that decodes from random characters, left to right",
+   "tags": [
+    "heading",
+    "hover",
+    "hacker",
+    "stats"
+   ],
+   "deps": [],
+   "file": "scramble-text.tsx",
+   "lines": 57,
+   "order": 1
+  },
+  {
+   "category": "data",
+   "slug": "sparkline",
+   "name": "Sparkline",
+   "tagline": "A tiny smooth trend line that draws itself in",
+   "tags": [
+    "chart",
+    "kpi",
+    "dashboard",
+    "svg"
+   ],
+   "deps": [],
+   "file": "sparkline.tsx",
+   "lines": 50,
+   "order": 1
+  },
+  {
+   "category": "utilities",
+   "slug": "theme-toggle",
+   "name": "Theme toggle",
+   "tagline": "A sun/moon dark-mode switch that persists and never flashes",
+   "tags": [
+    "dark-mode",
+    "theme",
+    "header"
+   ],
+   "deps": [],
+   "file": "theme-toggle.tsx",
+   "lines": 47,
+   "order": 1
+  },
+  {
+   "category": "data",
+   "slug": "bar-chart",
+   "name": "Bar chart",
+   "tagline": "An animated bar chart with hover values, no chart library needed",
+   "tags": [
+    "chart",
+    "dashboard",
+    "analytics"
+   ],
+   "deps": [],
+   "file": "bar-chart.tsx",
+   "lines": 45,
+   "order": 2
+  },
+  {
+   "category": "sections",
+   "slug": "bento-grid",
+   "name": "Bento grid",
+   "tagline": "An asymmetric feature grid with cursor-lit tiles",
+   "tags": [
+    "features",
+    "landing",
+    "grid",
+    "apple-style"
+   ],
+   "deps": [],
+   "file": "bento-grid.tsx",
+   "lines": 54,
+   "order": 2
+  },
+  {
+   "category": "utilities",
+   "slug": "copy-button",
+   "name": "Copy button",
+   "tagline": "Copy-to-clipboard with an animated check and a fallback for insecure contexts",
+   "tags": [
+    "code",
+    "docs",
+    "clipboard"
+   ],
+   "deps": [],
+   "file": "copy-button.tsx",
+   "lines": 46,
+   "order": 2
+  },
+  {
+   "category": "backgrounds",
+   "slug": "gradient-mesh",
+   "name": "Gradient mesh",
+   "tagline": "Colour blobs that glide toward the pointer, with film grain",
+   "tags": [
+    "hero",
+    "interactive",
+    "gradient",
+    "pointer"
+   ],
+   "deps": [],
+   "file": "gradient-mesh.tsx",
+   "lines": 57,
+   "order": 2
+  },
+  {
+   "category": "scroll-motion",
+   "slug": "marquee",
+   "name": "Marquee",
+   "tagline": "A seamless infinite scroller for logos, tags or text — horizontal or vertical",
+   "tags": [
+    "logos",
+    "loop",
+    "ticker",
+    "essential"
+   ],
+   "deps": [],
+   "file": "marquee.tsx",
+   "lines": 43,
+   "order": 2
+  },
+  {
+   "category": "forms",
+   "slug": "otp-input",
+   "name": "OTP input",
+   "tagline": "One-time-code boxes with auto-advance, paste and SMS autofill",
+   "tags": [
+    "auth",
+    "2fa",
+    "verification",
+    "accessible"
+   ],
+   "deps": [],
+   "file": "otp-input.tsx",
+   "lines": 70,
+   "order": 2
+  },
+  {
+   "category": "buttons-cards",
+   "slug": "shimmer-button",
+   "name": "Shimmer button",
+   "tagline": "A pill CTA with a light beam circling its border",
+   "tags": [
+    "cta",
+    "hero",
+    "animated-border"
+   ],
+   "deps": [],
+   "file": "shimmer-button.tsx",
+   "lines": 37,
+   "order": 2
+  },
+  {
+   "category": "text-effects",
+   "slug": "shimmer-text",
+   "name": "Shimmer text",
+   "tagline": "A light sweep or a flowing colour gradient across any text",
+   "tags": [
+    "gradient",
+    "loading",
+    "heading",
+    "ai"
+   ],
+   "deps": [],
+   "file": "shimmer-text.tsx",
+   "lines": 47,
+   "order": 2
+  },
+  {
+   "category": "navigation",
+   "slug": "sliding-tabs",
+   "name": "Sliding tabs",
+   "tagline": "A tab bar whose active pill glides between options",
+   "tags": [
+    "tabs",
+    "nav",
+    "dashboard",
+    "accessible"
+   ],
+   "deps": [],
+   "file": "sliding-tabs.tsx",
+   "lines": 61,
+   "order": 2
+  },
+  {
+   "category": "overlays",
+   "slug": "toast",
+   "name": "Toasts",
+   "tagline": "A toast system: provider + useToast() hook, with progress bar and pause on hover",
+   "tags": [
+    "notifications",
+    "feedback",
+    "hook"
+   ],
+   "deps": [],
+   "file": "toast.tsx",
+   "lines": 58,
+   "order": 2
+  },
+  {
+   "category": "backgrounds",
+   "slug": "dot-grid",
+   "name": "Dot grid",
+   "tagline": "A canvas dot grid that swells, glows and springs around your cursor",
+   "tags": [
+    "hero",
+    "interactive",
+    "canvas",
+    "pointer"
+   ],
+   "deps": [],
+   "file": "dot-grid.tsx",
+   "lines": 80,
+   "order": 3
+  },
+  {
+   "category": "scroll-motion",
+   "slug": "parallax",
+   "name": "Parallax",
+   "tagline": "Layers that move at different speeds from the page scroll",
+   "tags": [
+    "depth",
+    "hero",
+    "scroll",
+    "images"
+   ],
+   "deps": [],
+   "file": "parallax.tsx",
+   "lines": 37,
+   "order": 3
+  },
+  {
+   "category": "forms",
+   "slug": "password-field",
+   "name": "Password field",
+   "tagline": "Password input with show/hide, strength meter and live requirements",
+   "tags": [
+    "auth",
+    "signup",
+    "validation"
+   ],
+   "deps": [],
+   "file": "password-field.tsx",
+   "lines": 59,
+   "order": 3
+  },
+  {
+   "category": "sections",
+   "slug": "pricing-table",
+   "name": "Pricing table",
+   "tagline": "Three-plan pricing with a monthly/yearly toggle and a highlighted tier",
+   "tags": [
+    "pricing",
+    "saas",
+    "conversion"
+   ],
+   "deps": [],
+   "file": "pricing-table.tsx",
+   "lines": 59,
+   "order": 3
+  },
+  {
+   "category": "data",
+   "slug": "radial-progress",
+   "name": "Radial progress",
+   "tagline": "A gradient score ring that animates to its value",
+   "tags": [
+    "progress",
+    "score",
+    "dashboard",
+    "svg"
+   ],
+   "deps": [],
+   "file": "radial-progress.tsx",
+   "lines": 53,
+   "order": 3
+  },
+  {
+   "category": "utilities",
+   "slug": "scroll-to-top",
+   "name": "Scroll to top",
+   "tagline": "A floating back-to-top button with a scroll-progress ring",
+   "tags": [
+    "navigation",
+    "long-pages",
+    "blog"
+   ],
+   "deps": [],
+   "file": "scroll-to-top.tsx",
+   "lines": 44,
+   "order": 3
+  },
+  {
+   "category": "navigation",
+   "slug": "smart-navbar",
+   "name": "Smart navbar",
+   "tagline": "A header that hides on scroll-down, returns on scroll-up and frosts over the page",
+   "tags": [
+    "header",
+    "nav",
+    "responsive",
+    "glass"
+   ],
+   "deps": [],
+   "file": "smart-navbar.tsx",
+   "lines": 62,
+   "order": 3
+  },
+  {
+   "category": "text-effects",
+   "slug": "split-reveal",
+   "name": "Split reveal",
+   "tagline": "Staggered word or letter reveal with a blur-to-sharp entrance",
+   "tags": [
+    "heading",
+    "scroll",
+    "entrance",
+    "hero"
+   ],
+   "deps": [],
+   "file": "split-reveal.tsx",
+   "lines": 64,
+   "order": 3
+  },
+  {
+   "category": "buttons-cards",
+   "slug": "spotlight-card",
+   "name": "Spotlight card",
+   "tagline": "A card lit by a soft spotlight and glowing border that follow the cursor",
+   "tags": [
+    "card",
+    "hover",
+    "features",
+    "pointer"
+   ],
+   "deps": [],
+   "file": "spotlight-card.tsx",
+   "lines": 37,
+   "order": 3
+  },
+  {
+   "category": "overlays",
+   "slug": "tooltip",
+   "name": "Tooltip",
+   "tagline": "A tiny hover and focus tooltip with four placements",
+   "tags": [
+    "hint",
+    "a11y",
+    "ui"
+   ],
+   "deps": [],
+   "file": "tooltip.tsx",
+   "lines": 34,
+   "order": 3
+  },
+  {
+   "category": "backgrounds",
+   "slug": "constellation",
+   "name": "Constellation",
+   "tagline": "Drifting particles joined by lines that reach for your cursor",
+   "tags": [
+    "hero",
+    "canvas",
+    "particles",
+    "pointer"
+   ],
+   "deps": [],
+   "file": "constellation.tsx",
+   "lines": 79,
+   "order": 4
+  },
+  {
+   "category": "overlays",
+   "slug": "cookie-banner",
+   "name": "Cookie banner",
+   "tagline": "A tasteful consent bar that remembers the visitor's choice",
+   "tags": [
+    "legal",
+    "gdpr",
+    "privacy",
+    "utility"
+   ],
+   "deps": [],
+   "file": "cookie-banner.tsx",
+   "lines": 45,
+   "order": 4
+  },
+  {
+   "category": "scroll-motion",
+   "slug": "custom-cursor",
+   "name": "Custom cursor",
+   "tagline": "A dot and trailing ring that swell over interactive elements",
+   "tags": [
+    "cursor",
+    "pointer",
+    "portfolio",
+    "global"
+   ],
+   "deps": [],
+   "file": "custom-cursor.tsx",
+   "lines": 52,
+   "order": 4
+  },
+  {
+   "category": "sections",
+   "slug": "faq-accordion",
+   "name": "FAQ accordion",
+   "tagline": "An accessible accordion with silky height animation",
+   "tags": [
+    "faq",
+    "landing",
+    "accessible",
+    "support"
+   ],
+   "deps": [],
+   "file": "faq-accordion.tsx",
+   "lines": 43,
+   "order": 4
+  },
+  {
+   "category": "text-effects",
+   "slug": "rotating-words",
+   "name": "Rotating words",
+   "tagline": "An inline word that slides and blurs through a list",
+   "tags": [
+    "hero",
+    "heading",
+    "loop"
+   ],
+   "deps": [],
+   "file": "rotating-words.tsx",
+   "lines": 43,
+   "order": 4
+  },
+  {
+   "category": "navigation",
+   "slug": "scroll-progress",
+   "name": "Scroll progress",
+   "tagline": "A slim reading-progress bar pinned to the top of the viewport",
+   "tags": [
+    "blog",
+    "docs",
+    "reading",
+    "nav"
+   ],
+   "deps": [],
+   "file": "scroll-progress.tsx",
+   "lines": 36,
+   "order": 4
+  },
+  {
+   "category": "utilities",
+   "slug": "skeleton",
+   "name": "Skeleton",
+   "tagline": "Shimmering loading placeholders for cards, avatars and text",
+   "tags": [
+    "loading",
+    "placeholder",
+    "ux"
+   ],
+   "deps": [],
+   "file": "skeleton.tsx",
+   "lines": 36,
+   "order": 4
+  },
+  {
+   "category": "data",
+   "slug": "stat-card",
+   "name": "Stat card",
+   "tagline": "A KPI tile with a rolling number, delta badge and mini trend line",
+   "tags": [
+    "kpi",
+    "dashboard",
+    "analytics"
+   ],
+   "deps": [],
+   "file": "stat-card.tsx",
+   "lines": 66,
+   "order": 4
+  },
+  {
+   "category": "buttons-cards",
+   "slug": "tilt-card",
+   "name": "Tilt card",
+   "tagline": "A 3D card that tips toward the pointer with a specular glare",
+   "tags": [
+    "card",
+    "3d",
+    "hover",
+    "pricing"
+   ],
+   "deps": [],
+   "file": "tilt-card.tsx",
+   "lines": 42,
+   "order": 4
+  },
+  {
+   "category": "forms",
+   "slug": "waitlist-form",
+   "name": "Waitlist form",
+   "tagline": "Email capture with validation, honeypot and loading/success/error states",
+   "tags": [
+    "email",
+    "launch",
+    "cta",
+    "form"
+   ],
+   "deps": [],
+   "file": "waitlist-form.tsx",
+   "lines": 61,
+   "order": 4
+  },
+  {
+   "category": "overlays",
+   "slug": "command-palette",
+   "name": "Command palette",
+   "tagline": "A ⌘K palette with search, groups and full keyboard control",
+   "tags": [
+    "search",
+    "power-user",
+    "navigation",
+    "saas"
+   ],
+   "deps": [],
+   "file": "command-palette.tsx",
+   "lines": 78,
+   "order": 5
+  },
+  {
+   "category": "utilities",
+   "slug": "confetti",
+   "name": "Confetti",
+   "tagline": "A one-line confetti burst for sign-ups, purchases and milestones",
+   "tags": [
+    "celebration",
+    "success",
+    "delight"
+   ],
+   "deps": [],
+   "file": "confetti.tsx",
+   "lines": 46,
+   "order": 5
+  },
+  {
+   "category": "buttons-cards",
+   "slug": "glow-border-card",
+   "name": "Glow border card",
+   "tagline": "A card framed by a slowly rotating gradient border",
+   "tags": [
+    "card",
+    "pricing",
+    "highlight",
+    "animated-border"
+   ],
+   "deps": [],
+   "file": "glow-border-card.tsx",
+   "lines": 39,
+   "order": 5
+  },
+  {
+   "category": "scroll-motion",
+   "slug": "horizontal-scroll",
+   "name": "Horizontal scroll",
+   "tagline": "A pinned section where vertical scrolling slides a horizontal gallery",
+   "tags": [
+    "gallery",
+    "portfolio",
+    "storytelling",
+    "pinned"
+   ],
+   "deps": [],
+   "file": "horizontal-scroll.tsx",
+   "lines": 53,
+   "order": 5
+  },
+  {
+   "category": "backgrounds",
+   "slug": "meteors",
+   "name": "Meteors",
+   "tagline": "Shooting stars streaking across a night-sky section",
+   "tags": [
+    "hero",
+    "space",
+    "css-only",
+    "ambient"
+   ],
+   "deps": [],
+   "file": "meteors.tsx",
+   "lines": 37,
+   "order": 5
+  },
+  {
+   "category": "navigation",
+   "slug": "table-of-contents",
+   "name": "Table of contents",
+   "tagline": "A scroll-spy outline generated from your page's headings",
+   "tags": [
+    "docs",
+    "blog",
+    "sidebar",
+    "scroll-spy"
+   ],
+   "deps": [],
+   "file": "table-of-contents.tsx",
+   "lines": 56,
+   "order": 5
+  },
+  {
+   "category": "sections",
+   "slug": "testimonial-wall",
+   "name": "Testimonial wall",
+   "tagline": "Auto-scrolling columns of social proof, alternating direction",
+   "tags": [
+    "testimonials",
+    "social-proof",
+    "landing"
+   ],
+   "deps": [],
+   "file": "testimonial-wall.tsx",
+   "lines": 38,
+   "order": 5
+  },
+  {
+   "category": "text-effects",
+   "slug": "typewriter",
+   "name": "Typewriter",
+   "tagline": "Types, pauses, deletes and cycles through phrases with a blinking cursor",
+   "tags": [
+    "hero",
+    "terminal",
+    "loop"
+   ],
+   "deps": [],
+   "file": "typewriter.tsx",
+   "lines": 58,
+   "order": 5
+  },
+  {
+   "category": "buttons-cards",
+   "slug": "flip-card",
+   "name": "Flip card",
+   "tagline": "A two-sided card with a smooth 3D flip on hover or click",
+   "tags": [
+    "card",
+    "3d",
+    "team",
+    "reveal"
+   ],
+   "deps": [],
+   "file": "flip-card.tsx",
+   "lines": 48,
+   "order": 6
+  },
+  {
+   "category": "backgrounds",
+   "slug": "grid-spotlight",
+   "name": "Grid spotlight",
+   "tagline": "A blueprint grid that lights up under the cursor",
+   "tags": [
+    "hero",
+    "grid",
+    "pointer",
+    "css-only"
+   ],
+   "deps": [],
+   "file": "grid-spotlight.tsx",
+   "lines": 44,
+   "order": 6
+  },
+  {
+   "category": "sections",
+   "slug": "logo-cloud",
+   "name": "Logo cloud",
+   "tagline": "A \"trusted by\" strip — grayscale logos that scroll and light up on hover",
+   "tags": [
+    "social-proof",
+    "logos",
+    "landing"
+   ],
+   "deps": [],
+   "file": "logo-cloud.tsx",
+   "lines": 33,
+   "order": 6
+  },
+  {
+   "category": "text-effects",
+   "slug": "scroll-lit-text",
+   "name": "Scroll-lit text",
+   "tagline": "A paragraph whose words ignite one by one as you scroll",
+   "tags": [
+    "manifesto",
+    "scroll",
+    "paragraph",
+    "storytelling"
+   ],
+   "deps": [],
+   "file": "scroll-lit-text.tsx",
+   "lines": 49,
+   "order": 6
+  },
+  {
+   "category": "scroll-motion",
+   "slug": "sticky-stack",
+   "name": "Sticky stack",
+   "tagline": "Cards that pin and stack up as you scroll, shrinking and dimming as the next arrives",
+   "tags": [
+    "features",
+    "storytelling",
+    "apple-style",
+    "pinned"
+   ],
+   "deps": [],
+   "file": "sticky-stack.tsx",
+   "lines": 53,
+   "order": 6
+  },
+  {
+   "category": "text-effects",
+   "slug": "highlight-text",
+   "name": "Highlight text",
+   "tagline": "A marker highlight, underline or strike that draws itself on scroll",
+   "tags": [
+    "inline",
+    "emphasis",
+    "marketing"
+   ],
+   "deps": [],
+   "file": "highlight-text.tsx",
+   "lines": 61,
+   "order": 7
+  },
+  {
+   "category": "sections",
+   "slug": "stats-band",
+   "name": "Stats band",
+   "tagline": "A bordered row of big numbers that count up on scroll",
+   "tags": [
+    "stats",
+    "social-proof",
+    "landing",
+    "kpi"
+   ],
+   "deps": [],
+   "file": "stats-band.tsx",
+   "lines": 46,
+   "order": 7
+  },
+  {
+   "category": "text-effects",
+   "slug": "glitch-text",
+   "name": "Glitch text",
+   "tagline": "RGB-split cyberpunk glitch on hover or on loop",
+   "tags": [
+    "cyberpunk",
+    "hover",
+    "gaming",
+    "404"
+   ],
+   "deps": [],
+   "file": "glitch-text.tsx",
+   "lines": 38,
+   "order": 8
+  },
+  {
+   "category": "sections",
+   "slug": "timeline",
+   "name": "Timeline",
+   "tagline": "A scroll-lit vertical timeline for roadmaps, history and process steps",
+   "tags": [
+    "roadmap",
+    "about",
+    "process",
+    "scroll"
+   ],
+   "deps": [],
+   "file": "timeline.tsx",
+   "lines": 53,
+   "order": 8
+  },
+  {
+   "category": "text-effects",
+   "slug": "count-up",
+   "name": "Count up",
+   "tagline": "A number that eases up to its value when it scrolls into view",
+   "tags": [
+    "stats",
+    "numbers",
+    "kpi"
+   ],
+   "deps": [],
+   "file": "count-up.tsx",
+   "lines": 48,
+   "order": 9
+  },
+  {
+   "category": "sections",
+   "slug": "cta-banner",
+   "name": "CTA banner",
+   "tagline": "A closing call-to-action card with drifting aurora light",
+   "tags": [
+    "cta",
+    "footer",
+    "conversion",
+    "landing"
+   ],
+   "deps": [],
+   "file": "cta-banner.tsx",
+   "lines": 39,
+   "order": 9
+  }
+ ]
+}

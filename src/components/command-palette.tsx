@@ -1,16 +1,20 @@
+"use client";
+
 import { useEffect, useMemo, useRef, useState } from "react";
-import { navigate } from "@/lib/router";
+import { useNavigate } from "@/lib/router";
 import { TEMPLATES } from "@/lib/templates";
 import { ELEMENTS, PAGES } from "@/lib/collections";
 import { LIBRARY } from "@/lib/library";
-import { TOOLS } from "@/pages/ToolsPage";
+import { REG_ITEMS, TEXT_EFFECTS, catBySlug, itemHref } from "@/lib/registry";
+import { TOOLS } from "@/views/ToolsPage";
 
 type Item = { id: string; group: string; title: string; hint: string; run: () => void; accent?: string };
 
-const onPath = (p: string) => (location.hash.replace(/^#/, "") || "/").split("?")[0] === p;
+const onPath = (p: string) => (location.pathname.replace(/\/$/, "") || "/") === p;
 
 /** ⌘K / Ctrl+K — jump to any template, prompt, tool or section. */
 export function CommandPalette() {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [i, setI] = useState(0);
@@ -50,13 +54,15 @@ export function CommandPalette() {
     const go = (href: string) => () => navigate(href);
     return [
       { id: "p-home", group: "Go to", title: "Home", hint: "Start", run: go("/") },
-      { id: "p-library", group: "Go to", title: "Library", hint: "All five shelves", run: go("/library") },
+      { id: "p-library", group: "Go to", title: "Library", hint: "All the shelves", run: go("/library") },
       { id: "p-landing", group: "Go to", title: "Landing pages", hint: `${TEMPLATES.length} 3D templates`, run: go("/landing-pages") },
       { id: "p-pages", group: "Go to", title: "App pages", hint: "Sign in, pricing, dashboard…", run: go("/pages") },
+      { id: "p-components", group: "Go to", title: "Components", hint: `${REG_ITEMS.length} drop-in React components`, run: go("/components") },
+      { id: "p-text", group: "Go to", title: "Text effects", hint: "Import onto any text", run: go("/text-effects") },
       { id: "p-elements", group: "Go to", title: "Interactive elements", hint: `${ELEMENTS.length} crafted interactions`, run: go("/elements") },
       { id: "p-prompts", group: "Go to", title: "Prompt library", hint: `${LIBRARY.length}+ prompts`, run: go("/prompts") },
       { id: "p-tools", group: "Go to", title: "Vibe toolkit", hint: "6 tools", run: go("/tools") },
-      { id: "p-faq", group: "Go to", title: "FAQ", hint: "Questions", run: go("/#faq") },
+      ...REG_ITEMS.map((i) => ({ id: "rg-" + i.category + i.slug, group: i.category === TEXT_EFFECTS ? "Text effects" : "Components", title: i.name, hint: `${catBySlug(i.category)?.name} · ${i.tagline}`, run: go(itemHref(i.category, i.slug)) })),
       ...PAGES.map((d) => ({ id: "pg-" + d.slug, group: "App pages", title: d.name, hint: d.tagline, accent: d.accent, run: go(`/pages/${d.slug}`) })),
       ...ELEMENTS.map((d) => ({ id: "el-" + d.slug, group: "Elements", title: d.name, hint: d.tagline, accent: d.accent, run: go(`/elements/${d.slug}`) })),
       ...TEMPLATES.map((t) => ({ id: "t-" + t.slug, group: "Landing pages", title: t.name, hint: t.tagline, accent: t.accent, run: go(`/templates/${t.slug}`) })),
@@ -81,7 +87,7 @@ export function CommandPalette() {
         },
       })),
     ];
-  }, []);
+  }, [navigate]);
 
   const results = useMemo(() => {
     const words = q.toLowerCase().split(/\s+/).filter(Boolean);

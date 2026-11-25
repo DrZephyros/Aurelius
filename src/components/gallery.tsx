@@ -1,3 +1,5 @@
+"use client";
+
 import { Link } from "@/lib/router";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { FILTERS, type Template } from "@/lib/templates";

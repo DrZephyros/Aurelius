@@ -15,9 +15,34 @@ export { THREE };
 
 /* ── embed mode (used by the gallery thumbnails) ─────────────── */
 const qs = new URLSearchParams(location.search);
-export const EMBED = qs.get('embed'); // "card" | "bg" | null
-export const IS_EMBED = !!EMBED;
+export const EMBED = qs.get('embed'); // "card" | "bg" | "scroll" | null
+/* "scroll" = hosted inside the Aurelius site and driven by the parent page's scroll position: full quality, no autoplay */
+export const IS_EMBED = !!EMBED && EMBED !== 'scroll';
 if (IS_EMBED) document.documentElement.classList.add('embed', 'embed-' + EMBED);
+if (EMBED === 'scroll') document.documentElement.classList.add('embed-scroll');
+/* parent-page bridge: postMessage({md:'scrub',p}) glides the scroll position, postMessage({md:'pointer',x,y}) fakes hover */
+if (EMBED === 'card' || EMBED === 'scroll') {
+  const s = document.createElement('script');
+  s.textContent = `(function(){var o=window.scrollTo.bind(window),root=document.documentElement,tgt=null,cur=0,rel=1,last=performance.now();
+function max(){return Math.max(1,root.scrollHeight-innerHeight)}
+function go(y){o({left:0,top:y,behavior:'instant'})}
+window.scrollTo=function(a,b){if(a&&typeof a==='object'){b=a.top;a=a.left}
+if(tgt!==null)return;
+if(rel<1){rel=Math.min(1,rel+.018);var e=rel*rel*(3-2*rel),y=cur+(b-cur)*e;go(y);if(rel>=1)cur=b;return}
+cur=b;o(a,b)};
+function loop(t){var dt=Math.min(.05,(t-last)/1000);last=t;
+if(tgt!==null){var want=tgt*max();cur+=(want-cur)*(1-Math.exp(-dt*8));if(Math.abs(want-cur)<.4)cur=want;go(cur)}
+requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+function fire(x,y){var X=x*innerWidth,Y=y*innerHeight,el=document.elementFromPoint(X,Y)||document.body;
+['pointermove','mousemove'].forEach(function(n){var C=n==='pointermove'&&window.PointerEvent?PointerEvent:MouseEvent;
+try{el.dispatchEvent(new C(n,{bubbles:true,clientX:X,clientY:Y,pointerType:'mouse',view:window}))}catch(_){}})}
+addEventListener('message',function(e){var d=e.data;if(!d)return;
+if(d.md==='scrub'){if(typeof d.p==='number'){if(tgt===null)cur=window.scrollY;tgt=Math.min(1,Math.max(0,d.p));rel=0}
+else if(tgt!==null){tgt=null;rel=0}}
+else if(d.md==='pointer')fire(d.x,d.y)})})();`;
+  document.head.appendChild(s);
+}
 
 /* ── math helpers ────────────────────────────────────────────── */
 export const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));

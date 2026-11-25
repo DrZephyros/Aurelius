@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useState } from "react";
 import { CopyButton } from "./copy-button";
 
@@ -39,7 +41,7 @@ function highlight(code: string, lang: string): string {
 export function CodeViewer({ files }: { files: F[] }) {
   const [i, setI] = useState(0);
   const f = files[i];
-  const lang = f.name.endsWith(".js") ? "js" : f.name.endsWith(".css") ? "css" : "html";
+  const lang = /\.(js|tsx?|jsx)$/.test(f.name) ? "js" : f.name.endsWith(".css") ? "css" : "html";
   const html = useMemo(() => highlight(f.code, lang), [f.code, lang]);
   const lines = f.code.split("\n").length;
 

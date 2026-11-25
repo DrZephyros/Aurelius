@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { frameProps } from "@/lib/demo";
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useMemo, useRef, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { LivePreview } from "./live-preview";
 

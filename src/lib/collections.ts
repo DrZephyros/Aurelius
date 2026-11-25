@@ -18,8 +18,6 @@ export type Demo = {
   tryIt: string[];
 };
 
-const PAGE_RAW = import.meta.glob("/src/demos/pages/*.html", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-const ELEMENT_RAW = import.meta.glob("/src/demos/elements/*.html", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 
 export const PAGE_CATEGORIES = ["All", "Authentication", "Commerce", "Product", "Utility"] as const;
 export const ELEMENT_CATEGORIES = ["All", "Buttons & cards", "Navigation", "Feedback", "Data & drag", "Motion"] as const;
@@ -155,13 +153,6 @@ export const ELEMENTS: Demo[] = [
     tryIt: ["Drag a card to another column", "Add a card with Enter", "Drop between two cards"],
   },
   {
-    slug: "typography", kind: "element", name: "Type playground", category: "Motion", accent: "#ff5a36", bg: "#f2efe9", light: true,
-    tagline: "Scramble, split, stretch — typography that performs",
-    blurb: "Four kinetic type effects in one stage: a decode scramble on hover, a variable-weight headline that responds to the cursor, a velocity marquee that speeds up when you scroll and a split-letter wave.",
-    features: ["Scramble-decode on hover", "Cursor-driven font weight", "Velocity-reactive marquee", "Letter wave with stagger", "Copy any headline"],
-    tryIt: ["Hover the scrambling word", "Move across the big headline", "Scroll inside the stage"],
-  },
-  {
     slug: "controls", kind: "element", name: "Controls", category: "Buttons & cards", accent: "#6ee7ff", bg: "#090b10", light: false,
     tagline: "Switches, sliders, steppers and chips with real weight",
     blurb: "Eight form controls designed as a family. Switches stretch under your thumb, the segmented thumb springs between options, the range slider eases toward your pointer with a floating tooltip, and the stepper rolls its digits and repeats while held.",
@@ -184,32 +175,21 @@ export const ELEMENTS: Demo[] = [
   },
 ];
 
-const RAW: Record<Kind, Record<string, string>> = { page: PAGE_RAW, element: ELEMENT_RAW };
-
 export const listFor = (kind: Kind) => (kind === "page" ? PAGES : ELEMENTS);
 export const demoBySlug = (kind: Kind, slug: string) => listFor(kind).find((d) => d.slug === slug);
 
-export function demoSource(kind: Kind, slug: string): string {
-  const dir = kind === "page" ? "pages" : "elements";
-  const v = RAW[kind][`/src/demos/${dir}/${slug}.html`];
-  if (v === undefined) return `<!doctype html><body style="font:16px system-ui;padding:40px">Missing demo: ${slug}</body>`;
-  return v;
-}
+/** Served by app/kit/[kind]/[slug]/route.ts straight from kit-src/. `?embed=card` injects the scrub bridge. */
+export const kitUrl = (d: Pick<Demo, "kind" | "slug">, query = "") => `/kit/${d.kind}/${d.slug}${query ? "?" + query : ""}`;
 
 export function downloadDemo(d: Demo) {
-  const blob = new Blob([demoSource(d.kind, d.slug)], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url;
+  a.href = kitUrl(d, "download=1");
   a.download = `${d.slug}-${d.kind}.html`;
+  document.body.appendChild(a);
   a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  a.remove();
 }
 
 export function openDemoFullscreen(d: Demo) {
-  const w = window.open("", "_blank");
-  if (!w) return;
-  w.document.open();
-  w.document.write(demoSource(d.kind, d.slug));
-  w.document.close();
+  window.open(kitUrl(d), "_blank");
 }

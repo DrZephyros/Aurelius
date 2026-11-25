@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { saveRequest } from "@/lib/stats";
 

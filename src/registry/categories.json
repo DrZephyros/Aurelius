@@ -1,0 +1,12 @@
+[
+  { "slug": "text-effects", "name": "Text effects", "icon": "Aa", "blurb": "Import one onto any heading or paragraph — scramble, shimmer, split-reveal, rotating words, typewriter, scroll-lit, marker highlight, glitch, count-up." },
+  { "slug": "backgrounds", "name": "Backgrounds", "icon": "◐", "blurb": "Aurora, interactive gradients, dot grids, constellations, meteors and spotlight grids — drop behind any hero or section." },
+  { "slug": "buttons-cards", "name": "Buttons & cards", "icon": "▣", "blurb": "Magnetic and shimmering buttons; spotlight, tilt, glow-border and flip cards that react to the pointer." },
+  { "slug": "navigation", "name": "Navigation", "icon": "☰", "blurb": "A floating dock, sliding tabs, a navbar that hides on scroll, a progress bar and a scroll-spy table of contents." },
+  { "slug": "scroll-motion", "name": "Scroll & motion", "icon": "↕", "blurb": "Reveal-on-scroll, marquees, parallax, a custom cursor, pinned horizontal scroll and stacking cards." },
+  { "slug": "sections", "name": "Landing sections", "icon": "▤", "blurb": "The blocks every landing page needs: hero, bento grid, pricing, FAQ, testimonials, logos, stats, timeline and CTA." },
+  { "slug": "forms", "name": "Forms", "icon": "✎", "blurb": "Floating-label inputs, OTP entry, a password meter and a waitlist form with a ready-made API route." },
+  { "slug": "overlays", "name": "Overlays & feedback", "icon": "◫", "blurb": "Accessible modal / drawer / sheet, toasts, tooltips, a cookie banner and a command palette." },
+  { "slug": "data", "name": "Data & charts", "icon": "▥", "blurb": "Dependency-free sparklines, animated bar charts, radial progress and KPI cards for dashboards." },
+  { "slug": "utilities", "name": "Utilities", "icon": "⚙", "blurb": "Theme toggle with no flash, copy button, scroll-to-top, skeleton loaders and confetti." }
+]

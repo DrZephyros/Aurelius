@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { SITE } from "@/lib/site";
 import { frameProps, openDemo } from "@/lib/demo";

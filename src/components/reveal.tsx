@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 /** Fades + lifts its children in the first time they scroll into view. */

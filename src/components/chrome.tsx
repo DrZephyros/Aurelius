@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { Link, usePath } from "@/lib/router";
 import { SITE } from "@/lib/site";
@@ -23,7 +25,9 @@ export function Logo({ size = 24 }: { size?: number }) {
 export const SHELVES: { label: string; href: string; hint: string }[] = [
   { label: "Landing pages", href: "/landing-pages", hint: "Cinematic 3D sites" },
   { label: "App pages", href: "/pages", hint: "Auth, billing, dashboards" },
-  { label: "Elements", href: "/elements", hint: "Interactive components" },
+  { label: "Components", href: "/components", hint: "Drop-in React pieces" },
+  { label: "Text effects", href: "/text-effects", hint: "Import onto any text" },
+  { label: "Elements", href: "/elements", hint: "Interactive demos" },
   { label: "Prompts", href: "/prompts", hint: "58 battle-tested prompts" },
   { label: "Tools", href: "/tools", hint: "Rules, kickoff, tokens" },
 ];
@@ -31,6 +35,8 @@ export const SHELVES: { label: string; href: string; hint: string }[] = [
 const NAV: [string, string][] = [
   ["Library", "/library"],
   ["Landing pages", "/landing-pages"],
+  ["Components", "/components"],
+  ["Text effects", "/text-effects"],
   ["Prompts", "/prompts"],
   ["Tools", "/tools"],
 ];
