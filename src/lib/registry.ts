@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import data from "@/generated/registry.json";
 
 /* The modular component library lives in src/registry/<category>/<slug>/ — one folder per piece:
@@ -17,7 +18,6 @@ export const itemHref = (c: string, s: string) => `${catHref(c)}/${s}`;
 export const itemsOf = (c: string) => REG_ITEMS.filter((i) => i.category === c);
 export const catBySlug = (c: string) => REG_CATS.find((x) => x.slug === c);
 export const getItem = (c: string, s: string) => REG_ITEMS.find((i) => i.category === c && i.slug === s);
-export const downloadHref = (category?: string, slug?: string) => `/api/registry/download${category ? `?category=${category}${slug ? `&slug=${slug}` : ""}` : ""}`;
 export const zipName = (category?: string, slug?: string) => (slug ? `${slug}.zip` : category ? `aurelius-${category}.zip` : "aurelius-components.zip");
 
 /** The brief you paste into Claude Code / Cursor / Codex. */
@@ -34,3 +34,9 @@ Where to use it: [DESCRIBE THE PAGE / SECTION]
 ----- README.md -----
 ${readme.trim()}`;
 }
+
+/** onClick handler for download links — the zip is built in the browser (lazy-loaded). */
+export const downloadClick = (category?: string, slug?: string) => (e: MouseEvent) => {
+  e.preventDefault();
+  void import("./registry-files").then((m) => m.downloadRegistry(category, slug));
+};

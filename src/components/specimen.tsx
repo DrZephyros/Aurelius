@@ -10,22 +10,64 @@ import type { Template } from "@/lib/templates";
    · no slider, no hover-scrub: the template is part of the landing page
    · a tall track + a sticky stage. The iframe is the template (embed=scroll); its own document height sets the track
      height 1:1, so you scroll the entire preview before the next one arrives
-   · the page's scroll position is streamed to the iframe (postMessage scrub), which eases to it frame by frame
-   · the iframe is mounted only while the track is near the viewport, so three WebGL worlds never run at once
+   · the page's scroll position is streamed to the iframe, which eases to it frame by frame
+   · WARM-UP: worlds are booted *ahead* of the scroll, one after another (see `load` / `onReady`), so by the time the reader
+     reaches a specimen it is already compiled, faded in and measured. Once loaded it stays mounted (no reload when you scroll
+     back) and is simply parked (render loop paused) while it is far off-screen, so three WebGL worlds never run at once.
    ─────────────────────────────────────────────────────────── */
 
 const NAV = 68;
 
-export function Specimen({ t, index, total }: { t: Template; index: number; total: number }) {
+/** doc heights are remembered per viewport size, so the track never jumps on a revisit */
+const hKey = (slug: string) => `aurelius:docH:${slug}:${innerWidth}x${innerHeight}`;
+const readH = (slug: string): number | null => {
+  try {
+    const v = Number(sessionStorage.getItem(hKey(slug)));
+    return v > 400 ? v : null;
+  } catch {
+    return null;
+  }
+};
+
+/** while a stage fills the whole viewport the fixed aurora behind the page is invisible — the hero scene parks itself */
+const covering = new Set<string>();
+const setCovering = (slug: string, on: boolean) => {
+  if (on) covering.add(slug);
+  else covering.delete(slug);
+  document.documentElement.toggleAttribute("data-covered", covering.size > 0);
+};
+
+export function Specimen({
+  t,
+  index,
+  total,
+  load = true,
+  onReady,
+}: {
+  t: Template;
+  index: number;
+  total: number;
+  /** permission to start booting (the landing page warms specimens up one at a time, ahead of the reader) */
+  load?: boolean;
+  /** fired once the world has rendered and faded in */
+  onReady?: () => void;
+}) {
   const track = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const bar = useRef<HTMLDivElement>(null);
   const pct = useRef<HTMLSpanElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const [near, setNear] = useState(false); // within ~1.5 screens: boot immediately, whatever the queue says
   const [ready, setReady] = useState(false);
-  const [docH, setDocH] = useState<number | null>(null);
+  const [docH, setDocH] = useState<number | null>(() => readH(t.slug));
   const last = useRef(-1);
+  const isReady = useRef(false);
+  const nearRef = useRef(false);
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
+
+  // once booting has been allowed it is never torn down
+  const mounted = load || near;
 
   const post = useCallback((m: unknown) => frame.current?.contentWindow?.postMessage(m, "*"), []);
 
@@ -34,23 +76,41 @@ export function Specimen({ t, index, total }: { t: Template; index: number; tota
     const tr = track.current, st = stage.current;
     if (!tr || !st) return;
     const range = Math.max(1, tr.offsetHeight - st.offsetHeight);
-    const p = Math.min(1, Math.max(0, (NAV - tr.getBoundingClientRect().top) / range));
+    const r = tr.getBoundingClientRect();
+    setCovering(t.slug, r.top <= NAV + 1 && r.bottom >= innerHeight - 1);
+    const p = Math.min(1, Math.max(0, (NAV - r.top) / range));
     if (bar.current) bar.current.style.transform = `scaleY(${p})`;
     if (pct.current) pct.current.textContent = String(Math.round(p * 100)).padStart(2, "0");
     if (Math.abs(p - last.current) > 0.00005) {
       last.current = p;
       post({ md: "scrub", p });
     }
+  }, [post, t.slug]);
+
+  useEffect(() => () => setCovering(t.slug, false), [t.slug]);
+
+  /** park / wake the world: only render while it is (almost) on screen */
+  const park = useCallback(() => {
+    if (isReady.current) post({ md: "pause", on: !nearRef.current });
   }, [post]);
 
-  // mount/unmount the heavy iframe by proximity
+  // proximity: a generous margin so the world is awake and positioned well before it enters the viewport
   useEffect(() => {
     const el = track.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => setMounted(e.isIntersecting), { rootMargin: "60% 0px 60% 0px" });
+    const io = new IntersectionObserver(
+      ([e]) => {
+        nearRef.current = e.isIntersecting;
+        setNear(e.isIntersecting);
+        if (e.isIntersecting) post({ md: "pause", on: false });
+        else park();
+        if (e.isIntersecting) sync();
+      },
+      { rootMargin: "150% 0px 150% 0px" }
+    );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [park, post, sync]);
 
   // scroll → template
   useEffect(() => {
@@ -73,11 +133,34 @@ export function Specimen({ t, index, total }: { t: Template; index: number; tota
   const measure = useCallback(() => {
     try {
       const h = frame.current?.contentDocument?.documentElement.scrollHeight;
-      if (h && h > 400) setDocH((c) => (c && Math.abs(c - h) < 8 ? c : h));
+      if (h && h > 400) {
+        setDocH((c) => (c && Math.abs(c - h) < 8 ? c : h));
+        try { sessionStorage.setItem(hKey(t.slug), String(h)); } catch { /* private mode */ }
+      }
     } catch {
       /* cross-origin: keep the estimate */
     }
-  }, []);
+  }, [t.slug]);
+
+  const markReady = useCallback(() => {
+    if (isReady.current) return;
+    isReady.current = true;
+    measure();
+    setReady(true);
+    last.current = -1;
+    sync();
+    park();
+    onReadyRef.current?.();
+  }, [measure, sync, park]);
+
+  // the template tells us when it has rendered and faded in
+  useEffect(() => {
+    const on = (e: MessageEvent) => {
+      if (e.data?.md === "ready" && e.source && e.source === frame.current?.contentWindow) markReady();
+    };
+    addEventListener("message", on);
+    return () => removeEventListener("message", on);
+  }, [markReady]);
 
   const onLoad = () => {
     last.current = -1;
@@ -85,13 +168,14 @@ export function Specimen({ t, index, total }: { t: Template; index: number; tota
       setTimeout(() => {
         measure();
         sync();
-        if (ms === 350) setReady(true);
       }, ms)
     );
+    // safety net: never leave the queue (or the veil) hanging on a world that can't report back
+    setTimeout(markReady, 7000);
   };
 
   useEffect(() => {
-    if (!mounted) { setReady(false); return; }
+    if (!mounted) return;
     addEventListener("resize", measure);
     return () => removeEventListener("resize", measure);
   }, [mounted, measure]);

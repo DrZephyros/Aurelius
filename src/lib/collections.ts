@@ -1,3 +1,4 @@
+import { FILE_MODE, PREVIEW_BRIDGE } from "./demo";
 /* The two non-template shelves: functional app pages and interactive elements.
    Each one is a single self-contained .html file (inline CSS + JS, zero dependencies) in src/demos/.
    They are bundled as raw text, previewed through iframe srcdoc and downloadable as-is. */
@@ -178,18 +179,55 @@ export const ELEMENTS: Demo[] = [
 export const listFor = (kind: Kind) => (kind === "page" ? PAGES : ELEMENTS);
 export const demoBySlug = (kind: Kind, slug: string) => listFor(kind).find((d) => d.slug === slug);
 
-/** Served by app/kit/[kind]/[slug]/route.ts straight from kit-src/. `?embed=card` injects the scrub bridge. */
-export const kitUrl = (d: Pick<Demo, "kind" | "slug">, query = "") => `/kit/${d.kind}/${d.slug}${query ? "?" + query : ""}`;
+/* Single-file app pages / elements live in kit-src/ and are bundled as raw text (the app ships as ONE html file). */
+const KIT = import.meta.glob("/kit-src/**/*.html", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+
+export const kitSource = (kind: Kind, slug: string): string => KIT[`/kit-src/${kind === "page" ? "pages" : "elements"}/${slug}.html`] ?? "";
+
+const kitHtml = (d: Pick<Demo, "kind" | "slug">, embed: boolean): string => {
+  const html = kitSource(d.kind, d.slug);
+  if (!embed) return html;
+  const tag = `<script>${PREVIEW_BRIDGE}</script>`;
+  return /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (m) => m + tag) : tag + html;
+};
+
+const kitBlobs = new Map<string, string>();
+const kitBlob = (d: Pick<Demo, "kind" | "slug">, embed: boolean): string => {
+  const key = `${d.kind}/${d.slug}/${embed}`;
+  let u = kitBlobs.get(key);
+  if (!u) {
+    u = URL.createObjectURL(new Blob([kitHtml(d, embed)], { type: "text/html" }));
+    kitBlobs.set(key, u);
+  }
+  return u;
+};
+
+/** Props to spread on an <iframe> — works from file:// and from a server. `embed=card` injects the scrub bridge. */
+export function kitFrameProps(d: Pick<Demo, "kind" | "slug">, query = ""): { src: string } | { srcDoc: string } {
+  const embed = query.includes("embed=card");
+  return FILE_MODE ? { srcDoc: kitHtml(d, embed) } : { src: kitBlob(d, embed) };
+}
 
 export function downloadDemo(d: Demo) {
+  const url = URL.createObjectURL(new Blob([kitSource(d.kind, d.slug)], { type: "text/html" }));
   const a = document.createElement("a");
-  a.href = kitUrl(d, "download=1");
+  a.href = url;
   a.download = `${d.slug}-${d.kind}.html`;
   document.body.appendChild(a);
   a.click();
   a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
 export function openDemoFullscreen(d: Demo) {
-  window.open(kitUrl(d), "_blank");
+  if (!FILE_MODE) {
+    window.open(kitBlob(d, false), "_blank");
+    return;
+  }
+  const w = window.open("", "_blank");
+  if (w) {
+    w.document.open();
+    w.document.write(kitSource(d.kind, d.slug));
+    w.document.close();
+  }
 }

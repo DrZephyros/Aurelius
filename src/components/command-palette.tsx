@@ -6,7 +6,7 @@ import { TEMPLATES } from "@/lib/templates";
 import { ELEMENTS, PAGES } from "@/lib/collections";
 import { LIBRARY } from "@/lib/library";
 import { REG_ITEMS, TEXT_EFFECTS, catBySlug, itemHref } from "@/lib/registry";
-import { TOOLS } from "@/views/ToolsPage";
+import { TOOLS } from "@/pages/ToolsPage";
 
 type Item = { id: string; group: string; title: string; hint: string; run: () => void; accent?: string };
 

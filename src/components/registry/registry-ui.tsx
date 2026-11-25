@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "@/lib/router";
 import { DEMOS } from "@/registry/demos";
-import { downloadHref, itemHref, type RegItem } from "@/lib/registry";
+import { downloadClick, itemHref, type RegItem } from "@/lib/registry";
 
 /* Components that act on the whole page (they would hide the cursor / pin things site-wide) only run on their own detail page. */
 const GLOBAL = new Set(["scroll-motion/custom-cursor"]);
@@ -69,7 +69,7 @@ export function RegistryCard({ item, index, accent }: { item: RegItem; index: nu
           <div className="mt-1 line-clamp-2 text-[13px] leading-snug text-dim">{item.tagline}</div>
           <div className="mt-3 flex flex-wrap gap-1.5">{item.tags.slice(0, 3).map((t) => <span key={t} className="chip !h-[22px] !px-2 !text-[9.5px]">{t}</span>)}</div>
         </Link>
-        <a href={downloadHref(item.category, item.slug)} download className="grid size-10 shrink-0 place-items-center rounded-full border border-line-strong text-dim transition hover:border-aurora hover:bg-aurora hover:text-black" aria-label={`Download ${item.name}`} title="Download zip (component + README)">
+        <a href="#download" onClick={downloadClick(item.category, item.slug)} className="grid size-10 shrink-0 place-items-center rounded-full border border-line-strong text-dim transition hover:border-aurora hover:bg-aurora hover:text-black" aria-label={`Download ${item.name}`} title="Download zip (component + README)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14" /></svg>
         </a>
       </div>

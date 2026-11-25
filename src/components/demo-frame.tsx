@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "@/lib/router";
-import { downloadDemo, kitUrl, type Demo } from "@/lib/collections";
+import { downloadDemo, kitFrameProps, type Demo } from "@/lib/collections";
 import { ScrubSurface } from "./scrub";
 
 const W = 1280;
@@ -38,7 +38,7 @@ export function DemoThumb({ demo, ratio = "aspect-[16/10]", frameRef, onFrameLoa
       {live && (
         <iframe
           ref={frameRef}
-          src={kitUrl(demo, "embed=card")}
+          {...kitFrameProps(demo, "embed=card")}
           title={`${demo.name} preview`}
           tabIndex={-1}
           loading="lazy"

@@ -317,7 +317,7 @@ export function AuroraScene({ mode }: { mode: SceneMode }) {
     const damp = (a: number, b: number, l: number, dt: number) => a + (b - a) * (1 - Math.exp(-l * dt));
     const frame = () => {
       raf = requestAnimationFrame(frame);
-      if (!visible || document.hidden) { clock.getDelta(); return; }
+      if (!visible || document.hidden || document.documentElement.hasAttribute("data-covered")) { clock.getDelta(); return; }
       const dt = Math.min(clock.getDelta(), 0.05);
       const t = reduce ? 20 : clock.elapsedTime + 20;
       const foot = document.querySelector("footer")?.offsetHeight ?? 0;
