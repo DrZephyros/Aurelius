@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { LivePreview } from "./live-preview";
 
 /* ───────────────────────────────────────────────────────────
@@ -49,6 +49,15 @@ export function ScrubSurface({
   const label = useRef<HTMLSpanElement>(null);
   const color = useMemo(() => railColor(accent), [accent]);
   const S = useRef({ target: 0, shown: 0, active: false, raf: 0, last: 0, touching: false });
+  /* the framed page reports whether it scrolls at all — the slider only exists when it has something to scrub */
+  const [scrollable, setScrollable] = useState(false);
+  useEffect(() => {
+    const on = (e: MessageEvent) => {
+      if (e.source && e.source === frameRef.current?.contentWindow && e.data?.md === "metrics") setScrollable(!!e.data.scrollable);
+    };
+    addEventListener("message", on);
+    return () => removeEventListener("message", on);
+  }, []);
 
   const post: Post = (m) => frameRef.current?.contentWindow?.postMessage(m, "*");
 
@@ -105,7 +114,7 @@ export function ScrubSurface({
         s.target = fromArea(e.clientX);
         const r = area.current!.getBoundingClientRect();
         post({ md: "pointer", x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
-        kick();
+        if (scrollable) kick(); // nothing to scrub on a page that doesn't scroll — the pointer alone drives hover effects
       }}
       onPointerLeave={() => { if (!S.current.touching) release(); }}
     >
@@ -115,8 +124,8 @@ export function ScrubSurface({
         onLoad: () => { if (S.current.active || S.current.touching) post({ md: "scrub", p: S.current.shown }); },
       })}
 
-      {/* scrub rail — colour follows the project */}
-      <div
+      {/* scrub rail — colour follows the project; only mounted when the framed page really scrolls */}
+      {scrollable && <div
         ref={rail}
         className="absolute inset-x-0 bottom-0 flex h-11 touch-none items-end gap-3 bg-gradient-to-t from-black/70 via-black/25 to-transparent px-3.5 pb-2.5 transition-opacity duration-300"
         style={{ opacity: 0.7 }}
@@ -144,7 +153,7 @@ export function ScrubSurface({
           <div ref={fill} className="absolute inset-y-0 left-0 w-0 rounded-full" style={{ background: "linear-gradient(90deg, color-mix(in srgb, var(--rail) 35%, transparent), var(--rail))", boxShadow: "0 0 14px var(--rail)" }} />
           <div ref={thumb} className="absolute top-1/2 left-0 size-[11px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white" style={{ background: "var(--rail)", boxShadow: "0 0 0 4px color-mix(in srgb, var(--rail) 28%, transparent), 0 0 16px var(--rail)" }} />
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

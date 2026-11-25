@@ -1,26 +1,53 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { ScrollLitText } from "./scroll-lit-text";
 
-/** In this preview the text is driven by a slider so you can see it without scrolling the page. */
+/** The text sits inside a tall scroll area that glides on its own — so you see it work with zero effort.
+ *  Grab the wheel / touch / drag the scrollbar at any time and you are in control; it resumes after a pause. */
 export default function Demo() {
-  const [k, setK] = useState(0.55);
-  const ref = useRef<HTMLDivElement>(null);
+  const box = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const el = ref.current?.querySelector("p") as HTMLElement | null;
-    if (!el) return;
-    const spans = [...el.querySelectorAll<HTMLElement>("[data-w]")];
-    const apply = () => spans.forEach((s, i) => { const lit = Math.min(1, Math.max(0, k * 1.25 * spans.length - i) / 1.5); s.style.opacity = String(0.16 + 0.84 * lit); });
-    apply();
-    const t = setInterval(apply, 60);
-    return () => clearInterval(t);
-  }, [k]);
+    const el = box.current;
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0, last = performance.now(), idleUntil = 0, pos = 0, dir = 1;
+    const hold = () => { idleUntil = performance.now() + 3200; };
+    const tick = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const max = el.scrollHeight - el.clientHeight;
+      if (now < idleUntil) pos = max > 0 ? el.scrollTop / max : 0; // the user is driving — just follow
+      else if (max > 0) {
+        pos += dir * dt / (dir > 0 ? 6.5 : 2.2); // slow read forward, quick rewind
+        if (pos > 1.18) dir = -1;   // the overshoot is a little pause at each end
+        if (pos < -0.12) dir = 1;
+        el.scrollTop = Math.min(1, Math.max(0, pos)) * max;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    const evs = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
+    evs.forEach((e) => el.addEventListener(e, hold, { passive: true }));
+    return () => { cancelAnimationFrame(raf); evs.forEach((e) => el.removeEventListener(e, hold)); };
+  }, []);
+
   return (
-    <div ref={ref} style={{ maxWidth: 640 }}>
-      <ScrollLitText text="Great motion is *felt,* not noticed. Words ignite as you read, so the *story* moves at the speed of the reader." style={{ fontSize: "clamp(1.4rem,3.4vw,2.2rem)", fontWeight: 600, lineHeight: 1.15, letterSpacing: "-0.03em" }} />
-      <input type="range" min={0} max={1} step={0.01} value={k} onChange={(e) => setK(+e.target.value)} style={{ width: "100%", marginTop: 24 }} aria-label="Scroll progress" />
-      <div style={{ fontSize: 11, opacity: 0.5, textAlign: "center", marginTop: 4 }}>preview slider — on a real page this is your scroll position</div>
+    <div style={{ position: "relative", width: "100%", maxWidth: 700 }}>
+      <style>{`.au-sl-demo{scrollbar-width:none}.au-sl-demo::-webkit-scrollbar{display:none}`}</style>
+      <div
+        ref={box}
+        className="au-sl-demo"
+        style={{ height: 400, overflowY: "auto", WebkitMaskImage: "linear-gradient(transparent, #000 14%, #000 86%, transparent)", maskImage: "linear-gradient(transparent, #000 14%, #000 86%, transparent)" }}
+      >
+        <div style={{ height: 330 }} />
+        <ScrollLitText
+          text="Great motion is *felt,* not noticed. Words ignite as you read, so the *story* moves at the speed of the reader — never faster, never slower."
+          style={{ fontSize: "clamp(1.5rem,3.6vw,2.3rem)", fontWeight: 600, lineHeight: 1.18, letterSpacing: "-0.03em" }}
+        />
+        <div style={{ height: 330 }} />
+      </div>
+      <div style={{ fontSize: 11, opacity: 0.45, textAlign: "center", marginTop: 10, letterSpacing: "0.14em", textTransform: "uppercase" }}>plays itself · scroll in the frame to take over</div>
     </div>
   );
 }

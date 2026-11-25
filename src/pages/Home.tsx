@@ -278,7 +278,7 @@ export default function Home() {
         <Reveal>
           <div className="eyebrow justify-center">Your turn</div>
           <h2 className="h-display mx-auto mt-6 max-w-[11ch] text-[clamp(3rem,9vw,8.6rem)]">Step into the <span className="gold-text">library.</span></h2>
-          <p className="mx-auto mt-6 max-w-lg text-[17px] leading-relaxed text-fg/70">Worlds, app screens, drop-in components, text effects, prompts and tools — one place, every shelf.</p>
+          <p className="mx-auto mt-6 max-w-lg text-[17px] leading-relaxed text-fg/70">Worlds, app screens, drop-in components, text effects, prompts and immersive bundles — one place, every shelf.</p>
           <div className="mt-10"><Link href="/library" className="btn btn-primary h-[58px] px-10 text-base">Enter the library <span aria-hidden>→</span></Link></div>
           <div className="mt-12 flex flex-wrap justify-center gap-2">
             {SHELVES.map((s) => (

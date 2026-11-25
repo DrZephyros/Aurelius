@@ -41,6 +41,8 @@ import { ScrambleText } from "@/components/aurelius/scramble-text";
 | --- | --- | --- | --- |
 | `text` | `string` | — | Final text |
 | `trigger` | `"view" \| "hover" \| "mount"` | `"view"` | When the effect runs |
+| `once` | `boolean` | `false` | With `trigger="view"`: play only on the first entry. By default it replays every time it scrolls back into view |
+| `interval` | `number` | `0` | Replay every N ms while visible (0 = off) |
 | `duration` | `number` | `1000` | Total time in ms |
 | `chars` | `string` | `"!<>-_\\/[]{}—=+*^?#0123456789"` | Noise alphabet |
 | `as` | `ElementType` | `"span"` | Tag to render (h1, p, a…) |

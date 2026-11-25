@@ -43,11 +43,12 @@ import { ScrollLitText } from "@/components/aurelius/scroll-lit-text";
 | --- | --- | --- | --- |
 | `text` | `string` | — | Paragraph. Wrap words in *asterisks* for the glowing accent |
 | `accent` | `string` | `"#5cffc4"` | Accent colour for emphasised words |
+| `scroller` | `HTMLElement \| string` | auto | Scroll container to track. Defaults to the nearest scrollable ancestor, otherwise the page |
 | `className / style` | `string / CSSProperties` | — | Typography goes here (size, weight, line-height) |
 
 ## Notes for the agent
 
-- Needs vertical page scroll to animate — give it room (e.g. `py-[40vh]`) so the user can scroll it through the viewport.
+- Works with the page scroll *and* with inner scroll areas (modals, panels, split layouts) — it finds the scroller itself. It needs something to scroll to animate — give it room (e.g. `py-[40vh]`) so the user can scroll it through the viewport.
 - The text colour is inherited; dimmed words use opacity, so it works on any background.
 - Emphasised words use `accent` for colour + glow.
 - Motion respects `prefers-reduced-motion`; keep that behaviour if you modify the animation.

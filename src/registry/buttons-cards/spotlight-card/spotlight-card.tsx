@@ -24,9 +24,9 @@ export function SpotlightCard({ children, color = "#5cffc4", radius = 280, class
       className={`au-sc ${className ?? ""}`}
       style={{ ["--au-c" as string]: `color-mix(in srgb, ${color} 16%, transparent)`, ["--au-c2" as string]: color, ["--au-r" as string]: `${radius}px`, ...style }}
       onPointerMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        e.currentTarget.style.setProperty("--au-x", `${e.clientX - r.left}px`);
-        e.currentTarget.style.setProperty("--au-y", `${e.clientY - r.top}px`);
+        const r = e.currentTarget.getBoundingClientRect(), k = r.width / e.currentTarget.offsetWidth || 1; // k ≠ 1 inside CSS-scaled previews
+        e.currentTarget.style.setProperty("--au-x", `${(e.clientX - r.left) / k}px`);
+        e.currentTarget.style.setProperty("--au-y", `${(e.clientY - r.top) / k}px`);
       }}
     >
       <style>{CSS}</style>

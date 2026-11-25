@@ -50,6 +50,9 @@ function loop(t){var dt=Math.min(.05,(t-last)/1000);last=t;
 if(tgt!==null){var want=tgt*max();cur+=(want-cur)*(1-Math.exp(-dt*8));if(Math.abs(want-cur)<.4)cur=want;go(cur)}
 requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
+/* tell the host whether this page actually scrolls — the host only shows its scrub slider when it does */
+var sent=null;function report(){var s=root.scrollHeight-innerHeight>60;if(s!==sent){sent=s;try{parent.postMessage({md:'metrics',scrollable:s},'*')}catch(_){}}}
+report();setInterval(report,900);addEventListener('load',report);addEventListener('resize',report);
 function fire(x,y){var X=x*innerWidth,Y=y*innerHeight,el=document.elementFromPoint(X,Y)||document.body;
 ['pointermove','mousemove'].forEach(function(n){var C=n==='pointermove'&&window.PointerEvent?PointerEvent:MouseEvent;
 try{el.dispatchEvent(new C(n,{bubbles:true,clientX:X,clientY:Y,pointerType:'mouse',view:window}))}catch(_){}})}

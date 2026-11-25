@@ -42,9 +42,9 @@ export function BentoGrid({ items, className, style }: BentoGridProps) {
           </>
         );
         const move = (e: React.PointerEvent<HTMLElement>) => {
-          const r = e.currentTarget.getBoundingClientRect();
-          e.currentTarget.style.setProperty("--au-x", `${e.clientX - r.left}px`);
-          e.currentTarget.style.setProperty("--au-y", `${e.clientY - r.top}px`);
+          const r = e.currentTarget.getBoundingClientRect(), k = r.width / e.currentTarget.offsetWidth || 1;
+          e.currentTarget.style.setProperty("--au-x", `${(e.clientX - r.left) / k}px`);
+          e.currentTarget.style.setProperty("--au-y", `${(e.clientY - r.top) / k}px`);
         };
         return it.href ? <a key={it.title} href={it.href} className={cls} onPointerMove={move}>{body}</a> : <div key={it.title} className={cls} onPointerMove={move}>{body}</div>;
       })}

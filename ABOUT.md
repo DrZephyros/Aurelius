@@ -15,7 +15,8 @@ Routes live after the `#` (tiny hash router in `src/lib/router.tsx`).
 | `#/elements`, `#/elements/<slug>` | 9 single-file interactive elements |
 | `#/components`, `#/components/<category>`, `#/components/<category>/<slug>` | **Modular component library** — 50 components in 9 categories |
 | `#/text-effects`, `#/text-effects/<slug>` | **Text effects** — 9 effects you import onto any text |
-| `#/prompts`, `#/tools` | 12 prompts, 6 toolkit tools (rules file, kickoff, bug→prompt, tokens, palette, ship checklist) |
+| `#/prompts` | Prompt library |
+| `#/bundles`, `#/bundles/<slug>`, `#/bundles/<slug>/<pricing\|signin\|reserve\|account>` | **Bundles** — Yoru, Helm, Altai: a full-screen scroll-driven WebGL landing (spline camera rail, bloom, FOV kick, banking) plus four working pages in the same theme. Source in `src/bundles/` (engine, scenes, data, pages) |
 
 ## Architecture
 
@@ -48,3 +49,7 @@ npm run preview
 ```
 
 There is no database, no API and no server: the app reads nothing but what it bundles.
+
+## Bundles
+
+`src/bundles/engine.ts` is the cinematic runtime (damped scroll playhead → Catmull-Rom camera rail). Each scene in `src/bundles/scenes/` returns `{ scene, rail, update }`. All copy, prices and theme tokens live in `src/bundles/data.ts`. The Tools page was removed.

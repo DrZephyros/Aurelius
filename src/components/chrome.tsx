@@ -21,24 +21,24 @@ export function Logo({ size = 24 }: { size?: number }) {
   );
 }
 
-/** The five shelves of the library — shared by the nav, the hub, the tab bar and the footer. */
+/** The shelves of the library — shared by the nav, the hub, the tab bar and the footer. */
 export const SHELVES: { label: string; href: string; hint: string }[] = [
+  { label: "Bundles", href: "/bundles", hint: "Immersive 3D, one theme" },
   { label: "Landing pages", href: "/landing-pages", hint: "Cinematic 3D sites" },
   { label: "App pages", href: "/pages", hint: "Auth, billing, dashboards" },
   { label: "Components", href: "/components", hint: "Drop-in React pieces" },
   { label: "Text effects", href: "/text-effects", hint: "Import onto any text" },
   { label: "Elements", href: "/elements", hint: "Interactive demos" },
   { label: "Prompts", href: "/prompts", hint: "58 battle-tested prompts" },
-  { label: "Tools", href: "/tools", hint: "Rules, kickoff, tokens" },
 ];
 
 const NAV: [string, string][] = [
+  ["Bundles", "/bundles"],
   ["Library", "/library"],
   ["Landing pages", "/landing-pages"],
   ["Components", "/components"],
   ["Text effects", "/text-effects"],
   ["Prompts", "/prompts"],
-  ["Tools", "/tools"],
 ];
 
 export function SiteNav() {

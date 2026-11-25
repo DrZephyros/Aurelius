@@ -36,7 +36,7 @@ export function DotGrid({ gap = 26, size = 1.5, color = "rgba(255,255,255,0.16)"
     build();
     const ro = new ResizeObserver(build);
     ro.observe(el);
-    const move = (e: PointerEvent) => { const r = el.getBoundingClientRect(); ptr.x = e.clientX - r.left; ptr.y = e.clientY - r.top; };
+    const move = (e: PointerEvent) => { const r = el.getBoundingClientRect(), k = r.width / el.offsetWidth || 1; /* k ≠ 1 when an ancestor is CSS-scaled (previews) */ ptr.x = (e.clientX - r.left) / k; ptr.y = (e.clientY - r.top) / k; };
     const leave = () => { ptr.x = ptr.y = -9999; };
     el.addEventListener("pointermove", move);
     el.addEventListener("pointerleave", leave);

@@ -1,18 +1,18 @@
 "use client";
 
+import { BUNDLES } from "@/bundles/data";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@/lib/router";
 import { TEMPLATES } from "@/lib/templates";
 import { ELEMENTS, PAGES } from "@/lib/collections";
 import { LIBRARY } from "@/lib/library";
 import { REG_ITEMS, TEXT_EFFECTS, catBySlug, itemHref } from "@/lib/registry";
-import { TOOLS } from "@/pages/ToolsPage";
 
 type Item = { id: string; group: string; title: string; hint: string; run: () => void; accent?: string };
 
 const onPath = (p: string) => (location.pathname.replace(/\/$/, "") || "/") === p;
 
-/** ⌘K / Ctrl+K — jump to any template, prompt, tool or section. */
+/** ⌘K / Ctrl+K — jump to any template, prompt, bundle or section. */
 export function CommandPalette() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -61,21 +61,12 @@ export function CommandPalette() {
       { id: "p-text", group: "Go to", title: "Text effects", hint: "Import onto any text", run: go("/text-effects") },
       { id: "p-elements", group: "Go to", title: "Interactive elements", hint: `${ELEMENTS.length} crafted interactions`, run: go("/elements") },
       { id: "p-prompts", group: "Go to", title: "Prompt library", hint: `${LIBRARY.length}+ prompts`, run: go("/prompts") },
-      { id: "p-tools", group: "Go to", title: "Vibe toolkit", hint: "6 tools", run: go("/tools") },
+      { id: "p-bundles", group: "Go to", title: "Bundles", hint: `${BUNDLES.length} immersive 3D sites + matching pages`, run: go("/bundles") },
       ...REG_ITEMS.map((i) => ({ id: "rg-" + i.category + i.slug, group: i.category === TEXT_EFFECTS ? "Text effects" : "Components", title: i.name, hint: `${catBySlug(i.category)?.name} · ${i.tagline}`, run: go(itemHref(i.category, i.slug)) })),
       ...PAGES.map((d) => ({ id: "pg-" + d.slug, group: "App pages", title: d.name, hint: d.tagline, accent: d.accent, run: go(`/pages/${d.slug}`) })),
       ...ELEMENTS.map((d) => ({ id: "el-" + d.slug, group: "Elements", title: d.name, hint: d.tagline, accent: d.accent, run: go(`/elements/${d.slug}`) })),
       ...TEMPLATES.map((t) => ({ id: "t-" + t.slug, group: "Landing pages", title: t.name, hint: t.tagline, accent: t.accent, run: go(`/templates/${t.slug}`) })),
-      ...TOOLS.map((t) => ({
-        id: "tool-" + t.id, group: "Tools", title: t.name, hint: t.desc,
-        run: () => {
-          sessionStorage.setItem("aurelius:tool", t.id);
-          if (onPath("/tools")) {
-            window.dispatchEvent(new CustomEvent("aurelius:tool", { detail: t.id }));
-            sessionStorage.removeItem("aurelius:tool");
-          } else navigate("/tools");
-        },
-      })),
+      ...BUNDLES.map((b) => ({ id: "bd-" + b.slug, group: "Bundles", title: b.name, hint: b.tagline, accent: b.theme.accent, run: go(`/bundles/${b.slug}`) })),
       ...LIBRARY.map((p) => ({
         id: "pr-" + p.id, group: "Prompts", title: p.title, hint: p.category,
         run: () => {
@@ -135,7 +126,7 @@ export function CommandPalette() {
               else if (e.key === "ArrowUp") { e.preventDefault(); setI((x) => Math.max(0, x - 1)); }
               else if (e.key === "Enter") choose(results[i]);
             }}
-            placeholder="Search templates, prompts, tools…"
+            placeholder="Search bundles, templates, prompts…"
             className="h-14 flex-1 bg-transparent text-[15px] outline-none placeholder:text-dim/60"
           />
           <kbd className="rounded-md border border-line px-1.5 py-0.5 font-mono text-[10px] text-dim">esc</kbd>

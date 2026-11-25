@@ -8,7 +8,8 @@ import LibraryPage from "@/pages/LibraryPage";
 import TemplatePage from "@/pages/TemplatePage";
 import DemoPage from "@/pages/DemoPage";
 import PromptsPage from "@/pages/PromptsPage";
-import ToolsPage from "@/pages/ToolsPage";
+import BundlesIndex from "@/bundles/BundlesIndex";
+import BundleShell from "@/bundles/BundleShell";
 import { ComponentsHub, CategoryView, ItemView } from "@/pages/RegistryViews";
 import { REG_CATS, TEXT_EFFECTS, catBySlug, getItem } from "@/lib/registry";
 import { readItem } from "@/lib/registry-files";
@@ -49,14 +50,25 @@ function Routes() {
   if (path === "/landing-pages") return <LibraryPage key="worlds" shelf="worlds" />;
   if (path === "/pages") return <LibraryPage key="pages" shelf="pages" />;
   if (path === "/elements") return <LibraryPage key="elements" shelf="elements" />;
+  if (path === "/bundles") return <BundlesIndex />;
   if (path === "/prompts") return <PromptsPage />;
-  if (path === "/tools") return <ToolsPage />;
   if (path === "/") return <Home />;
   return <NotFound />;
 }
 
 function Shell() {
-  const home = usePath() === "/";
+  const path = usePath().replace(/\/+$/, "") || "/";
+  const home = path === "/";
+  const bundle = path.match(/^\/bundles\/([\w-]+)(?:\/([\w-]+))?$/);
+  // a bundle owns the whole screen: its own world, its own nav, no site chrome
+  if (bundle) {
+    return (
+      <>
+        <BundleShell key={bundle[1]} slug={bundle[1]} page={bundle[2]} />
+        <CommandPalette />
+      </>
+    );
+  }
   return (
     <>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-aurora focus:px-4 focus:py-2 focus:text-black">Skip to content</a>

@@ -36,7 +36,7 @@ export function Constellation({ count, color = "#8fe9ff", linkDistance = 120, sp
     };
     build();
     const ro = new ResizeObserver(build); ro.observe(el);
-    const move = (e: PointerEvent) => { const r = el.getBoundingClientRect(); ptr.x = e.clientX - r.left; ptr.y = e.clientY - r.top; };
+    const move = (e: PointerEvent) => { const r = el.getBoundingClientRect(), k = r.width / el.offsetWidth || 1; /* k ≠ 1 when an ancestor is CSS-scaled (previews) */ ptr.x = (e.clientX - r.left) / k; ptr.y = (e.clientY - r.top) / k; };
     const leave = () => { ptr.x = ptr.y = -9999; };
     if (interactive) { el.addEventListener("pointermove", move); el.addEventListener("pointerleave", leave); }
     let raf = 0, visible = true;

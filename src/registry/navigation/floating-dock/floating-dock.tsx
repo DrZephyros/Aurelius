@@ -26,7 +26,7 @@ export function FloatingDock({ items, size = 46, magnify = 1.7, className, style
     refs.current.forEach((el) => {
       if (!el) return;
       let s = 1;
-      if (x !== null) { const r = el.getBoundingClientRect(); const d = Math.abs(x - (r.left + r.width / 2) + 0); s = 1 + (magnify - 1) * Math.exp(-((d / (size * 1.6)) ** 2)); }
+      if (x !== null) { const r = el.getBoundingClientRect(); const nav = el.parentElement!, k = nav.getBoundingClientRect().width / nav.offsetWidth || 1; /* CSS-scaled previews */ const d = Math.abs(x - (r.left + r.width / 2)) / k; s = 1 + (magnify - 1) * Math.exp(-((d / (size * 1.6)) ** 2)); }
       el.style.transform = `scale(${s})`;
       el.style.margin = `0 ${(s - 1) * size * 0.28}px`;
     });

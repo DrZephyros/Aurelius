@@ -24,7 +24,8 @@ export function MagneticButton({ children, strength = 0.35, href, onClick, class
   const move = (e: React.PointerEvent) => {
     if (e.pointerType === "touch") return;
     const el = ref.current!, r = el.getBoundingClientRect();
-    const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+    const k = r.width / el.offsetWidth || 1; // undo any CSS scale on an ancestor
+    const dx = (e.clientX - (r.left + r.width / 2)) / k, dy = (e.clientY - (r.top + r.height / 2)) / k;
     el.classList.add("au-live");
     el.style.transform = `translate(${dx * strength}px, ${dy * strength}px)`;
     inner.current!.style.transform = `translate(${dx * strength * 0.5}px, ${dy * strength * 0.5}px)`;

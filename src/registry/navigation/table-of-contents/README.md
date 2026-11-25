@@ -44,10 +44,12 @@ import { TableOfContents } from "@/components/aurelius/table-of-contents";
 | `selector` | `string` | `"h2, h3"` | Which headings to list |
 | `root` | `string` | `"article"` | Container to search within |
 | `title` | `string` | `"On this page"` | Label above the list |
-| `offset` | `number` | `96` | Pixels reserved for a sticky header |
+| `offset` | `number` | `96` | Pixels reserved for a sticky header (page scroll only) |
+| `updateHash` | `boolean` | `false` | Write the clicked id into the URL hash. Leave off in hash-routed apps |
 
 ## Notes for the agent
 
+- Clicking an entry scrolls whichever element actually holds the headings — the page, or an inner `overflow:auto` article.
 - Headings without an `id` get a slug id automatically.
 - Runs after mount, so server HTML contains no list (fine for navigation chrome).
 - If your content loads async, change `root` or remount (`key`) after it appears.

@@ -9,7 +9,7 @@ import { REG_CATS, REG_ITEMS, TEXT_EFFECTS, catHref, itemHref, itemsOf } from "@
 import { CAT_COLORS, DemoStage } from "@/components/registry/registry-ui";
 import { metricsFor } from "@/lib/files";
 import { getStats } from "@/lib/stats";
-import { TOOLS } from "@/pages/ToolsPage";
+import { BUNDLES } from "@/bundles/data";
 import { Gallery, TemplateCard, type GalleryItem } from "@/components/gallery";
 import { DemoCard } from "@/components/demo-frame";
 import { Reveal } from "@/components/reveal";
@@ -212,7 +212,7 @@ function Overview() {
           <section className="mt-24 grid gap-4 md:grid-cols-2">
             {([
               ["/prompts", "Prompts", `${ALL_PROMPTS.length} fill-in-the-blank prompts`, "Make Claude Code, Cursor, Lovable and friends behave. Search, favourite, copy.", "#ff7ad9"],
-              ["/tools", "Vibe toolkit", `${TOOLS.length} small tools`, "Rules-file generator, kickoff prompts, bug-to-prompt, token counter, palette checker.", "#ffd28a"],
+              ["/bundles", "Bundles", `${BUNDLES.length} immersive 3D sites`, "One theme end to end: a scroll-driven WebGL landing page plus the pricing, sign-in, reservation and account pages that match it.", "#ffd28a"],
             ] as const).map(([h, t, c, d, a]) => (
               <Reveal key={h}>
                 <Link href={h} className="glass spot group flex h-full items-center justify-between gap-6 rounded-[26px] p-7 transition duration-500 hover:-translate-y-1" style={{ "--c": a } as CSSProperties}>
