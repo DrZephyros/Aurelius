@@ -1,26 +1,29 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { frameProps } from "@/lib/demo";
 
 const W = 1120; // virtual viewport the thumbnail renders at
 const H = 700;
 
 /** Lazy, auto-playing thumbnail of a real template. Only runs while on screen.
- *  Pass `scrub` (0..1) to take over the template's scroll position — used by the gallery cards. */
+ *  Wrap in <ScrubSurface> (components/scrub.tsx) to let the cursor drive the template's scroll position. */
 export function LivePreview({
   slug,
   accent,
   bg,
   name,
-  scrub = null,
+  frameRef,
+  onFrameLoad,
 }: {
   slug: string;
   accent: string;
   bg: string;
   name: string;
-  scrub?: number | null;
+  frameRef?: RefObject<HTMLIFrameElement | null>;
+  onFrameLoad?: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const frame = useRef<HTMLIFrameElement>(null);
+  const ownFrame = useRef<HTMLIFrameElement>(null);
+  const frame = frameRef ?? ownFrame;
   const [live, setLive] = useState(false);
   const [ready, setReady] = useState(false);
   const [scale, setScale] = useState(0.34);
@@ -45,10 +48,6 @@ export function LivePreview({
     };
   }, []);
 
-  useEffect(() => {
-    frame.current?.contentWindow?.postMessage({ md: "scrub", p: scrub }, "*");
-  }, [scrub]);
-
   return (
     <div
       ref={ref}
@@ -71,7 +70,7 @@ export function LivePreview({
           loading="lazy"
           onLoad={() => {
             setTimeout(() => setReady(true), 600);
-            if (scrub !== null) frame.current?.contentWindow?.postMessage({ md: "scrub", p: scrub }, "*");
+            onFrameLoad?.();
           }}
           className={`absolute left-0 top-0 border-0 transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}
           style={{ width: W, height: H, transform: `scale(${scale})`, transformOrigin: "0 0", pointerEvents: "none" }}

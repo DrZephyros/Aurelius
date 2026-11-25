@@ -3,77 +3,124 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>404 — Page not found</title>
+<title>404 — Lost in the dark</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   /* ── tweak me ─────────────────────────────── */
-  :root { --bg: #1b2cff; --fg: #fff; --accent: #d7ff5f; --ink: #0b1070; --display: 'Unbounded', 'Inter', system-ui, sans-serif; --sans: 'Inter', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1); }
+  :root { --bg: #05060a; --fg: #f1ede4; --muted: #8c8f99; --line: rgba(255,255,255,.12); --accent: #ffd9a0; --serif: 'Instrument Serif', Georgia, serif; --sans: 'Geist', system-ui, sans-serif; --mono: 'Geist Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1); }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; } body { background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; display: grid; place-items: center; position: relative;
-    background-image: radial-gradient(60% 50% at 50% 40%, rgba(255,255,255,.14), transparent 70%), radial-gradient(circle at 1px 1px, rgba(255,255,255,.15) 1px, transparent 1.4px); background-size: auto, 28px 28px; }
-  .shape { position: fixed; pointer-events: none; transition: transform .8s var(--ease); will-change: transform; } .s1 { width: 120px; height: 120px; border-radius: 50%; background: var(--accent); left: 8%; top: 14%; } .s2 { width: 90px; height: 90px; border: 6px solid #fff; border-radius: 24px; right: 10%; top: 18%; transform: rotate(18deg); } .s3 { width: 0; height: 0; border-left: 50px solid transparent; border-right: 50px solid transparent; border-bottom: 88px solid #ff6ad5; left: 14%; bottom: 14%; } .s4 { width: 180px; height: 18px; border-radius: 18px; background: #fff; right: 12%; bottom: 20%; opacity: .9; } .s5 { width: 56px; height: 56px; border-radius: 50%; border: 6px dashed var(--accent); left: 46%; top: 8%; }
-  .box { position: relative; z-index: 2; text-align: center; padding: 24px; width: min(720px, 100%); }
-  .label { font: 500 13px var(--mono); letter-spacing: .14em; text-transform: uppercase; display: inline-flex; gap: 10px; align-items: center; padding: 8px 16px; border-radius: 99px; background: rgba(0,0,0,.2); }
-  .label i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pl 1.4s infinite; } @keyframes pl { 50% { opacity: .2; } }
-  .num { display: flex; justify-content: center; align-items: center; gap: clamp(6px, 2vw, 18px); font: 900 clamp(7rem, 24vw, 15rem)/.9 var(--display); letter-spacing: -.06em; margin: 22px 0 10px; text-shadow: 0 10px 0 rgba(0,0,50,.25); }
-  .eye { position: relative; width: .74em; height: .74em; border-radius: 50%; background: #fff; display: grid; place-items: center; overflow: hidden; box-shadow: inset 0 -8px 0 rgba(0,0,60,.12), 0 14px 0 rgba(0,0,50,.25); cursor: pointer; transition: transform .5s var(--ease); flex: none; } .eye:hover { transform: scale(1.06) rotate(-4deg); }
-  .pupil { width: 34%; height: 34%; border-radius: 50%; background: var(--ink); position: relative; transition: transform .08s linear; } .pupil::after { content: ''; position: absolute; width: 28%; height: 28%; border-radius: 50%; background: #fff; left: 18%; top: 16%; }
-  .lid { position: absolute; inset: -2px; background: var(--accent); transform: translateY(-101%); }
-  .eye.blink .lid { animation: blink .22s ease-in-out; } @keyframes blink { 50% { transform: translateY(0); } }
-  .eye.ouch .lid { animation: ouch .9s var(--ease); } @keyframes ouch { 20%, 70% { transform: translateY(-38%); } }
-  .bubble { position: absolute; top: 4%; left: 50%; transform: translate(-50%, 10px) scale(.7); background: #fff; color: var(--ink); font: 700 15px var(--sans); padding: 10px 16px; border-radius: 16px; opacity: 0; transition: .5s var(--ease); pointer-events: none; white-space: nowrap; z-index: 4; } .bubble.on { opacity: 1; transform: translate(-50%, -26px) scale(1); }
-  h1 { font: 700 clamp(1.5rem, 3.4vw, 2.3rem)/1.1 var(--display); letter-spacing: -.04em; } .sub { margin: 14px auto 0; max-width: 46ch; color: rgba(255,255,255,.78); font-size: 17px; line-height: 1.5; }
-  .search { position: relative; margin: 32px auto 0; max-width: 480px; text-align: left; } .search svg { position: absolute; left: 20px; top: 19px; width: 20px; height: 20px; color: #7b83b8; z-index: 1; }
-  .search input { width: 100%; height: 58px; padding: 0 20px 0 52px; border-radius: 99px; border: 3px solid transparent; background: #fff; color: var(--ink); font: 600 16px var(--sans); outline: none; transition: .3s; box-shadow: 0 16px 0 -6px rgba(0,0,50,.25); } .search input:focus { border-color: var(--accent); }
-  .res { position: absolute; left: 12px; right: 12px; top: 66px; background: #fff; border-radius: 20px; padding: 8px; box-shadow: 0 30px 60px -20px rgba(0,0,40,.6); display: none; z-index: 5; } .res.on { display: block; animation: dn .4s var(--ease); } @keyframes dn { from { opacity: 0; transform: translateY(-8px); } }
-  .res a { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 13px; color: var(--ink); text-decoration: none; font-weight: 600; cursor: pointer; transition: background .2s; } .res a.sel, .res a:hover { background: #eef0ff; } .res a small { margin-left: auto; font: 500 12px var(--mono); color: #7b83b8; } .res a em { font-style: normal; font-size: 20px; } .res mark { background: var(--accent); color: var(--ink); border-radius: 3px; } .res p { padding: 14px; color: #7b83b8; font-size: 14px; }
-  .acts { display: flex; gap: 12px; justify-content: center; margin-top: 30px; flex-wrap: wrap; } .btn { height: 56px; padding: 0 30px; border-radius: 99px; border: 0; background: var(--accent); color: var(--ink); font: 700 16px var(--sans); cursor: pointer; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; transition: transform .5s var(--ease), box-shadow .5s var(--ease); box-shadow: 0 8px 0 rgba(0,0,50,.3); } .btn:hover { transform: translateY(-3px); box-shadow: 0 12px 0 rgba(0,0,50,.3); } .btn:active { transform: translateY(5px); box-shadow: 0 2px 0 rgba(0,0,50,.3); }
-  .btn.o { background: transparent; color: #fff; box-shadow: none; border: 2px solid rgba(255,255,255,.5); } .btn.o:hover { background: rgba(255,255,255,.12); box-shadow: none; }
-  .toast { position: fixed; bottom: 28px; left: 50%; transform: translate(-50%, 200%); background: #fff; color: var(--ink); padding: 14px 22px; border-radius: 16px; font-weight: 700; transition: transform .6s var(--ease); z-index: 9; } .toast.on { transform: translate(-50%, 0); }
-  @media (max-width: 640px) { .shape { opacity: .5; } .s4 { display: none; } }
-  @media (prefers-reduced-motion: reduce) { .eye.blink .lid { animation: none; } }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; cursor: none; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; }
+  .stage { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; }
+  .code { font: italic 400 clamp(8rem, 30vw, 24rem)/.8 var(--serif); letter-spacing: -.04em; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.55); }
+  .copy { position: absolute; left: 50%; bottom: 14vh; transform: translateX(-50%); width: min(560px, 90vw); }
+  .eyebrow { font: 500 11px var(--mono); letter-spacing: .24em; text-transform: uppercase; color: var(--accent); }
+  h1 { font: 400 clamp(2rem, 5vw, 3.6rem)/1 var(--serif); margin-top: 14px; letter-spacing: -.02em; }
+  h1 em { color: var(--accent); }
+  p { color: #b9b7b0; margin-top: 12px; font-size: 15.5px; line-height: 1.55; }
+  /* the darkness: a soft hole that follows your light */
+  .veil { position: fixed; inset: 0; pointer-events: none; z-index: 5; background: radial-gradient(circle var(--r, 240px) at var(--mx, 50%) var(--my, 50%), transparent 0, rgba(5,6,10,.3) 38%, rgba(5,6,10,.8) 100%); }
+  .ui { position: fixed; z-index: 8; left: 0; right: 0; bottom: 0; padding: 22px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .top { position: fixed; z-index: 8; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; padding: 22px 28px; font: 500 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .btn { cursor: pointer; border: 1px solid var(--line); background: rgba(255,255,255,.06); backdrop-filter: blur(12px); color: var(--fg); font: 500 14px var(--sans); height: 46px; padding: 0 22px; border-radius: 99px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: .5s var(--ease); }
+  .btn:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.4); }
+  .btn.p { background: var(--accent); color: #1a1208; border-color: transparent; font-weight: 600; }
+  .btn.p:hover { box-shadow: 0 10px 40px -8px rgba(255,217,160,.6); }
+  .search { position: relative; }
+  .search input { cursor: text; height: 46px; width: min(300px, 80vw); border-radius: 99px; border: 1px solid var(--line); background: rgba(255,255,255,.06); backdrop-filter: blur(12px); color: var(--fg); font: 400 14px var(--sans); padding: 0 20px; outline: none; transition: border-color .3s; }
+  .search input:focus { border-color: var(--accent); }
+  .sug { position: absolute; bottom: 54px; left: 0; right: 0; background: rgba(14,15,20,.94); border: 1px solid var(--line); border-radius: 18px; padding: 6px; display: none; text-align: left; backdrop-filter: blur(16px); }
+  .sug.on { display: block; }
+  .sug a { cursor: pointer; display: flex; justify-content: space-between; padding: 10px 14px; border-radius: 12px; font-size: 14px; color: var(--fg); text-decoration: none; }
+  .sug a span { color: var(--muted); font: 12px var(--mono); }
+  .sug a.sel, .sug a:hover { background: rgba(255,255,255,.08); }
+  .torch { position: fixed; z-index: 9; left: 0; top: 0; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #fff; box-shadow: 0 0 24px 8px rgba(255,217,160,.7); pointer-events: none; transition: transform .25s var(--ease); }
+  .hint { position: fixed; z-index: 8; top: 50%; left: 50%; transform: translate(-50%, 150px); font: 500 11px var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--muted); transition: opacity .8s; }
+  @media (max-width: 640px) { .copy { bottom: 24vh; } .top span:last-child { display: none; } body { cursor: auto; } .torch { display: none; } }
+  @media (hover: none) { body { cursor: auto; } .torch { display: none; } }
 </style>
 </head>
 <body>
-<i class="shape s1" data-d="1.6"></i><i class="shape s2" data-d="-1.2"></i><i class="shape s3" data-d="1"></i><i class="shape s4" data-d="-2"></i><i class="shape s5" data-d="2.4"></i>
-<main class="box">
-  <span class="label"><i></i>Error 404 · /this-page-went-on-holiday</span>
-  <div class="num" aria-label="404"><span>4</span><div class="eye" id="eye" role="button" aria-label="Poke the eye"><div class="pupil" id="pupil"></div><div class="lid"></div><div class="bubble" id="bub">Ouch!</div></div><span>4</span></div>
-  <h1>We looked everywhere.</h1>
-  <p class="sub">This page has moved, vanished or never existed. Try the search, or let's get you somewhere real.</p>
-  <div class="search">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.500-3.500"/></svg>
-    <input id="q" placeholder="Search pages…" autocomplete="off" aria-label="Search pages" />
-    <div class="res" id="res" role="listbox"></div>
+<canvas id="c"></canvas>
+<div class="top"><span>Aurelius</span><span>Error 404 · /this-page-went-out</span></div>
+<div class="stage">
+  <div class="code" aria-hidden="true">404</div>
+  <div class="copy">
+    <div class="eyebrow">Page not found</div>
+    <h1>It's dark in here. <em>Find the light.</em></h1>
+    <p>The page you wanted has moved, vanished or never existed. Move your light around — or just pick a way out below.</p>
   </div>
-  <div class="acts"><a class="btn" id="home" href="#">← Take me home</a><a class="btn o" id="back" href="#">Go back</a></div>
-</main>
-<div class="toast" id="toast"></div>
+</div>
+<div class="veil" id="veil"></div>
+<div class="hint" id="hint">Move your cursor · click to widen the beam</div>
+<div class="ui">
+  <a class="btn p" href="#" id="home">← Take me home</a>
+  <div class="search">
+    <input id="q" placeholder="Search for a page…" autocomplete="off" aria-label="Search pages" />
+    <div class="sug" id="sug" role="listbox"></div>
+  </div>
+  <a class="btn" href="#" onclick="history.back();return false">Go back</a>
+</div>
+<div class="torch" id="torch"></div>
 <script>
 (() => {
-  const $ = (s) => document.querySelector(s);
-  const eye = $('#eye'), pupil = $('#pupil');
-  let mx = innerWidth / 2, my = innerHeight / 2;
-  const look = () => { const r = eye.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, a = Math.atan2(my - cy, mx - cx), d = Math.min(r.width * .24, Math.hypot(mx - cx, my - cy) / 6); pupil.style.transform = `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d}px)`; };
-  addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; look(); document.querySelectorAll('.shape').forEach((s) => { const k = +s.dataset.d, x = (mx / innerWidth - .5) * 30 * k, y = (my / innerHeight - .5) * 30 * k; s.style.transform = `translate(${x}px, ${y}px) rotate(${x * .6}deg)`; }); });
-  addEventListener('resize', look); look();
-  /* idle wandering so the eye is alive before the first mouse move */
-  let idle = 0; setInterval(() => { if (Date.now() - idle > 2500 && !matchMedia('(pointer: fine)').matches === false) { mx = innerWidth * (.2 + Math.random() * .6); my = innerHeight * (.2 + Math.random() * .6); look(); } }, 1600);
-  addEventListener('pointermove', () => idle = Date.now());
-  const blink = () => { eye.classList.remove('blink'); void eye.offsetWidth; eye.classList.add('blink'); setTimeout(blink, 1800 + Math.random() * 3200); }; setTimeout(blink, 1200);
-  let n = 0; eye.onclick = () => { n++; eye.classList.remove('ouch'); void eye.offsetWidth; eye.classList.add('ouch'); $('#bub').textContent = ['Ouch!', 'Hey!', 'Stop that!', 'Okay, okay…', 'Ow. Seriously.', 'I forgive you.'][(n - 1) % 6]; $('#bub').classList.add('on'); setTimeout(() => $('#bub').classList.remove('on'), 1000); };
+  const veil = document.getElementById('veil'), torch = document.getElementById('torch'), hint = document.getElementById('hint');
+  const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  let W, H, dpr = Math.min(2, devicePixelRatio || 1);
+  const size = () => { W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+  addEventListener('resize', size); size();
 
-  const PAGES = [['🏠', 'Home', '/'], ['💳', 'Pricing', '/pricing'], ['📊', 'Dashboard', '/dashboard'], ['🔑', 'Sign in', '/sign-in'], ['✨', 'Create an account', '/sign-up'], ['⚙️', 'Settings', '/settings'], ['📚', 'Documentation', '/docs'], ['✉️', 'Contact support', '/contact'], ['📰', 'Blog', '/blog']];
-  const q = $('#q'), res = $('#res'); let sel = 0, list = [];
-  const toast = (m) => { $('#toast').textContent = m; $('#toast').classList.add('on'); setTimeout(() => $('#toast').classList.remove('on'), 1800); };
-  const go = (p) => { toast('Navigating to ' + p[1] + ' (demo)'); res.classList.remove('on'); q.value = ''; };
-  const hi = (t, v) => { const i = t.toLowerCase().indexOf(v); return i < 0 || !v ? t : t.slice(0, i) + '<mark>' + t.slice(i, i + v.length) + '</mark>' + t.slice(i + v.length); };
-  const render = () => { const v = q.value.trim().toLowerCase(); if (!v) { res.classList.remove('on'); return; } list = PAGES.filter((p) => p[1].toLowerCase().includes(v) || p[2].includes(v)); sel = 0; res.classList.add('on'); res.innerHTML = list.length ? list.map((p, i) => `<a class="${i === 0 ? 'sel' : ''}" data-i="${i}" role="option"><em>${p[0]}</em><span>${hi(p[1], v)}</span><small>${p[2]}</small></a>`).join('') : `<p>No pages named “${q.value}”. Maybe it's on holiday too.</p>`; res.querySelectorAll('a').forEach((a) => a.onclick = () => go(list[+a.dataset.i])); };
-  q.addEventListener('input', render);
-  q.addEventListener('keydown', (e) => { if (!list.length) return; if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length; res.querySelectorAll('a').forEach((a, i) => a.classList.toggle('sel', i === sel)); } if (e.key === 'Enter') go(list[sel]); if (e.key === 'Escape') res.classList.remove('on'); });
-  document.addEventListener('click', (e) => { if (!e.target.closest('.search')) res.classList.remove('on'); });
-  $('#home').onclick = (e) => { e.preventDefault(); toast('Heading home (demo)'); }; $('#back').onclick = (e) => { e.preventDefault(); toast('Going back (demo)'); };
+  let tx = W / 2, ty = H / 2, x = tx, y = ty, r = 230, tr = 230, user = false;
+  const move = (e) => { user = true; tx = e.clientX; ty = e.clientY; hint.style.opacity = 0; };
+  addEventListener('pointermove', move);
+  addEventListener('pointerdown', (e) => { move(e); tr = 420; torch.style.transform = 'scale(1.8)'; });
+  addEventListener('pointerup', () => { tr = 230; torch.style.transform = ''; });
+  addEventListener('keydown', (e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') return; });
+
+  // fireflies that drift and are drawn toward the light
+  const flies = Array.from({ length: 70 }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: 0, vy: 0, ph: Math.random() * 6.28, s: .6 + Math.random() * 1.6 }));
+  let t0 = performance.now();
+  function frame(now) {
+    const t = (now - t0) / 1000;
+    if (!user) { tx = W / 2 + Math.sin(t * .7) * W * .28; ty = H / 2 + Math.sin(t * 1.1 + 1) * H * .18; }
+    x += (tx - x) * .09; y += (ty - y) * .09; r += (tr - r) * .07;
+    veil.style.setProperty('--mx', x + 'px'); veil.style.setProperty('--my', y + 'px'); veil.style.setProperty('--r', r + 'px');
+    torch.style.left = x + 'px'; torch.style.top = y + 'px';
+    ctx.clearRect(0, 0, W, H);
+    for (const f of flies) {
+      const dx = x - f.x, dy = y - f.y, d = Math.hypot(dx, dy) + 1;
+      f.vx += (Math.cos(t * .8 + f.ph) * .05) + (d < 420 ? dx / d * .035 : 0);
+      f.vy += (Math.sin(t * .9 + f.ph) * .05) + (d < 420 ? dy / d * .035 : 0);
+      f.vx *= .975; f.vy *= .975; f.x += f.vx; f.y += f.vy;
+      if (f.x < -20) f.x = W + 20; if (f.x > W + 20) f.x = -20; if (f.y < -20) f.y = H + 20; if (f.y > H + 20) f.y = -20;
+      const vis = Math.max(.08, 1 - d / (r * 1.25));
+      const a = vis * (.55 + .45 * Math.sin(t * 2 + f.ph));
+      const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, 10 * f.s);
+      g.addColorStop(0, `rgba(255,226,170,${a})`); g.addColorStop(1, 'rgba(255,226,170,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, 10 * f.s, 0, 6.28); ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // search with suggestions
+  const PAGES = [['Home', '/'], ['Pricing', '/pricing'], ['Dashboard', '/app'], ['Sign in', '/signin'], ['Documentation', '/docs'], ['Contact support', '/support'], ['Status', '/status'], ['Changelog', '/changelog']];
+  const q = document.getElementById('q'), sug = document.getElementById('sug'); let sel = 0, list = [];
+  const render = () => {
+    list = PAGES.filter(p => p[0].toLowerCase().includes(q.value.trim().toLowerCase())).slice(0, 5);
+    sug.innerHTML = list.map((p, i) => `<a class="${i === sel ? 'sel' : ''}" role="option">${p[0]}<span>${p[1]}</span></a>`).join('');
+    sug.classList.toggle('on', q.value.trim().length > 0 && list.length > 0);
+  };
+  q.addEventListener('input', () => { sel = 0; render(); });
+  q.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { sel = (sel + 1) % Math.max(1, list.length); render(); e.preventDefault(); }
+    if (e.key === 'ArrowUp') { sel = (sel - 1 + list.length) % Math.max(1, list.length); render(); e.preventDefault(); }
+    if (e.key === 'Enter' && list[sel]) { q.value = list[sel][0]; sug.classList.remove('on'); }
+  });
+  sug.addEventListener('click', (e) => { const a = e.target.closest('a'); if (a) { q.value = a.firstChild.textContent; sug.classList.remove('on'); } });
+  document.getElementById('home').addEventListener('click', (e) => e.preventDefault());
 })();
 </script>
 </body>

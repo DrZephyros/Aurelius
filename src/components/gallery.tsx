@@ -1,9 +1,10 @@
 import { Link } from "@/lib/router";
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { FILTERS, type Template } from "@/lib/templates";
 import { downloadTemplate } from "@/lib/files";
 import { SITE } from "@/lib/site";
 import { LivePreview } from "./live-preview";
+import { ScrubSurface } from "./scrub";
 
 export type GalleryItem = Template & { tokens: number; downloads: number };
 
@@ -12,16 +13,6 @@ const GPU_DOT: Record<string, string> = { Light: "#7dffb0", Medium: "#ffd34d", H
 /** A card that looks like the website it opens: browser frame, the live site inside it,
  *  and a clear "Open" affordance. Moving the cursor across the preview scrubs through the site. */
 export function TemplateCard({ t, index }: { t: GalleryItem; index: number }) {
-  const [scrub, setScrub] = useState<number | null>(null);
-  const area = useRef<HTMLDivElement>(null);
-
-  const move = (e: PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === "touch") return;
-    const r = area.current?.getBoundingClientRect();
-    if (!r) return;
-    setScrub(Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)));
-  };
-
   return (
     <article className="tcard panel spot group overflow-hidden !rounded-[24px]" style={{ "--c": t.accent } as CSSProperties}>
       <Link href={`/templates/${t.slug}`} className="block cursor-pointer" aria-label={`Open the ${t.name} live preview`}>
@@ -42,29 +33,24 @@ export function TemplateCard({ t, index }: { t: GalleryItem; index: number }) {
         </div>
 
         {/* the site itself */}
-        <div ref={area} className="relative" onPointerMove={move} onPointerLeave={() => setScrub(null)}>
-          <LivePreview slug={t.slug} accent={t.accent} bg={t.bg} name={t.name} scrub={scrub} />
-          <span className="chip pointer-events-none absolute left-3 top-3 !bg-black/55 backdrop-blur-md">N°{String(index + 1).padStart(2, "0")}</span>
-          <span className="chip pointer-events-none absolute right-3 top-3 !bg-black/55 backdrop-blur-md">
-            <i className="size-1.5 rounded-full" style={{ background: GPU_DOT[t.gpu] }} /> {t.gpu} GPU
-          </span>
-
-          {/* hover affordance: tells you exactly what a click does */}
-          <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/55 via-transparent to-transparent pb-9 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[12.5px] font-semibold text-black shadow-2xl">
-              Open interactive preview
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M7 17 17 7M8 7h9v9" /></svg>
-            </span>
-          </div>
-
-          {/* scrub rail */}
-          <div className="pointer-events-none absolute inset-x-3 bottom-3 flex items-center gap-2.5">
-            <span className="font-mono text-[9px] tracking-[0.16em] text-white/70 uppercase mix-blend-difference">{scrub === null ? "Hover to scrub" : "Scrubbing"}</span>
-            <div className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/20">
-              <div className="h-full rounded-full transition-[width] duration-100" style={{ width: `${(scrub ?? 0) * 100}%`, background: t.accent }} />
-            </div>
-          </div>
-        </div>
+        <ScrubSurface accent={t.accent}>
+          {({ frameRef, onLoad }) => (
+            <>
+              <LivePreview slug={t.slug} accent={t.accent} bg={t.bg} name={t.name} frameRef={frameRef} onFrameLoad={onLoad} />
+              <span className="chip pointer-events-none absolute left-3 top-3 !bg-black/55 backdrop-blur-md">N°{String(index + 1).padStart(2, "0")}</span>
+              <span className="chip pointer-events-none absolute right-3 top-3 !bg-black/55 backdrop-blur-md">
+                <i className="size-1.5 rounded-full" style={{ background: GPU_DOT[t.gpu] }} /> {t.gpu} GPU
+              </span>
+              {/* hover affordance: tells you exactly what a click does */}
+              <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[12.5px] font-semibold text-black shadow-2xl">
+                  Open interactive preview
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M7 17 17 7M8 7h9v9" /></svg>
+                </span>
+              </div>
+            </>
+          )}
+        </ScrubSurface>
 
         <div className="px-5 pt-4">
           <div className="flex items-start justify-between gap-4">
@@ -145,7 +131,7 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
         </div>
       </div>
       <p className="mt-5 font-mono text-[11px] tracking-[0.14em] text-dim uppercase">
-        {shown.length} / {items.length} templates · hover a card and move your cursor to scrub through the site · click to open
+        {shown.length} / {items.length} templates · move your cursor across a card to glide through the site · click to open
       </p>
 
       {shown.length === 0 ? (

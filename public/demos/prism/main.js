@@ -11,8 +11,8 @@ const CONFIG = {
 
 boot(() => {
   const stage = createStage({
-    background: 0x06051a, fov: 32, exposure: 1.05, aberration: 0.025,
-    bloom: { strength: 0.5, radius: 0.7, threshold: 0.75 },
+    background: 0x06051a, fov: 32, exposure: 0.9, aberration: 0.02,
+    bloom: { strength: 0.32, radius: 0.55, threshold: 0.92 },
   });
   const { scene, camera, renderer } = stage;
   const pointer = createPointer();
@@ -26,7 +26,7 @@ boot(() => {
     { pos: [0, 9, -6], w: 20, h: 8, intensity: 5, color: 0xffffff },
     { pos: [0, 0, -9], w: 20, h: 14, intensity: 2, color: 0x8a6cff },
   ]);
-  scene.environmentIntensity = 1.1;
+  scene.environmentIntensity = 0.9;
 
   /* light curtain behind the glass — what the crystals refract */
   const barGeo = new THREE.BoxGeometry(1, 1, 1);
@@ -37,7 +37,7 @@ boot(() => {
       const a = lerp(-1.15, 1.15, i / (CONFIG.bars - 1));
       const rad = 15 + row * 7;
       const c = new THREE.Color(CONFIG.palette[Math.floor(R() * CONFIG.palette.length)]);
-      bars.setColorAt(row * CONFIG.bars + i, c.multiplyScalar(2.2 - row * 0.9));
+      bars.setColorAt(row * CONFIG.bars + i, c.multiplyScalar(0.62 - row * 0.28));
       barData.push({ x: Math.sin(a) * rad * 1.15, z: -Math.cos(a) * rad - 3, a, o: R() * 6, w: 0.34 + R() * 0.2 });
     }
   }
@@ -73,7 +73,7 @@ boot(() => {
   for (let i = 0; i < 260; i++) sp.set([(R() - 0.5) * 24, (R() - 0.5) * 14, (R() - 0.5) * 14], i * 3);
   const sg = new THREE.BufferGeometry();
   sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-  const sparkles = new THREE.Points(sg, new THREE.PointsMaterial({ size: 0.09, map: radialTexture(), transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const sparkles = new THREE.Points(sg, new THREE.PointsMaterial({ size: 0.08, map: radialTexture(), transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending }));
   scene.add(sparkles);
 
   camera.position.set(0, 0, 13);
@@ -99,7 +99,7 @@ boot(() => {
       c.m.rotation.x += dt * c.s * 0.5;
     });
     barData.forEach((b, i) => {
-      const h = 4 + 9 * (0.5 + 0.5 * Math.sin(t * 0.7 + b.o + b.a * 3)) ;
+      const h = 3 + 7 * (0.5 + 0.5 * Math.sin(t * 0.7 + b.o + b.a * 3)) ;
       v.set(b.x, h / 2 - 7, b.z);
       q.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, -b.a);
       sc.set(b.w, h, b.w);

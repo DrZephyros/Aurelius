@@ -1,149 +1,249 @@
-import type { CSSProperties, ReactNode } from "react";
-import { Link, navigate } from "@/lib/router";
-import { TEMPLATES, FILTERS } from "@/lib/templates";
-import { ELEMENTS, PAGES } from "@/lib/collections";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { Link } from "@/lib/router";
+import { TEMPLATES } from "@/lib/templates";
+import { ELEMENTS, ELEMENT_CATEGORIES, PAGES, PAGE_CATEGORIES, type Demo } from "@/lib/collections";
 import { ALL_PROMPTS } from "@/lib/library";
+import { metricsFor } from "@/lib/files";
+import { getStats } from "@/lib/stats";
 import { TOOLS } from "@/pages/ToolsPage";
+import { Gallery, TemplateCard, type GalleryItem } from "@/components/gallery";
+import { DemoCard } from "@/components/demo-frame";
 import { Reveal } from "@/components/reveal";
 import { RequestForm } from "@/components/request-form";
 
-const I = (d: ReactNode) => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>{d}</svg>
-);
-const ICONS = {
-  worlds: I(<><path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7L12 2.5Z" /><path d="m3.5 7 8.5 5 8.5-5M12 12v9.5" /></>),
-  pages: I(<><rect x="3.5" y="4" width="17" height="16" rx="2.5" /><path d="M3.5 9h17M8 14h4" /></>),
-  elements: I(<><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="3.5" width="7" height="7" rx="3.5" /><rect x="3.5" y="13.5" width="7" height="7" rx="3.5" /><path d="M13.5 17h7M17 13.5v7" /></>),
-  prompts: I(<><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 4v-4h0A2.5 2.5 0 0 1 4 13.5v-8Z" /><path d="m9 8 2 2-2 2M13 12h2.5" /></>),
-  tools: I(<><path d="M14.5 6.5a4 4 0 0 0 5 5L11 20a2.1 2.1 0 0 1-3-3l8.5-8.5" /><path d="m14.5 6.5 3-3 3 3-3 3" /></>),
+export type Shelf = "all" | "worlds" | "pages" | "elements";
+
+const COPY: Record<Shelf, { eyebrow: string; title: ReactNode; body: string }> = {
+  all: {
+    eyebrow: "The library",
+    title: <>Pick one. <span className="aurora-text">Poke it.</span></>,
+    body: "Every card below is the real thing, running. Glide your cursor across a card to scrub through it — click to step inside, read the source and take the code.",
+  },
+  worlds: {
+    eyebrow: "Landing pages",
+    title: <>Landing pages that <span className="aurora-text">stop the scroll.</span></>,
+    body: "Cinematic, scroll-driven 3D websites built to do a landing page's job: say what it is, earn trust, get the click. Glide over a card to scrub the page; click to open it full-size.",
+  },
+  pages: {
+    eyebrow: "App pages",
+    title: <>The screens every product needs, <span className="aurora-text">finished.</span></>,
+    body: "Sign in, booking, inbox, invoices, status, checkout, dashboards — each one a single HTML file with real validation, real states and real motion. Hover a card and the page reacts to you.",
+  },
+  elements: {
+    eyebrow: "Interactive elements",
+    title: <>Small things that make people <span className="aurora-text">smile.</span></>,
+    body: "Magnetic buttons, spring-loaded controls, a swipe deck, a radial menu. Self-contained, dependency-free and satisfying to touch — copy them straight into your project.",
+  },
 };
 
-function goFilter(f: string) {
-  navigate("/landing-pages");
-  setTimeout(() => window.dispatchEvent(new CustomEvent("aurelius:filter", { detail: f })), 160);
-}
+const worldItems = (): GalleryItem[] => {
+  const stats = getStats();
+  return TEMPLATES.map((t) => ({ ...t, tokens: metricsFor(t.slug).tokens, downloads: stats[t.slug]?.downloads ?? 0 }));
+};
 
-function Shelf({ href, icon, title, count, unit, copy, className = "", children, accent = "#5cffc4" }: { href: string; icon: ReactNode; title: string; count: number; unit: string; copy: string; className?: string; children?: ReactNode; accent?: string }) {
+const Search = ({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) => {
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => {
+      if (e.key === "/" && !(e.target as HTMLElement).matches("input,textarea")) { e.preventDefault(); ref.current?.focus(); }
+    };
+    addEventListener("keydown", on);
+    return () => removeEventListener("keydown", on);
+  }, []);
   return (
-    <Link href={href} className={`glass spot group relative flex flex-col overflow-hidden rounded-[26px] p-6 transition duration-500 hover:-translate-y-1 hover:[border-color:var(--c)] sm:p-7 ${className}`} style={{ "--c": accent + "88" } as CSSProperties}>
-      <div className="flex items-start justify-between">
-        <span className="grid size-12 place-items-center rounded-2xl border border-line-strong bg-white/[0.03] transition group-hover:scale-110" style={{ color: accent }}>{icon}</span>
-        <span className="grid size-10 place-items-center rounded-full border border-line-strong text-lg transition duration-500 group-hover:rotate-[-45deg] group-hover:border-transparent group-hover:bg-[var(--bg)] group-hover:text-black" style={{ ["--bg" as string]: accent }} aria-hidden>
-          →
-        </span>
+    <label className="glass relative block h-12 w-full max-w-[460px] rounded-full">
+      <span className="sr-only">Search the library</span>
+      <svg className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-aurora" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+      <input ref={ref} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="h-full w-full rounded-full bg-transparent pl-12 pr-14 text-[14.5px] outline-none placeholder:text-dim" />
+      <kbd className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 rounded-md border border-line-strong px-2 py-0.5 font-mono text-[11px] text-dim">/</kbd>
+    </label>
+  );
+};
+
+function SectionHead({ id, n, title, count, unit, href, accent }: { id: string; n: string; title: string; count: number; unit: string; href: string; accent: string }) {
+  return (
+    <div id={id} className="mb-6 flex flex-wrap items-end justify-between gap-4 scroll-mt-32">
+      <div className="flex items-baseline gap-4">
+        <span className="font-mono text-xs tracking-[0.2em]" style={{ color: accent }}>{n}</span>
+        <h2 className="font-display text-[clamp(1.7rem,3vw,2.5rem)] font-semibold tracking-[-0.04em]">{title}</h2>
+        <span className="font-mono text-[11px] tracking-[0.14em] text-dim uppercase">{count} {unit}</span>
       </div>
-      <div className="mt-8 flex items-baseline gap-3">
-        <h3 className="font-display text-[1.7rem] font-semibold tracking-[-0.04em]">{title}</h3>
-        <span className="font-mono text-[11px] tracking-[0.14em] uppercase" style={{ color: accent }}>{count} {unit}</span>
-      </div>
-      <p className="mt-2 max-w-md text-[14px] leading-relaxed text-dim">{copy}</p>
-      {children}
-    </Link>
+      <Link href={href} className="group flex items-center gap-2 text-[13px] text-dim transition hover:text-fg">
+        View all {count} <span className="transition group-hover:translate-x-1" aria-hidden>→</span>
+      </Link>
+    </div>
   );
 }
 
-export default function LibraryPage() {
-  const worldsShown = TEMPLATES.slice(0, 8);
-  const goals: [string, string, string][] = [
-    ["I need a website today", "Browse worlds → download → edit CONFIG", "/landing-pages"],
-    ["I need app screens", "Auth, pricing, checkout, dashboards", "/pages"],
-    ["I'm building with AI", "Prompts, rules files and a token counter", "/prompts"],
-  ];
+function DemoShelf({ list, cats, placeholder }: { list: Demo[]; cats: readonly string[]; placeholder: string }) {
+  const [cat, setCat] = useState("All");
+  const [q, setQ] = useState("");
+  const shown = useMemo(() => {
+    const n = q.trim().toLowerCase();
+    return list.filter((d) => (cat === "All" || d.category === cat) && (!n || [d.name, d.tagline, d.blurb, d.category, ...d.features].join(" ").toLowerCase().includes(n)));
+  }, [list, cat, q]);
+  return (
+    <div>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+        <Search value={q} onChange={setQ} placeholder={placeholder} />
+        <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 lg:mx-0 lg:flex-1 lg:flex-wrap lg:overflow-visible lg:px-0 lg:pb-0" role="tablist">
+          {cats.map((f) => (
+            <button key={f} role="tab" aria-selected={cat === f} onClick={() => setCat(f)} className={`shrink-0 rounded-full border px-4 py-2 text-[13px] transition ${cat === f ? "border-aurora bg-aurora text-[#021510]" : "border-line text-dim hover:border-line-strong hover:text-fg"}`}>
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+      <p className="mt-5 font-mono text-[11px] tracking-[0.14em] text-dim uppercase">{shown.length} / {list.length} · glide across a card to bring it to life</p>
+      {shown.length === 0 ? (
+        <div className="panel mt-8 p-12 text-center text-dim">Nothing matches “{q}”. <button className="text-aurora underline" onClick={() => { setQ(""); setCat("All"); }}>Reset</button></div>
+      ) : (
+        <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {shown.map((d, i) => (
+            <Reveal key={d.slug} delay={(i % 3) * 70}><DemoCard demo={d} index={list.findIndex((x) => x.slug === d.slug)} /></Reveal>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** "All" shelf: one search box over everything, or — when idle — three tidy sections. */
+function Overview() {
+  const worlds = useMemo(worldItems, []);
+  const [q, setQ] = useState("");
+  const n = q.trim().toLowerCase();
+  const hits = useMemo(() => {
+    if (!n) return null;
+    const hay = (parts: string[]) => parts.join(" ").toLowerCase().includes(n);
+    return {
+      worlds: worlds.filter((t) => hay([t.name, t.tagline, t.blurb, ...t.tags, ...t.bestFor])),
+      pages: PAGES.filter((d) => hay([d.name, d.tagline, d.blurb, d.category, ...d.features])),
+      elements: ELEMENTS.filter((d) => hay([d.name, d.tagline, d.blurb, d.category, ...d.features])),
+    };
+  }, [n, worlds]);
+
+  const grid = "grid gap-5 md:grid-cols-2 xl:grid-cols-3";
+  const total = hits ? hits.worlds.length + hits.pages.length + hits.elements.length : 0;
 
   return (
-    <main className="mx-auto max-w-[1320px] px-5 pb-28 pt-40 sm:px-8">
-      {/* header */}
-      <header className="max-w-3xl">
-        <div className="rise eyebrow">The library</div>
-        <h1 className="rise h-display mt-5 text-[clamp(2.8rem,7vw,6.4rem)]" style={{ "--d": "120ms" } as CSSProperties}>
-          Five shelves.<br /><span className="aurora-text">Every one lit.</span>
-        </h1>
-        <p className="rise mt-6 max-w-xl text-[16.5px] leading-relaxed text-fg/70" style={{ "--d": "260ms" } as CSSProperties}>
-          Pick a shelf, or just start typing. Everything here is real, running code you can download and change.
-        </p>
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new Event("aurelius:palette"))}
-          className="rise glass group mt-9 flex h-[60px] w-full max-w-[640px] items-center gap-4 rounded-full px-6 text-left transition hover:[border-color:rgb(92_255_196/0.5)]"
-          style={{ "--d": "380ms" } as CSSProperties}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="text-aurora"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-          <span className="flex-1 text-[15px] text-dim">Search worlds, pages, prompts, tools…</span>
-          <kbd className="rounded-md border border-line-strong px-2 py-1 font-mono text-[11px] text-dim">⌘ K</kbd>
-        </button>
-      </header>
-
-      {/* where to start */}
-      <Reveal className="mt-14">
-        <div className="mb-4 font-mono text-[11px] tracking-[0.2em] text-dim uppercase">Where to start</div>
-        <div className="grid gap-3 md:grid-cols-3">
-          {goals.map(([t, d, h]) => (
-            <Link key={t} href={h} className="glass group flex items-center justify-between gap-4 rounded-2xl px-5 py-4 transition hover:[border-color:rgb(92_255_196/0.45)]">
-              <div>
-                <div className="font-display text-[15px] font-semibold tracking-[-0.02em]">{t}</div>
-                <div className="mt-0.5 text-[12.5px] text-dim">{d}</div>
-              </div>
-              <span className="text-aurora transition group-hover:translate-x-1" aria-hidden>→</span>
-            </Link>
-          ))}
-        </div>
-      </Reveal>
-
-      {/* bento of shelves */}
-      <div className="mt-12 grid gap-4 lg:grid-cols-6">
-        <Reveal className="lg:col-span-4 lg:row-span-2">
-          <Shelf href="/landing-pages" icon={ICONS.worlds} title="Landing pages" count={TEMPLATES.length} unit="3D worlds" copy="Scroll-driven Three.js sites for portfolios, clinics, cars, space, food and more. Every card runs the real template." className="h-full min-h-[420px]">
-            <div className="mt-8 grid flex-1 grid-cols-2 gap-3 sm:grid-cols-4">
-              {worldsShown.map((t) => (
-                <span key={t.slug} className="relative flex aspect-[4/3] items-end overflow-hidden rounded-xl border border-line p-2.5 transition duration-500 group-hover:border-line-strong" style={{ background: `radial-gradient(120% 100% at 25% 15%, ${t.accent}55, transparent 62%), ${t.bg}` }}>
-                  <i className="absolute right-2.5 top-2.5 size-1.5 rounded-full" style={{ background: t.accent, boxShadow: `0 0 12px ${t.accent}` }} />
-                  <span className={`text-[12px] font-semibold tracking-[-0.01em] ${t.theme === "Light" ? "text-black/80" : "text-white/90"}`}>{t.name}</span>
-                </span>
-              ))}
-            </div>
-            <div className="mt-4 font-mono text-[11px] tracking-[0.14em] text-dim uppercase">+ {TEMPLATES.length - worldsShown.length} more · newest: Apex Kestrel</div>
-          </Shelf>
-        </Reveal>
-        <Reveal delay={100} className="lg:col-span-2">
-          <Shelf href="/pages" icon={ICONS.pages} title="App pages" count={PAGES.length} unit="screens" copy="Sign in, pricing, checkout, dashboard, settings — production-ready." accent="#3de7ff" className="h-full" />
-        </Reveal>
-        <Reveal delay={180} className="lg:col-span-2">
-          <Shelf href="/elements" icon={ICONS.elements} title="Elements" count={ELEMENTS.length} unit="components" copy="Magnetic buttons, spotlight cards, a command bar, a kanban — all interactive." accent="#a58bff" className="h-full" />
-        </Reveal>
-        <Reveal delay={100} className="lg:col-span-3">
-          <Shelf href="/prompts" icon={ICONS.prompts} title="Prompts" count={ALL_PROMPTS.length} unit="prompts" copy="Fill-in-the-blank prompts that make AI coding tools behave. Search, favourite, copy." accent="#ff7ad9" className="h-full" />
-        </Reveal>
-        <Reveal delay={180} className="lg:col-span-3">
-          <Shelf href="/tools" icon={ICONS.tools} title="Vibe toolkit" count={TOOLS.length} unit="tools" copy="Rules-file generator, kickoff prompts, bug-to-prompt, token counter, palette checker." accent="#ffd28a" className="h-full" />
-        </Reveal>
+    <div>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+        <Search value={q} onChange={setQ} placeholder="Search landing pages, app pages, elements…" />
+        {!hits && (
+          <div className="flex flex-wrap gap-2">
+            {[["Landing pages", "sec-worlds", TEMPLATES.length], ["App pages", "sec-pages", PAGES.length], ["Elements", "sec-elements", ELEMENTS.length]].map(([l, id, c]) => (
+              <button key={l as string} onClick={() => document.getElementById(id as string)?.scrollIntoView({ behavior: "smooth" })} className="glass flex items-center gap-2.5 rounded-full px-4 py-2.5 text-[13px] text-dim transition hover:text-fg hover:[border-color:rgb(92_255_196/0.5)]">
+                {l}<span className="font-mono text-[11px] text-aurora">{c}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* browse by vibe */}
-      <Reveal className="mt-16">
-        <div className="mb-4 flex items-end justify-between">
-          <h2 className="font-display text-2xl font-semibold tracking-[-0.03em]">Browse worlds by use case</h2>
-          <Link href="/landing-pages" className="text-[13px] text-dim transition hover:text-aurora">View all →</Link>
+      {hits ? (
+        <div className="mt-8 space-y-12">
+          <p className="font-mono text-[11px] tracking-[0.14em] text-dim uppercase">{total} results for “{q}”</p>
+          {total === 0 && <div className="panel p-12 text-center text-dim">Nothing matches. Try “dark”, “login” or “menu”.</div>}
+          {hits.worlds.length > 0 && <div className={grid}>{hits.worlds.map((t) => <TemplateCard key={t.slug} t={t} index={worlds.findIndex((x) => x.slug === t.slug)} />)}</div>}
+          {hits.pages.length > 0 && <div className={grid}>{hits.pages.map((d) => <DemoCard key={d.slug} demo={d} index={PAGES.indexOf(d)} />)}</div>}
+          {hits.elements.length > 0 && <div className={grid}>{hits.elements.map((d) => <DemoCard key={d.slug} demo={d} index={ELEMENTS.indexOf(d)} />)}</div>}
         </div>
-        <div className="flex flex-wrap gap-2">
-          {FILTERS.filter((f) => f !== "All").map((f) => (
-            <button key={f} onClick={() => goFilter(f)} className="glass rounded-full px-4 py-2 text-[13px] text-dim transition hover:text-fg hover:[border-color:rgb(92_255_196/0.5)]">{f}</button>
-          ))}
-        </div>
-      </Reveal>
-
-      {/* request */}
-      <Reveal className="mt-20">
-        <div className="glass rounded-[26px] p-6 sm:p-10">
-          <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
-            <div>
-              <div className="eyebrow">Missing a world?</div>
-              <h2 className="h-display mt-4 text-[clamp(1.9rem,3.6vw,3rem)]">Tell us what to light up next.</h2>
-              <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-dim">Describe a use case or a vibe. Requests stay on your device until there's a server to send them to.</p>
+      ) : (
+        <>
+          <section className="mt-10">
+            <SectionHead id="sec-worlds" n="01" title="Landing pages" count={TEMPLATES.length} unit="3D worlds" href="/landing-pages" accent="#5cffc4" />
+            <div className={grid}>
+              {worlds.slice(0, 6).map((t, i) => <Reveal key={t.slug} delay={(i % 3) * 70}><TemplateCard t={t} index={i} /></Reveal>)}
             </div>
-            <RequestForm />
+            <Link href="/landing-pages" className="btn btn-ghost mt-7 w-full sm:w-auto">See all {TEMPLATES.length} landing pages <span aria-hidden>→</span></Link>
+          </section>
+
+          <section className="mt-24">
+            <SectionHead id="sec-pages" n="02" title="App pages" count={PAGES.length} unit="screens" href="/pages" accent="#3de7ff" />
+            <div className={grid}>
+              {PAGES.slice(0, 6).map((d, i) => <Reveal key={d.slug} delay={(i % 3) * 70}><DemoCard demo={d} index={i} /></Reveal>)}
+            </div>
+            <Link href="/pages" className="btn btn-ghost mt-7 w-full sm:w-auto">See all {PAGES.length} app pages <span aria-hidden>→</span></Link>
+          </section>
+
+          <section className="mt-24">
+            <SectionHead id="sec-elements" n="03" title="Elements" count={ELEMENTS.length} unit="components" href="/elements" accent="#a58bff" />
+            <div className={grid}>
+              {ELEMENTS.slice(0, 6).map((d, i) => <Reveal key={d.slug} delay={(i % 3) * 70}><DemoCard demo={d} index={i} /></Reveal>)}
+            </div>
+            <Link href="/elements" className="btn btn-ghost mt-7 w-full sm:w-auto">See all {ELEMENTS.length} elements <span aria-hidden>→</span></Link>
+          </section>
+
+          <section className="mt-24 grid gap-4 md:grid-cols-2">
+            {([
+              ["/prompts", "Prompts", `${ALL_PROMPTS.length} fill-in-the-blank prompts`, "Make Claude Code, Cursor, Lovable and friends behave. Search, favourite, copy.", "#ff7ad9"],
+              ["/tools", "Vibe toolkit", `${TOOLS.length} small tools`, "Rules-file generator, kickoff prompts, bug-to-prompt, token counter, palette checker.", "#ffd28a"],
+            ] as const).map(([h, t, c, d, a]) => (
+              <Reveal key={h}>
+                <Link href={h} className="glass spot group flex h-full items-center justify-between gap-6 rounded-[26px] p-7 transition duration-500 hover:-translate-y-1" style={{ "--c": a } as CSSProperties}>
+                  <div>
+                    <div className="font-mono text-[11px] tracking-[0.16em] uppercase" style={{ color: a }}>{c}</div>
+                    <h3 className="mt-2 font-display text-[1.7rem] font-semibold tracking-[-0.04em]">{t}</h3>
+                    <p className="mt-2 max-w-md text-[14px] leading-relaxed text-dim">{d}</p>
+                  </div>
+                  <span className="grid size-11 shrink-0 place-items-center rounded-full border border-line-strong transition duration-500 group-hover:rotate-[-45deg] group-hover:border-transparent group-hover:text-black group-hover:bg-[var(--a)]" style={{ "--a": a } as CSSProperties} aria-hidden>→</span>
+                </Link>
+              </Reveal>
+            ))}
+          </section>
+
+          <Reveal className="mt-20">
+            <div className="glass rounded-[26px] p-6 sm:p-10">
+              <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+                <div>
+                  <div className="eyebrow">Missing something?</div>
+                  <h2 className="h-display mt-4 text-[clamp(1.9rem,3.6vw,3rem)]">Tell us what to build next.</h2>
+                  <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-dim">Describe a use case or a vibe. Requests stay on your device until there's a server to send them to.</p>
+                </div>
+                <RequestForm />
+              </div>
+            </div>
+          </Reveal>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function LibraryPage({ shelf = "all" }: { shelf?: Shelf }) {
+  const c = COPY[shelf];
+  const worlds = useMemo(worldItems, []);
+  const stats: [number, string][] = [[TEMPLATES.length, "3D worlds"], [PAGES.length, "app pages"], [ELEMENTS.length, "elements"]];
+
+  return (
+    <main className="relative">
+      <div className="relative mx-auto max-w-[1320px] px-5 pb-28 pt-32 sm:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-8">
+          <div className="max-w-5xl">
+            <div className="rise eyebrow">{c.eyebrow}</div>
+            <h1 className="rise h-display mt-4 text-[clamp(2.3rem,4.8vw,4.3rem)]" style={{ "--d": "100ms" } as CSSProperties}>{c.title}</h1>
+            <p className="rise mt-4 max-w-2xl text-[15.5px] leading-relaxed text-fg/70" style={{ "--d": "220ms" } as CSSProperties}>{c.body}</p>
           </div>
+          {shelf === "all" && (
+            <dl className="rise flex gap-8" style={{ "--d": "340ms" } as CSSProperties}>
+              {stats.map(([n, l]) => (
+                <div key={l}>
+                  <dt className="font-display text-4xl font-semibold tracking-[-0.04em]">{n}</dt>
+                  <dd className="mt-1 font-mono text-[10px] tracking-[0.16em] text-dim uppercase">{l}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
         </div>
-      </Reveal>
+
+        <div className="mt-8">
+          {shelf === "all" && <Overview />}
+          {shelf === "worlds" && <Gallery items={worlds} />}
+          {shelf === "pages" && <DemoShelf key="p" list={PAGES} cats={PAGE_CATEGORIES} placeholder="Search: login, booking, chart…" />}
+          {shelf === "elements" && <DemoShelf key="e" list={ELEMENTS} cats={ELEMENT_CATEGORIES} placeholder="Search: drag, menu, motion…" />}
+        </div>
+      </div>
     </main>
   );
 }

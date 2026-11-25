@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Radial menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root { --bg: #100c09; --fg: #f4ece1; --muted: #9a8d7d; --accent: #ffc27a; --glass: rgba(34,26,19,.72); --line: rgba(255,226,190,.16); --R: 112px;
+    --serif: 'Instrument Serif', Georgia, serif; --sans: 'Geist', system-ui, sans-serif; --mono: 'Geist Mono', ui-monospace, monospace; --spring: cubic-bezier(.3,1.45,.5,1); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { height: 100vh; overflow: hidden; background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none; touch-action: none;
+    background-image: radial-gradient(circle at var(--bx, 50%) var(--by, 50%), rgba(255,194,122,.1), transparent 40%), radial-gradient(rgba(255,226,190,.07) 1px, transparent 1.2px); background-size: auto, 28px 28px; }
+  .hero { position: fixed; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none; transition: opacity .6s, filter .6s; padding: 24px; }
+  .hero small { font: 500 11px var(--mono); letter-spacing: .24em; text-transform: uppercase; color: var(--accent); } .hero h1 { font: 400 clamp(2.6rem, 8vw, 6rem)/.95 var(--serif); letter-spacing: -.03em; margin: 14px 0; } .hero h1 em { color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 15px; max-width: 360px; margin: 0 auto; line-height: 1.6; }
+  body.open .hero { opacity: .25; filter: blur(5px); }
+  .log { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); font: 12.5px var(--mono); color: var(--muted); padding: 10px 18px; border-radius: 99px; border: 1px solid var(--line); background: rgba(255,255,255,.03); white-space: nowrap; } .log b { color: var(--accent); font-weight: 500; }
+  .menu { position: fixed; left: 0; top: 0; width: 0; height: 0; pointer-events: none; z-index: 5; }
+  .ring { position: absolute; left: -150px; top: -150px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, transparent 38%, var(--glass) 39%, var(--glass) 100%); backdrop-filter: blur(16px); border: 1px solid var(--line); transform: scale(.3); opacity: 0; transition: transform .6s var(--spring), opacity .3s; -webkit-mask: radial-gradient(circle, transparent 66px, #000 67px); mask: radial-gradient(circle, transparent 66px, #000 67px); box-shadow: 0 40px 80px -30px #000; }
+  .open .ring { transform: scale(1); opacity: 1; }
+  .center { position: absolute; left: -62px; top: -62px; width: 124px; height: 124px; border-radius: 50%; display: grid; place-content: center; text-align: center; transform: scale(.3); opacity: 0; transition: transform .6s var(--spring), opacity .3s; }
+  .center b { font: 400 26px var(--serif); letter-spacing: -.01em; } .center span { font: 500 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 4px; } .open .center { transform: scale(1); opacity: 1; }
+  .item { position: absolute; left: -26px; top: -26px; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; color: var(--fg); transform: translate(0, 0) scale(0); opacity: 0; transition: transform .6s var(--spring) calc(var(--i) * 35ms), opacity .3s calc(var(--i) * 35ms), background .25s, color .25s; }
+  .item svg { width: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .open .item { transform: translate(var(--x), var(--y)) scale(1); opacity: 1; } .open .item.hot { transform: translate(var(--x), var(--y)) scale(1.38); background: var(--accent); color: #2a1604; box-shadow: 0 0 40px -4px var(--accent); transition: transform .35s var(--spring), background .2s, color .2s; }
+  .wedge { position: absolute; left: -150px; top: -150px; width: 300px; height: 300px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .25s; background: conic-gradient(from calc(var(--a) - 30deg), rgba(255,194,122,.3) 0 60deg, transparent 60deg); -webkit-mask: radial-gradient(circle, transparent 66px, #000 67px); mask: radial-gradient(circle, transparent 66px, #000 67px); } .wedge.on { opacity: 1; }
+  .flash { position: fixed; left: 50%; top: 22%; transform: translate(-50%, 10px); padding: 10px 20px; border-radius: 99px; background: var(--accent); color: #2a1604; font: 600 14px var(--sans); opacity: 0; transition: .5s var(--spring); pointer-events: none; } .flash.on { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+<div class="hero"><small>Radial menu</small><h1>Press <em>anywhere.</em></h1><p>Click or press and hold, then flick toward an action. Every direction is a shortcut your hand learns.</p></div>
+<div class="log" id="log">Last action · <b>none yet</b></div>
+<div class="menu" id="menu"><div class="wedge" id="wedge"></div><div class="ring"></div><div class="center"><b id="cl">Choose</b><span id="cs">flick or click</span></div></div>
+<div class="flash" id="flash"></div>
+<script>
+(() => {
+  const ICON = {
+    heart: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/>',
+    share: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="m8.2 10.8 7.600-3.600M8.2 13.200l7.600 3.600"/>',
+    copy: '<rect x="8" y="8" width="12" height="12" rx="2.500"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+    pin: '<path d="M12 21s-6-5.200-6-10a6 6 0 0 1 12 0c0 4.800-6 10-6 10z"/><circle cx="12" cy="11" r="2.200"/>',
+    edit: '<path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/>',
+    trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  };
+  const ITEMS = [['Like', 'heart', 'Liked it'], ['Share', 'share', 'Link ready to share'], ['Copy', 'copy', 'Copied to clipboard'], ['Pin', 'pin', 'Pinned to the top'], ['Edit', 'edit', 'Opening the editor'], ['Delete', 'trash', 'Moved to trash']];
+  const R = 112, menu = document.getElementById('menu'), wedge = document.getElementById('wedge'), body = document.body;
+  menu.insertAdjacentHTML('beforeend', ITEMS.map((it, i) => { const a = -Math.PI / 2 + i / ITEMS.length * Math.PI * 2; return `<div class="item" data-i="${i}" style="--i:${i};--x:${Math.cos(a) * R}px;--y:${Math.sin(a) * R}px"><svg viewBox="0 0 24 24">${ICON[it[1]]}</svg></div>`; }).join(''));
+  const els = [...menu.querySelectorAll('.item')]; let ox = 0, oy = 0, isOpen = false, hot = -1, t0 = 0;
+  const log = document.getElementById('log'), flash = document.getElementById('flash');
+  function open(x, y) {
+    const pad = 160; ox = Math.max(pad, Math.min(innerWidth - pad, x)); oy = Math.max(pad, Math.min(innerHeight - pad, y));
+    menu.style.left = ox + 'px'; menu.style.top = oy + 'px'; body.classList.add('open'); body.style.setProperty('--bx', ox + 'px'); body.style.setProperty('--by', oy + 'px'); isOpen = true; t0 = performance.now(); set(-1);
+  }
+  function close() { body.classList.remove('open'); isOpen = false; wedge.classList.remove('on'); }
+  function set(i) {
+    hot = i; els.forEach((e, k) => e.classList.toggle('hot', k === i));
+    document.getElementById('cl').textContent = i < 0 ? 'Choose' : ITEMS[i][0]; document.getElementById('cs').textContent = i < 0 ? 'flick or click' : 'release to apply';
+    wedge.classList.toggle('on', i >= 0); if (i >= 0) wedge.style.setProperty('--a', (i / ITEMS.length * 360) + 'deg');
+  }
+  function aim(x, y) {
+    const dx = x - ox, dy = y - oy, d = Math.hypot(dx, dy); if (d < 34) return set(-1);
+    let a = Math.atan2(dy, dx) + Math.PI / 2; if (a < 0) a += Math.PI * 2; set(Math.round(a / (Math.PI * 2) * ITEMS.length) % ITEMS.length);
+  }
+  function pick() {
+    if (hot < 0) return close(); const it = ITEMS[hot];
+    log.innerHTML = `Last action · <b>${it[0]}</b>`; flash.textContent = it[2]; flash.classList.add('on'); setTimeout(() => flash.classList.remove('on'), 1400); close();
+  }
+  addEventListener('pointerdown', (e) => { if (e.button !== 0 && e.pointerType === 'mouse') return; if (isOpen) { aim(e.clientX, e.clientY); return; } open(e.clientX, e.clientY); });
+  addEventListener('pointermove', (e) => { if (isOpen) aim(e.clientX, e.clientY); });
+  addEventListener('pointerup', (e) => { if (!isOpen) return; const held = performance.now() - t0 > 260 || hot >= 0 && Math.hypot(e.clientX - ox, e.clientY - oy) > 34; if (held) pick(); });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  // clicking an item directly (tap-to-open then tap)
+  menu.addEventListener('click', () => { if (isOpen && hot >= 0) pick(); });
+  addEventListener('contextmenu', (e) => e.preventDefault());
+})();
+</script>
+</body>
+</html>

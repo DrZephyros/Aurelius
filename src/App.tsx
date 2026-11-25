@@ -11,8 +11,6 @@ import Home from "@/pages/Home";
 import TemplatePage from "@/pages/TemplatePage";
 import PromptsPage from "@/pages/PromptsPage";
 import ToolsPage from "@/pages/ToolsPage";
-import LandingPagesPage from "@/pages/LandingPagesPage";
-import CollectionPage from "@/pages/CollectionPage";
 import DemoPage from "@/pages/DemoPage";
 import { CommandPalette } from "@/components/command-palette";
 
@@ -24,10 +22,10 @@ function Routes() {
   if (m) return <DemoPage key={"p" + m[1]} kind="page" slug={m[1]} />;
   m = path.match(/^\/elements\/([\w-]+)\/?$/);
   if (m) return <DemoPage key={"e" + m[1]} kind="element" slug={m[1]} />;
-  if (path.startsWith("/library")) return <LibraryPage />;
-  if (path.startsWith("/landing-pages")) return <LandingPagesPage />;
-  if (path.startsWith("/pages")) return <CollectionPage key="page" kind="page" />;
-  if (path.startsWith("/elements")) return <CollectionPage key="element" kind="element" />;
+  if (path.startsWith("/library")) return <LibraryPage key="all" shelf="all" />;
+  if (path.startsWith("/landing-pages")) return <LibraryPage key="worlds" shelf="worlds" />;
+  if (path.startsWith("/pages")) return <LibraryPage key="pages" shelf="pages" />;
+  if (path.startsWith("/elements")) return <LibraryPage key="elements" shelf="elements" />;
   if (path.startsWith("/prompts")) return <PromptsPage />;
   if (path.startsWith("/tools")) return <ToolsPage />;
   return <Home />;
@@ -36,16 +34,14 @@ function Routes() {
 function Shell() {
   const path = usePath();
   const home = path === "/";
-  const lib = path.startsWith("/library");
   return (
     <>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-aurora focus:px-4 focus:py-2 focus:text-black">Skip to content</a>
       {/* the aurora world: the scroll-driven hero on Home, a calm drift on the Library, a light CSS sky everywhere else */}
-      {home || lib ? (
-        <div className={`fixed inset-0 z-0 transition-opacity duration-1000 ${lib ? "opacity-70" : "opacity-100"}`}>
-          <AuroraScene mode={home ? "journey" : "ambient"} />
-          {lib && <div className="absolute inset-0 bg-gradient-to-b from-bg/30 via-bg/50 to-bg/90" />}
-          {home && <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_20%_78%,rgb(3_5_11/0.62),transparent_70%)]" />}
+      {home ? (
+        <div className="fixed inset-0 z-0">
+          <AuroraScene mode="journey" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_20%_78%,rgb(3_5_11/0.62),transparent_70%)]" />
         </div>
       ) : (
         <div className="css-aurora"><i /><i /><i /></div>

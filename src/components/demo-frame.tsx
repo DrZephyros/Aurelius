@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "@/lib/router";
 import { demoSource, downloadDemo, type Demo } from "@/lib/collections";
+import { PREVIEW_BRIDGE } from "@/lib/demo";
+import { ScrubSurface } from "./scrub";
 
 const W = 1280;
 const H = 800;
 
 /** Lazy, scaled, non-interactive thumbnail of a real demo page. Only renders while on screen. */
-export function DemoThumb({ demo, ratio = "aspect-[16/10]" }: { demo: Demo; ratio?: string }) {
+const withBridge = (html: string) => {
+  const tag = `<script>${PREVIEW_BRIDGE}</script>`;
+  return /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (m) => m + tag) : tag + html;
+};
+
+export function DemoThumb({ demo, ratio = "aspect-[16/10]", frameRef, onFrameLoad }: { demo: Demo; ratio?: string; frameRef?: import("react").RefObject<HTMLIFrameElement | null>; onFrameLoad?: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [live, setLive] = useState(false);
   const [ready, setReady] = useState(false);
@@ -34,11 +41,12 @@ export function DemoThumb({ demo, ratio = "aspect-[16/10]" }: { demo: Demo; rati
       </div>
       {live && (
         <iframe
-          srcDoc={demoSource(demo.kind, demo.slug)}
+          ref={frameRef}
+          srcDoc={withBridge(demoSource(demo.kind, demo.slug))}
           title={`${demo.name} preview`}
           tabIndex={-1}
           loading="lazy"
-          onLoad={() => setTimeout(() => setReady(true), 250)}
+          onLoad={() => { setTimeout(() => setReady(true), 250); onFrameLoad?.(); }}
           className={`absolute left-0 top-0 border-0 transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}
           style={{ width: W, height: H, transform: `scale(${scale})`, transformOrigin: "0 0", pointerEvents: "none" } as CSSProperties}
         />
@@ -62,15 +70,19 @@ export function DemoCard({ demo, index }: { demo: Demo; index: number }) {
           </div>
           <span className="font-mono text-[9.5px] tracking-[0.18em] text-dim uppercase">N°{String(index + 1).padStart(2, "0")}</span>
         </div>
-        <div className="relative">
-          <DemoThumb demo={demo} />
-          <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/55 via-transparent to-transparent pb-8 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[12.5px] font-semibold text-black shadow-2xl">
-              {demo.kind === "page" ? "Open the page" : "Play with it"}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M7 17 17 7M8 7h9v9" /></svg>
-            </span>
-          </div>
-        </div>
+        <ScrubSurface accent={demo.accent} hint="Hover to explore">
+          {({ frameRef, onLoad }) => (
+            <>
+              <DemoThumb demo={demo} frameRef={frameRef} onFrameLoad={onLoad} />
+              <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[12.5px] font-semibold text-black shadow-2xl">
+                  {demo.kind === "page" ? "Open the page" : "Play with it"}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M7 17 17 7M8 7h9v9" /></svg>
+                </span>
+              </div>
+            </>
+          )}
+        </ScrubSurface>
         <div className="px-5 pt-4">
           <div className="flex items-start justify-between gap-4">
             <h3 className="font-display text-[22px] font-semibold tracking-[-0.03em]">{demo.name}</h3>

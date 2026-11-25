@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "@/lib/router";
 import { TEMPLATES, bySlug } from "@/lib/templates";
 import { ELEMENTS, PAGES } from "@/lib/collections";
 import { ALL_PROMPTS } from "@/lib/library";
 import { metricsFor } from "@/lib/files";
-import { LivePreview } from "@/components/live-preview";
+import { ScrubPreview } from "@/components/scrub";
 import { CountUp, Reveal } from "@/components/reveal";
 import { SHELVES } from "@/components/chrome";
 
@@ -80,11 +80,30 @@ const CODE: [string, string][] = [
   ["", "};"],
 ];
 
+/** Appears once you start scrolling the story, so the library is always one click away. */
+function EnterPill() {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    const f = () => setOn(scrollY > innerHeight * 0.5);
+    f();
+    addEventListener("scroll", f, { passive: true });
+    return () => removeEventListener("scroll", f);
+  }, []);
+  return (
+    <div className={`fixed bottom-6 left-1/2 z-40 -translate-x-1/2 transition duration-700 ${on ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-10 opacity-0"}`}>
+      <Link href="/library" className="btn btn-primary h-12 gap-3 px-7 text-[14px] shadow-[0_20px_60px_-10px_rgb(92_255_196/0.55)]">
+        Skip to the library <span aria-hidden>→</span>
+      </Link>
+    </div>
+  );
+}
+
 export default function Home() {
   const avgTokens = useMemo(() => Math.round(TEMPLATES.reduce((a, t) => a + metricsFor(t.slug).tokens, 0) / TEMPLATES.length / 1000), []);
 
   return (
     <main>
+      <EnterPill />
       {/* ───────────── ACT I · hero ───────────── */}
       <section className="relative mx-auto flex min-h-[100svh] max-w-[1320px] flex-col justify-end px-5 pb-12 pt-32 sm:px-8">
         <div className="max-w-[860px]">
@@ -99,6 +118,13 @@ export default function Home() {
           <div className="rise mt-9 flex flex-wrap items-center gap-3" style={{ "--d": "820ms" } as CSSProperties}>
             <Link href="/library" className="btn btn-primary h-[54px] px-8 text-[15px]">Enter the library <span aria-hidden>→</span></Link>
             <a href="#manifesto" onClick={(e) => { e.preventDefault(); document.getElementById("manifesto")?.scrollIntoView({ behavior: "smooth" }); }} className="btn btn-ghost h-[54px] px-7 text-[15px]">Follow the light</a>
+          </div>
+          {/* one click to any shelf — no detours */}
+          <div className="rise mt-6 flex flex-wrap items-center gap-2" style={{ "--d": "980ms" } as CSSProperties}>
+            <span className="mr-1 font-mono text-[10.5px] tracking-[0.18em] text-dim uppercase">Jump straight to</span>
+            {([["Landing pages", "/landing-pages"], ["App pages", "/pages"], ["Elements", "/elements"], ["Prompts", "/prompts"]] as const).map(([l, h]) => (
+              <Link key={h} href={h} className="glass rounded-full px-3.5 py-1.5 text-[12.5px] text-fg/80 transition hover:text-fg hover:[border-color:rgb(92_255_196/0.55)]">{l}</Link>
+            ))}
           </div>
         </div>
 
@@ -119,7 +145,7 @@ export default function Home() {
       </section>
 
       {/* ───────────── ACT II · manifesto ───────────── */}
-      <section id="manifesto" className="mx-auto flex min-h-[130svh] max-w-[1320px] items-center px-5 py-32 sm:px-8">
+      <section id="manifesto" className="mx-auto flex min-h-[90svh] max-w-[1320px] items-center px-5 py-32 sm:px-8">
         <div className="max-w-[1080px]">
           <div className="eyebrow mb-8">The idea</div>
           <LitText
@@ -149,7 +175,7 @@ export default function Home() {
                 <Link href={`/templates/${t.slug}`} className="block">
                   <Tilt className="glass spot group overflow-hidden rounded-[26px]" style={{ ["--c" as string]: t.accent }}>
                     <div className="relative">
-                      <LivePreview slug={t.slug} accent={t.accent} bg={t.bg} name={t.name} />
+                      <ScrubPreview slug={t.slug} accent={t.accent} bg={t.bg} name={t.name} />
                       <div className="pointer-events-none absolute inset-0 rounded-t-[26px] ring-1 ring-inset ring-white/10" />
                       <span className="absolute left-4 top-4 rounded-full bg-black/55 px-3 py-1 font-mono text-[10px] tracking-[0.16em] uppercase backdrop-blur-md" style={{ color: t.accent }}>
                         <i className="mr-2 inline-block size-1.5 rounded-full align-middle" style={{ background: t.accent, boxShadow: `0 0 10px ${t.accent}` }} />Live

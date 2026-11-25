@@ -118,7 +118,7 @@ export function SiteNav() {
 export function LibraryTabs() {
   const path = usePath();
   const items: [string, string, (p: string) => boolean][] = [
-    ["Overview", "/library", (p) => p.startsWith("/library")],
+    ["All", "/library", (p) => p.startsWith("/library")],
     ...SHELVES.map((s) => [s.label, s.href, (p: string) => p.startsWith(s.href) || (s.href === "/landing-pages" && p.startsWith("/templates"))] as [string, string, (p: string) => boolean]),
   ];
   return (
