@@ -2,7 +2,6 @@ import { bump } from "@/lib/stats";
 import { bundleBySlug } from "./data";
 
 /* Zips the real source of src/bundles (engine, scenes, pages, CSS) — built in the browser. */
-const SRC = import.meta.glob(["/src/bundles/**/*.{ts,tsx,css}", "!/src/bundles/BundlesIndex.tsx", "!/src/bundles/download.ts"], { query: "?raw", import: "default" }) as Record<string, () => Promise<string>>;
 
 export async function downloadBundle(slug: string) {
   const b = bundleBySlug(slug);
@@ -10,7 +9,8 @@ export async function downloadBundle(slug: string) {
   const { default: JSZip } = await import("jszip");
   const zip = new JSZip();
   const root = zip.folder(`aurelius-bundle-${slug}`)!;
-  for (const [path, load] of Object.entries(SRC)) root.file(path.replace("/src/bundles/", "src/bundles/"), await load());
+  const { default: SRC } = await import("@/generated/raw-bundles");
+  for (const [path, text] of Object.entries(SRC)) root.file(path.replace("/src/bundles/", "src/bundles/"), text);
   root.file("README.md", `# ${b.name} — Aurelius bundle
 
 ${b.blurb}

@@ -1,14 +1,13 @@
 @import "tailwindcss";
 
-/* latin subsets only — the app ships as one self-contained html file */
 @font-face { font-family: "Inter Variable"; font-style: normal; font-display: swap; font-weight: 100 900;
-  src: url("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2-variations"); }
+  src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2-variations"); }
 @font-face { font-family: "Space Grotesk Variable"; font-style: normal; font-display: swap; font-weight: 300 700;
-  src: url("@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2") format("woff2-variations"); }
+  src: url("/fonts/space-grotesk-latin-wght-normal.woff2") format("woff2-variations"); }
 @font-face { font-family: "JetBrains Mono"; font-style: normal; font-display: swap; font-weight: 400;
-  src: url("@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2") format("woff2"); }
+  src: url("/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2"); }
 @font-face { font-family: "JetBrains Mono"; font-style: normal; font-display: swap; font-weight: 500;
-  src: url("@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2") format("woff2"); }
+  src: url("/fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2"); }
 
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;

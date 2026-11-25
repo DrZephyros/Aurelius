@@ -3,8 +3,9 @@ import { REG_CATS, REG_ITEMS, itemsOf, zipName, type RegItem } from "./registry"
 import { SITE } from "./site";
 
 /* The component sources + READMEs are bundled as raw text (the app ships as ONE html file), and zips are built in the browser. */
-const CODE = import.meta.glob(["/src/registry/*/*/*.tsx", "!/src/registry/*/*/demo.tsx"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-const DOCS = import.meta.glob("/src/registry/*/*/README.md", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+import RAW_REG from "@/generated/raw-registry";
+const CODE = RAW_REG;
+const DOCS = RAW_REG;
 
 const strip = (md: string) => md.replace(/^---\n[\s\S]*?\n---\n/, "").trim();
 

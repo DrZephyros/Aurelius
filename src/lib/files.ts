@@ -5,7 +5,7 @@ import { PROMPTS, fill } from "./prompts";
 import type { Template } from "./templates";
 
 /* Everything under public/demos is bundled as raw text so the whole app ships as ONE html file. */
-const RAW = import.meta.glob("/demos-src/**/*.{html,css,js}", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+import RAW from "@/generated/raw-demos";
 const PREFIX = "/demos-src/";
 const at = (rel: string): string => {
   const v = RAW[PREFIX + rel];

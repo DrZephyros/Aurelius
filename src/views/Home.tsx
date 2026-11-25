@@ -11,6 +11,7 @@ import { Specimen } from "@/components/specimen";
 import { frameProps } from "@/lib/demo";
 import { CountUp, Reveal } from "@/components/reveal";
 import { SHELVES } from "@/components/chrome";
+import { SkillTeaser } from "@/views/SkillTeaser";
 
 /* ── scroll-lit paragraph: words ignite as you read ─────────── */
 function LitText({ text, className = "" }: { text: string; className?: string }) {
@@ -149,7 +150,7 @@ export default function Home() {
           {/* one click to any shelf — no detours */}
           <div className="rise mt-6 flex flex-wrap items-center gap-2" style={{ "--d": "980ms" } as CSSProperties}>
             <span className="mr-1 font-mono text-[10.5px] tracking-[0.18em] text-dim uppercase">Jump straight to</span>
-            {([["Landing pages", "/landing-pages"], ["Components", "/components"], ["Text effects", "/text-effects"], ["App pages", "/pages"], ["Prompts", "/prompts"]] as const).map(([l, h]) => (
+            {([["Make your own", "/make-your-own"], ["Landing pages", "/landing-pages"], ["Components", "/components"], ["Text effects", "/text-effects"], ["App pages", "/pages"], ["Prompts", "/prompts"]] as const).map(([l, h]) => (
               <Link key={h} href={h} className="glass rounded-full px-3.5 py-1.5 text-[12.5px] text-fg/80 transition hover:text-fg hover:[border-color:rgb(92_255_196/0.55)]">{l}</Link>
             ))}
           </div>
@@ -213,6 +214,8 @@ export default function Home() {
           <Link href="/landing-pages" className="btn btn-ghost">See all {TEMPLATES.length} worlds <span aria-hidden>→</span></Link>
         </div>
       </section>
+
+      <SkillTeaser />
 
       {/* ───────────── ACT IV · anatomy ───────────── */}
       <section className="mx-auto max-w-[1320px] px-5 py-28 sm:px-8">

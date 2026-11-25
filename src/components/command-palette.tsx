@@ -54,6 +54,7 @@ export function CommandPalette() {
     const go = (href: string) => () => navigate(href);
     return [
       { id: "p-home", group: "Go to", title: "Home", hint: "Start", run: go("/") },
+      { id: "p-skill", group: "Go to", title: "Make your own — the AURA skill", hint: "Teach an agent to build immersive 3D sites", run: go("/make-your-own") },
       { id: "p-library", group: "Go to", title: "Library", hint: "All the shelves", run: go("/library") },
       { id: "p-landing", group: "Go to", title: "Landing pages", hint: `${TEMPLATES.length} 3D templates`, run: go("/landing-pages") },
       { id: "p-pages", group: "Go to", title: "App pages", hint: "Sign in, pricing, dashboard…", run: go("/pages") },

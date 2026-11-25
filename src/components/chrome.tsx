@@ -33,6 +33,7 @@ export const SHELVES: { label: string; href: string; hint: string }[] = [
 ];
 
 const NAV: [string, string][] = [
+  ["Make your own", "/make-your-own"],
   ["Bundles", "/bundles"],
   ["Library", "/library"],
   ["Landing pages", "/landing-pages"],
@@ -77,8 +78,8 @@ export function SiteNav() {
             {NAV.map(([l, h]) => {
               const on = h === "/library" ? path.startsWith("/library") : path.startsWith(h);
               return (
-                <Link key={l} href={h} className={`rounded-full px-4 py-2 text-[13px] transition ${on ? "bg-white/12 text-fg" : "text-dim hover:bg-white/8 hover:text-fg"}`} aria-current={on ? "page" : undefined}>
-                  {l}
+                <Link key={l} href={h} className={`rounded-full px-4 py-2 text-[13px] transition ${on ? "bg-white/12 text-fg" : "text-dim hover:bg-white/8 hover:text-fg"} ${h === "/make-your-own" ? "!text-aurora" : ""}`} aria-current={on ? "page" : undefined}>
+                  {h === "/make-your-own" && <span className="mr-1.5 inline-block size-1.5 rounded-full bg-aurora align-middle shadow-[0_0_10px_#5cffc4]" />}{l}
                 </Link>
               );
             })}
@@ -109,7 +110,7 @@ export function SiteNav() {
       {/* mobile sheet */}
       <div className={`fixed inset-0 z-40 bg-bg/90 pt-24 backdrop-blur-2xl transition duration-500 lg:hidden ${open ? "visible opacity-100" : "invisible opacity-0"}`}>
         <nav className="mx-auto flex max-w-lg flex-col gap-1 px-6">
-          {[["Home", "/"], ["Library", "/library"], ...SHELVES.map((s) => [s.label, s.href])].map(([l, h]) => (
+          {[["Home", "/"], ["Make your own", "/make-your-own"], ["Library", "/library"], ...SHELVES.map((s) => [s.label, s.href])].map(([l, h]) => (
             <Link key={l} href={h} className="flex items-center justify-between border-b border-line py-4 font-display text-3xl font-semibold tracking-[-0.04em]">
               {l}<span className="text-aurora">→</span>
             </Link>
@@ -158,6 +159,7 @@ export function SiteFooter() {
         </div>
         <div className="space-y-3 text-sm">
           <div className="eyebrow !text-dim">The library</div>
+          <Link className="block text-aurora hover:text-fg" href="/make-your-own">Make your own — the AURA skill</Link>
           <Link className="block text-dim hover:text-fg" href="/library">Overview</Link>
           {SHELVES.map((s) => (
             <Link key={s.href} className="block text-dim hover:text-fg" href={s.href}>{s.label}</Link>

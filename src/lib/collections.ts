@@ -180,7 +180,7 @@ export const listFor = (kind: Kind) => (kind === "page" ? PAGES : ELEMENTS);
 export const demoBySlug = (kind: Kind, slug: string) => listFor(kind).find((d) => d.slug === slug);
 
 /* Single-file app pages / elements live in kit-src/ and are bundled as raw text (the app ships as ONE html file). */
-const KIT = import.meta.glob("/kit-src/**/*.html", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+import KIT from "@/generated/raw-kit";
 
 export const kitSource = (kind: Kind, slug: string): string => KIT[`/kit-src/${kind === "page" ? "pages" : "elements"}/${slug}.html`] ?? "";
 
