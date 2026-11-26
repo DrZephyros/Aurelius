@@ -210,8 +210,8 @@ export function SiteFooter() {
         <div className="space-y-3 text-sm">
           <div className="eyebrow !text-dim">Product</div>
           <Link className="block text-aurora hover:text-fg" href="/skill">AURA — the skill</Link>
-          <Link className="block text-dim hover:text-fg" href="/services#directions">Art directions</Link>
-          <Link className="block text-dim hover:text-fg" href="/services#examples">Examples</Link>
+          <Link className="block text-dim hover:text-fg" href="/services#pipeline">The pipeline</Link>
+          <Link className="block text-dim hover:text-fg" href="/services#pricing">Pricing</Link>
           <Link className="block text-dim hover:text-fg" href="/services#faq">FAQ</Link>
         </div>
         <div className="space-y-3 text-sm">

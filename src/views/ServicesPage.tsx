@@ -5,7 +5,7 @@ import { Link } from "@/lib/router";
 import { Reveal } from "@/components/reveal";
 import { RequestForm } from "@/components/request-form";
 import SkillLanding from "@/views/SkillLanding";
-import { SKILL_STATS } from "@/lib/skill";
+import { AuraStage, AuraTierCard } from "@/components/aura-showcase";
 import { SKILL, TIERS } from "@/lib/site";
 
 const Tick = () => <span className="mt-0.5 text-aurora" aria-hidden>✦</span>;
@@ -33,7 +33,7 @@ export default function ServicesPage() {
         <h1 className="h-display mt-5 text-[clamp(2.8rem,8vw,7rem)] leading-[0.9]">Three ways in.<br /><span className="aurora-text">Start free.</span></h1>
         <p className="mt-6 max-w-[620px] text-[17px] leading-relaxed text-fg/70">Browse the library for nothing. Give your agent the skill to build the real thing. Or hand me the brief and have it built for you in five days.</p>
         <nav className="mt-8 flex flex-wrap gap-2 text-[13px]" aria-label="On this page">
-          {[["Pricing", "pricing"], ["The skill", "skill"], ["Build it for me", "build"], ["FAQ", "faq"]].map(([l, h]) => (<Link key={h} href={`/services#${h}`} className="glass rounded-full px-4 py-2 text-dim transition hover:text-fg">{l}</Link>))}
+          {[["Pricing", "pricing"], ["The skill", "skill"], ["Pipeline", "pipeline"], ["Build it for me", "build"], ["FAQ", "faq"]].map(([l, h]) => (<Link key={h} href={`/services#${h}`} className="glass rounded-full px-4 py-2 text-dim transition hover:text-fg">{l}</Link>))}
         </nav>
       </section>
 
@@ -47,10 +47,7 @@ export default function ServicesPage() {
               cta={<Link href="/library" className="btn btn-ghost h-[52px] w-full">Browse the library</Link>} />
           </Reveal>
           <Reveal className="h-full" delay={80}>
-            <Tier id="skill-pricing" featured tag="The skill" name="AURA" price={TIERS.skill.label} unit="one-time"
-              blurb="Teach Claude, Codex or Cursor to direct, build and QA a $10,000-grade 3D website."
-              items={[`${SKILL_STATS.docs} deep references + 12 art directions`, `${SKILL_STATS.examples} worked examples that calibrate taste`, "Cinematic engine + 4 finished reference worlds (incl. a Folio portfolio)", "A QA gate that scrolls, screenshots and scores your site", "Unlimited projects · free 2.x updates"]}
-              cta={<Link href="/skill/checkout" className="btn btn-primary h-[52px] w-full">Get AURA — {TIERS.skill.label}</Link>} />
+            <AuraTierCard items={["Deep references on direction, light, motion, type and QA", "Cinematic engine + 4 finished reference worlds (incl. a Folio portfolio)", "A QA gate that scrolls, screenshots and scores your site", "Works as a Claude skill, Cursor rule or AGENTS.md include", "Unlimited projects · free 2.x updates"]} />
           </Reveal>
           <Reveal className="h-full" delay={160}>
             <Tier id="tier-build" tag="Done for you" name="I'll build it" price={TIERS.build.label} unit={`${TIERS.build.days} days`}
@@ -64,13 +61,18 @@ export default function ServicesPage() {
 
       {/* THE SKILL — fully integrated, nothing to leave the page for */}
       <div id="skill" className="scroll-mt-20">
-        <div className="mx-auto max-w-[1320px] px-5 pb-10 sm:px-8">
-          <div className="eyebrow">The skill · AURA {SKILL.version}</div>
-          <h2 className="h-display mt-4 text-[clamp(2.2rem,5.4vw,4.8rem)]">Stop asking AI for “a 3D website”.<br /><span className="aurora-text">Hire the art director.</span></h2>
-          <p className="mt-5 max-w-[640px] text-[16.5px] leading-relaxed text-fg/70">AURA makes your agent direct, build and QA scroll-driven, game-grade 3D sites — as a cinematic <b className="text-fg">world</b> or an editorial <b className="text-fg">folio</b> — for any brand, from one prompt. Everything below is the real thing: scroll the output, read the files, compose a brief.</p>
-          <div className="mt-8"><Link href="/skill/checkout" className="btn btn-primary h-[54px] px-8">Get AURA — {TIERS.skill.label}</Link></div>
+        <div className="mx-auto max-w-[1320px] px-5 pb-6 sm:px-8">
+          <AuraStage>
+            <div className="eyebrow">The skill · AURA {SKILL.version}</div>
+            <h2 className="h-display mt-4 text-[clamp(2.2rem,4.6vw,4.2rem)]">Stop asking AI for “a 3D website”.<br /><span className="aurora-text">Hire the art director.</span></h2>
+            <p className="mt-5 max-w-[520px] text-[16.5px] leading-relaxed text-fg/70">AURA makes your agent direct, build and QA scroll-driven, game-grade 3D sites — as a cinematic <b className="text-fg">world</b> or an editorial <b className="text-fg">folio</b> — for any brand, from one prompt.</p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link href="/skill/checkout" className="btn btn-primary btn-shimmer h-[54px] px-8">Get AURA — {TIERS.skill.label}</Link>
+              <Link href="/services#pipeline" className="btn btn-ghost h-[54px] px-6">See the pipeline ↓</Link>
+            </div>
+          </AuraStage>
         </div>
-        <SkillLanding embedded />
+        <SkillLanding />
         <div className="mx-auto max-w-[1320px] px-5 pb-24 sm:px-8">
           <div className="panel flex flex-wrap items-center justify-between gap-5 !rounded-[26px] p-7 sm:p-9">
             <div><h3 className="h-display text-[clamp(1.6rem,3vw,2.4rem)]">Ready to build with it?</h3><p className="mt-2 text-dim">One-time {TIERS.skill.label}. Instant download. Unlimited projects.</p></div>

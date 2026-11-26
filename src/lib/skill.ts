@@ -151,7 +151,7 @@ export const FAQ: [string, string][] = [
   ["Do I need 3D models?", "No. The pipeline covers procedural worlds (zero assets), generated hero images turned into 2.5D depth worlds, GLB models and scrubbed video frames — with the exact prompts and compression budgets."],
   ["Will it run on phones?", "Yes — an adaptive-quality governor, pixel-ratio caps, a mobile shot list, reduced-motion and no-WebGL fallbacks are part of the contract, not an afterthought."],
   ["How do I know the output is good?", "The skill makes the agent look at its own work: Playwright captures 12 scroll positions on three viewports, then it critiques them and scores itself on a 100-point rubric. It must reach 85 before it ships."],
-  ["Is the engine real?", "It is the live scene on this page. The starter kit is type-checked source — engine, choreography, materials, particles, depth layers, mirror floor and a React shell — about " + SKILL_STATS.engineLines + " lines you can read in the explorer below."],
+  ["Is the engine real?", "Yes. The starter kit is type-checked source — engine, choreography, materials, particles, depth layers, mirror floor and a React shell — about " + SKILL_STATS.engineLines + " lines that come with the download."],
 ];
 
 /* ── the 12 art directions (mirrors references/11-art-directions.md) ── */
