@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 @font-face { font-family: "Inter Variable"; font-style: normal; font-display: swap; font-weight: 100 900;
-  src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2-variations"); }
+  src: url("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2-variations"); }
 @font-face { font-family: "Space Grotesk Variable"; font-style: normal; font-display: swap; font-weight: 300 700;
-  src: url("/fonts/space-grotesk-latin-wght-normal.woff2") format("woff2-variations"); }
+  src: url("@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2") format("woff2-variations"); }
 @font-face { font-family: "JetBrains Mono"; font-style: normal; font-display: swap; font-weight: 400;
-  src: url("/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2"); }
+  src: url("@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2") format("woff2"); }
 @font-face { font-family: "JetBrains Mono"; font-style: normal; font-display: swap; font-weight: 500;
-  src: url("/fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2"); }
+  src: url("@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2") format("woff2"); }
 
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
@@ -269,3 +269,5 @@ details[open] .plus { transform: rotate(45deg); }
 
 /* agent link well */
 .link-well { font-family: var(--font-mono); font-size: 12.5px; }
+
+@keyframes nav-slide { from { transform: translateX(-100%); } to { transform: translateX(400%); } }

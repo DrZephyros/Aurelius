@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { FILTERS } from "@/lib/templates";
-import { ELEMENTS, PAGES } from "@/lib/collections";
+import { ELEMENTS, ELEMENT_CATEGORIES, PAGES, PAGE_CATEGORIES } from "@/lib/collections";
 import { REG_CATS, TEXT_EFFECTS, itemsOf } from "@/lib/registry";
 
 /* Shared library filter: the search box, type toggles and category chips. One store feeds both the
@@ -17,8 +17,16 @@ export const KINDS: { id: LibKind; label: string }[] = [
 
 export const CATEGORIES = FILTERS.filter((c) => c !== "All");
 
-export type LibFilter = { q: string; kinds: LibKind[]; cats: string[] };
-const EMPTY: LibFilter = { q: "", kinds: [], cats: [] };
+export const PAGE_CATS = PAGE_CATEGORIES.filter((c) => c !== "All");
+export const ELEMENT_CATS = ELEMENT_CATEGORIES.filter((c) => c !== "All");
+export const COMPONENT_CATS = REG_CATS.filter((c) => c.slug !== TEXT_EFFECTS);
+
+/** cats = landing-page categories · pageCats / elCats = app-page / element categories · compCats = component category slugs */
+export type LibFilter = { q: string; kinds: LibKind[]; cats: string[]; pageCats: string[]; elCats: string[]; compCats: string[] };
+const EMPTY: LibFilter = { q: "", kinds: [], cats: [], pageCats: [], elCats: [], compCats: [] };
+
+/** number of individual choices selected (search text excluded) */
+export const countChoices = (f: LibFilter) => f.kinds.length + f.cats.length + f.pageCats.length + f.elCats.length + f.compCats.length;
 
 let state: LibFilter = EMPTY;
 const subs = new Set<() => void>();
@@ -34,18 +42,19 @@ export const setFilter = (patch: Partial<LibFilter>) => {
 export const clearFilter = () => setFilter(EMPTY);
 export const useLibFilter = () => useSyncExternalStore(subscribe, () => state, () => EMPTY);
 
-export const isActive = (f: LibFilter) => f.q.trim() !== "" || f.kinds.length > 0 || f.cats.length > 0;
+export const isActive = (f: LibFilter) => f.q.trim() !== "" || countChoices(f) > 0;
 export const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
-/** Landing pages carry the category tags; app pages, elements and components do not, so a category filter narrows to landing pages. */
+/** Each category group narrows its own kind. With no explicit "Type", only the kinds that have a category picked are shown. */
 export function matchLibrary<W extends { name: string; tagline: string; blurb: string; tags: string[]; bestFor: string[] }>(f: LibFilter, worlds: W[]) {
   const n = f.q.trim().toLowerCase();
   const has = (parts: string[]) => !n || parts.join(" ").toLowerCase().includes(n);
-  const on = (k: LibKind) => f.kinds.length === 0 || f.kinds.includes(k);
-  const byCat = f.cats.length > 0;
-  const landing = on("worlds") ? worlds.filter((t) => (!byCat || t.tags.some((x) => f.cats.includes(x))) && has([t.name, t.tagline, t.blurb, ...t.tags, ...t.bestFor])) : [];
-  const pages = on("pages") && !byCat ? PAGES.filter((d) => has([d.name, d.tagline, d.blurb, d.category, ...d.features])) : [];
-  const elements = on("elements") && !byCat ? ELEMENTS.filter((d) => has([d.name, d.tagline, d.blurb, d.category, ...d.features])) : [];
-  const components = on("components") && !byCat ? REG_CATS.filter((c) => c.slug !== TEXT_EFFECTS && has([c.name, c.blurb, ...itemsOf(c.slug).map((i) => i.name)])) : [];
+  const sel = { worlds: f.cats, pages: f.pageCats, elements: f.elCats, components: f.compCats };
+  const anySel = Object.values(sel).some((l) => l.length > 0);
+  const on = (k: LibKind) => (f.kinds.length > 0 ? f.kinds.includes(k) : !anySel || sel[k].length > 0);
+  const landing = on("worlds") ? worlds.filter((t) => (!f.cats.length || t.tags.some((x) => f.cats.includes(x))) && has([t.name, t.tagline, t.blurb, ...t.tags, ...t.bestFor])) : [];
+  const pages = on("pages") ? PAGES.filter((d) => (!f.pageCats.length || f.pageCats.includes(d.category)) && has([d.name, d.tagline, d.blurb, d.category, ...d.features])) : [];
+  const elements = on("elements") ? ELEMENTS.filter((d) => (!f.elCats.length || f.elCats.includes(d.category)) && has([d.name, d.tagline, d.blurb, d.category, ...d.features])) : [];
+  const components = on("components") ? REG_CATS.filter((c) => c.slug !== TEXT_EFFECTS && (!f.compCats.length || f.compCats.includes(c.slug)) && has([c.name, c.blurb, ...itemsOf(c.slug).map((i) => i.name)])) : [];
   return { worlds: landing, pages, elements, components, total: landing.length + pages.length + elements.length + components.length };
 }

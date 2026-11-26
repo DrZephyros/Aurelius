@@ -363,6 +363,7 @@ export function AuroraScene({ mode }: { mode: SceneMode }) {
       io.disconnect();
       composer.dispose();
       renderer.dispose();
+      renderer.forceContextLoss(); // free the GPU context now — leaked contexts pile up across navigations and crash the tab
       scene.traverse((o) => {
         const m = o as THREE.Mesh;
         m.geometry?.dispose?.();

@@ -1,7 +1,6 @@
-import { useEffect } from "react";
+import { Component, useEffect, type ErrorInfo, type ReactNode } from "react";
 import { Router, usePath, Link, navigate } from "@/lib/router";
 import { SiteNav, SiteFooter } from "@/components/chrome";
-import { LibraryDock } from "@/components/library-filter";
 import { AuroraScene } from "@/components/aurora-scene";
 import Home from "@/views/Home";
 import LibraryPage from "@/views/LibraryPage";
@@ -23,6 +22,14 @@ function NotFound() {
       <Link href="/" className="btn btn-primary mt-8">Back home</Link>
     </main>
   );
+}
+
+/** One broken page must never take the whole site (and its nav) down with it. */
+class PageBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch(e: Error, info: ErrorInfo) { console.error(e, info.componentStack); }
+  render() { return this.state.failed ? <NotFound /> : this.props.children; }
 }
 
 function Item({ category, slug }: { category: string; slug: string }) {
@@ -97,9 +104,8 @@ function Shell() {
         <div className="css-aurora"><i /><i /><i /></div>
       )}
       <SiteNav />
-      <div id="main" className="relative z-10"><Routes /></div>
+      <div id="main" className="relative z-10"><PageBoundary key={path}><Routes /></PageBoundary></div>
       <SiteFooter />
-      <LibraryDock />
     </>
   );
 }

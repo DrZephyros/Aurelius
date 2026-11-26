@@ -15,7 +15,6 @@ import { openDemo } from "@/lib/demo";
 const GPU_COPY = { Light: "Runs smoothly on budget phones and laptops.", Medium: "Great on modern phones and any laptop with a GPU.", Heavy: "Best on desktop / recent phones — heaviest effects in the pack." } as const;
 
 export default function TemplatePage({ slug }: { slug: string }) {
-  const files = (["main.js", "index.html", "style.css"] as const).map((name) => ({ name, code: readSource(slug, name) }));
   const t = bySlug(slug);
   if (!t) {
     return (
@@ -25,6 +24,7 @@ export default function TemplatePage({ slug }: { slug: string }) {
       </main>
     );
   }
+  const files = (["main.js", "index.html", "style.css"] as const).map((name) => ({ name, code: readSource(slug, name) }));
   const i = indexOf(slug);
   const prev = TEMPLATES[(i + TEMPLATES.length - 1) % TEMPLATES.length];
   const next = TEMPLATES[(i + 1) % TEMPLATES.length];
