@@ -38,7 +38,7 @@ export function SkillDock() {
           type="button"
           onClick={() => setDockOpen(true)}
           aria-label="Open the Skill Studio"
-          className="group fixed right-4 bottom-4 z-[60] flex items-center gap-2.5 rounded-full border border-[rgb(92_255_196/0.35)] bg-[rgb(6_10_18/0.82)] py-2.5 pr-4 pl-3.5 text-[13px] font-medium text-fg shadow-[0_10px_40px_-8px_rgb(92_255_196/0.35)] backdrop-blur-xl transition hover:border-[rgb(92_255_196/0.8)] hover:shadow-[0_10px_50px_-4px_rgb(92_255_196/0.55)] sm:right-6 sm:bottom-6"
+          className="group fixed right-4 bottom-16 z-[60] flex items-center gap-2.5 rounded-full border border-[rgb(92_255_196/0.35)] bg-[rgb(6_10_18/0.82)] py-2.5 pr-4 pl-3.5 text-[13px] font-medium text-fg shadow-[0_10px_40px_-8px_rgb(92_255_196/0.35)] backdrop-blur-xl transition hover:border-[rgb(92_255_196/0.8)] hover:shadow-[0_10px_50px_-4px_rgb(92_255_196/0.55)] sm:right-6 sm:bottom-20"
         >
           <span className="grid size-6 place-items-center rounded-full bg-aurora text-[12px] text-black transition group-hover:rotate-90">✦</span>
           Make your own
