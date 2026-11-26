@@ -30,8 +30,8 @@
   filter: blur(calc((1 - var(--in, 0) + var(--out, 0)) * 10px));
   will-change: opacity, transform, filter;
 }
-.aura-left { left: var(--aura-pad); bottom: 16vh; }
-.aura-right { right: var(--aura-pad); bottom: 16vh; text-align: right; }
+.aura-left { left: var(--aura-pad); bottom: 11vh; }
+.aura-right { right: var(--aura-pad); bottom: 11vh; text-align: right; }
 .aura-center { left: 50%; top: 50%; translate: -50% -50%; text-align: center; max-width: min(900px, 90vw); }
 @media (max-width: 760px) { .aura-left, .aura-right { left: var(--aura-pad); right: var(--aura-pad); bottom: 12vh; text-align: left; } }
 
@@ -43,18 +43,26 @@
 /* ── GIANT TYPE. The signature of the genre: letters bigger than the viewport, scrubbed by scroll.
    Letter-spacing tightens and the word scales as --local runs 0→1; it also dissolves via --vis. */
 .aura-giant {
-  position: absolute; left: 0; right: 0; top: 50%;
+  position: absolute; left: 0; right: 0; top: var(--aura-giant-top, 32%);
   translate: 0 -50%;
   text-align: center;
-  font: 700 clamp(5rem, 22vw, 26rem)/0.8 var(--aura-display);
-  letter-spacing: calc(0.02em - var(--local, 0) * 0.06em);
-  scale: calc(1 + var(--local, 0) * 0.18);
+  /* add data-fit="0.86" and fitType() sizes it by measurement; this clamp is only the pre-measure fallback */
+  font: 700 clamp(4rem, 16vw, 22rem)/0.8 var(--aura-display);
+  letter-spacing: calc(0.02em - var(--local, 0) * 0.04em);
+  scale: calc(1 + var(--local, 0) * 0.1);
+  filter: blur(calc((1 - var(--in, 0) + var(--out, 0)) * 14px));
   opacity: var(--vis, 0);
   color: var(--aura-fg);
   mix-blend-mode: normal;
   user-select: none;
   white-space: nowrap;
 }
+/* ── THE END CARD. One obvious action, set in the final image. Give the wrapper class "aura-hit" so it is clickable. */
+.aura-cta { position: relative; display: inline-flex; align-items: center; gap: 14px; margin-top: 30px; padding: 18px 30px; border-radius: 999px; color: var(--aura-fg); text-decoration: none; font: 600 13px/1 var(--aura-mono); letter-spacing: 0.22em; text-transform: uppercase; border: 1px solid rgb(255 255 255 / 0.28); background: rgb(255 255 255 / 0.06); backdrop-filter: blur(14px); transition: transform 0.5s var(--aura-ease), background 0.3s, border-color 0.3s, box-shadow 0.4s; }
+.aura-cta:hover { background: var(--aura-accent); color: #02040a; border-color: transparent; box-shadow: 0 0 60px -6px var(--aura-accent); transform: translateY(-2px); }
+.aura-cta::after { content: "→"; transition: transform 0.4s var(--aura-ease); }
+.aura-cta:hover::after { transform: translateX(6px); }
+
 /* variant: outlined giant type that sits "inside" the scene instead of on top */
 .aura-giant.is-outline { color: transparent; -webkit-text-stroke: 1px rgb(255 255 255 / 0.35); }
 

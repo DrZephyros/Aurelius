@@ -46,23 +46,52 @@ export const ease = {
    and toggle visibility:hidden outside the window (cheap, and keeps focus order sane).
    Style them in aura.css with calc() — no JS per element, no layout thrash. */
 export function bindDom(root: HTMLElement) {
-  const nodes = [...root.querySelectorAll<HTMLElement>("[data-a]")].map((el) => ({
-    el,
-    a: parseFloat(el.dataset.a ?? "0"),
-    b: parseFloat(el.dataset.b ?? "1"),
-    f: parseFloat(el.dataset.fade ?? "0.05"),
-  }));
+  const nodes = [...root.querySelectorAll<HTMLElement>("[data-a]")].map((el) => {
+    const a = parseFloat(el.dataset.a ?? "0"), b = parseFloat(el.dataset.b ?? "1");
+    return {
+      el, a, b,
+      f: parseFloat(el.dataset.fade ?? "0.05"),
+      // a chapter that starts at 0 is ALREADY on screen in frame one; one that ends at 1 STAYS for the final image.
+      // (Scroll-fading the first/last chapter produces an empty opening frame and an empty closing frame.)
+      first: a <= 0.001,
+      last: b >= 0.999,
+    };
+  });
   return (p: number) => {
     for (const n of nodes) {
-      const vis = pulse(p, n.a, n.b, n.f, n.f);
+      const fin = n.first ? 1 : seg(p, n.a, n.a + n.f);
+      const fout = n.last ? 0 : seg(p, n.b - n.f, n.b);
+      const vis = Math.min(fin, 1 - fout);
       const s = n.el.style;
-      s.setProperty("--in", seg(p, n.a, n.a + n.f).toFixed(4));
-      s.setProperty("--out", seg(p, n.b - n.f, n.b).toFixed(4));
+      s.setProperty("--in", fin.toFixed(4));
+      s.setProperty("--out", fout.toFixed(4));
       s.setProperty("--vis", vis.toFixed(4));
       s.setProperty("--local", seg(p, n.a, n.b).toFixed(4));
       s.visibility = vis > 0.001 ? "visible" : "hidden";
     }
   };
+}
+
+/** FIT TYPE — make `[data-fit]` words exactly as wide as a fraction of the viewport (default 0.86), at any aspect ratio.
+ *  Giant type must be sized by MEASUREMENT, not by guessing vw: font metrics differ and a cropped title reads as a bug.
+ *  <div className="aura-giant" data-fit="0.86">OBSIDIAN</div>   (re-fits on resize and when web fonts finish loading) */
+export function fitType(root: HTMLElement) {
+  const run = () => {
+    const vw = root.clientWidth || innerWidth;
+    root.querySelectorAll<HTMLElement>("[data-fit]").forEach((el) => {
+      const target = vw * parseFloat(el.dataset.fit || "0.86");
+      el.style.fontSize = "100px";
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      const w = r.getBoundingClientRect().width;
+      if (w > 0) el.style.fontSize = `${Math.min((100 * target) / w, (root.clientHeight || innerHeight) * 0.5)}px`;
+    });
+  };
+  run();
+  const ro = new ResizeObserver(run);
+  ro.observe(root);
+  document.fonts?.ready.then(run);
+  return () => ro.disconnect();
 }
 
 /** Scroll progress (0..1) of a tall track element: 0 when its top hits the viewport top, 1 when its bottom hits the viewport bottom. */

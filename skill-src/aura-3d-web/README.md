@@ -17,9 +17,11 @@ aura-3d-web/
 │  ├─ 06-typography-and-ui.md       ← type system, nav, cursor, loader, copywriting, a11y
 │  ├─ 07-performance-and-resilience.md ← budgets, governor, mobile, fallbacks, SEO
 │  ├─ 08-qa-and-polish.md           ← Playwright screenshot loop, the 100-pt Aura Score, polish passes
-│  └─ 09-prompt-pack.md             ← master prompt + archetype kickoffs + refinement prompts
+│  ├─ 09-prompt-pack.md             ← master prompt + archetype kickoffs + refinement prompts
+│  └─ 10-frontier-techniques.md     ← raymarched heroes, GPU particles, 2.5D plates, cinematic type, WebGPU, splats, audio…
+├─ scripts/audit.mjs                ← the QA gate: deterministic seek, per-frame metrics, chapter/shot lint, fallback tests
 └─ starter/                         ← the working engine (Vite + React + three), type-checked
-   └─ src/aura/ engine · choreo · materials · particles · layers · floor · assets · AuraExperience · aura.css · scene.example
+   └─ src/aura/ engine · choreo · materials · particles · layers · floor · atmosphere · terrain · assets · AuraExperience · aura.css · scene.example (Obsidian) · scene.umbra (Umbra)
 ```
 
 ## Install
@@ -40,4 +42,10 @@ Then let it work: brief → storyboard → assets → build → screenshots → 
 ```bash
 cd starter && npm i && npm run dev
 ```
-You'll see **Obsidian Gate** — a zero-asset reference world (5 shots, a hold, a fly-through). Read `scene.example.ts` as the pattern, then replace the scene.
+You'll see **Obsidian Gate** (a product world); open `/?world=umbra` for **Umbra** (an event world: dunes, eclipse sky, light shafts). Both are zero-asset. Read them as patterns, then replace the scene.
+
+## Verify
+```bash
+npm i -D playwright pngjs && npx playwright install chromium
+node scripts/audit.mjs http://localhost:5173      # deterministic frames + metrics + contact sheets
+```

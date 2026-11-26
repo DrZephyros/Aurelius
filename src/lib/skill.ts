@@ -113,7 +113,7 @@ export async function downloadSkill(kind: SkillDownload) {
     } else {
       const root = zip.folder("aura-starter")!;
       SKILL_FILES.filter((f) => f.path.startsWith("starter/")).forEach((f) => root.file(f.path.replace(/^starter\//, ""), f.code));
-      root.file("shoot.mjs", skillFile("scripts/shoot.mjs")?.code ?? "");
+      root.file("scripts/audit.mjs", skillFile("scripts/audit.mjs")?.code ?? "");
     }
     save(await zip.generateAsync({ type: "blob", compression: "DEFLATE" }), kind === "skill" ? "aura-3d-web.zip" : "aura-starter.zip");
   }

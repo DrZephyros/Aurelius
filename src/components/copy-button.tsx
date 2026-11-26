@@ -31,7 +31,7 @@ export function CopyButton({
     if (slug) bump(slug, "prompt");
   }
   return (
-    <button type="button" onClick={copy} className={`btn btn-ghost btn-sm ${className}`} aria-live="polite">
+    <button type="button" onClick={copy} className={className.includes("btn-primary") ? className : `btn btn-ghost btn-sm ${className}`} aria-live="polite">
       {done ? (
         <>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5cffc4" strokeWidth="2.5"><path d="m5 12 5 5 9-10" /></svg> Copied

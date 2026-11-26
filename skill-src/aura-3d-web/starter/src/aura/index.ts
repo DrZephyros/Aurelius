@@ -6,3 +6,5 @@ export { createMirrorFloor } from "./floor";
 export { createDepthPlane, createLayerStack, loadTexture, type LayerSpec, type DepthPlaneOptions } from "./layers";
 export { loadGLB, fitModel, prepModel } from "./assets";
 export { AuraExperience, type AuraExperienceProps } from "./AuraExperience";
+export { createSky, createLightShafts, createGlow, createHaze, type SkyOptions, type ShaftOptions } from "./atmosphere";
+export { createDunes, type DunesOptions } from "./terrain";

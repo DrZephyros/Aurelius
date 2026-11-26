@@ -20,7 +20,7 @@ export const OBSIDIAN_SHOTS: Shot[] = [
   { at: 0.4, pos: [-2.6, 2.2, 3.4], look: [0, 1.6, 0], fov: 24, ease: "inOut" }, //  3 macro orbit — telephoto compression, detail
   { at: 0.58, pos: [-2.6, 2.2, 3.4], look: [0, 1.6, 0], fov: 24 }, //     …HOLD (same shot twice) so the copy can be read
   { at: 0.78, pos: [0.6, 6.5, -1.5], look: [0, 0.5, -7], fov: 52 }, //  4 crane up and over — reveal the whole stage
-  { at: 1.0, pos: [0, 2.2, -16], look: [0, 2.4, -44], fov: 60 }, //  5 fly-through into the void — widen the lens, speed
+  { at: 1.0, pos: [0, 2.7, 11.5], look: [0, 1.7, 0], fov: 30 }, //  5 FINAL IMAGE — swing back to a composed, symmetrical hero frame (the last frame is a poster, never empty space)
 ];
 
 export function obsidianGate({ env, mobile, quality }: BuildContext): AuraScene {

@@ -9,6 +9,7 @@ import TemplatePage from "@/views/TemplatePage";
 import DemoPage from "@/views/DemoPage";
 import PromptsPage from "@/views/PromptsPage";
 import SkillPage from "@/views/SkillPage";
+import { SkillDock } from "@/components/skill-dock";
 import BundlesIndex from "@/bundles/BundlesIndex";
 import BundleShell from "@/bundles/BundleShell";
 import { ComponentsHub, CategoryView, ItemView } from "@/views/RegistryViews";
@@ -69,6 +70,7 @@ function Shell() {
       <>
         <BundleShell key={bundle[1]} slug={bundle[1]} page={bundle[2]} />
         <CommandPalette />
+        <SkillDock />
       </>
     );
   }
@@ -88,6 +90,7 @@ function Shell() {
       {!home && !skill && <LibraryTabs />}
       <div id="main" className="relative z-10"><Routes /></div>
       <CommandPalette />
+      <SkillDock />
       <SiteFooter />
     </>
   );

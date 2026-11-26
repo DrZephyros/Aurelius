@@ -18,6 +18,22 @@ Routes live after the `#` (tiny hash router in `src/lib/router.tsx`).
 | `#/prompts` | Prompt library |
 | `#/bundles`, `#/bundles/<slug>`, `#/bundles/<slug>/<pricing\|signin\|reserve\|account>` | **Bundles** — Yoru, Helm, Altai: a full-screen scroll-driven WebGL landing (spline camera rail, bloom, FOV kick, banking) plus four working pages in the same theme. Source in `src/bundles/` (engine, scenes, data, pages) |
 
+## The skill is part of the product (v11)
+
+The product is no longer only templates — it is **the skill that makes them**. It is reachable from everywhere:
+
+- **Skill Studio drawer** — a floating *Make your own* pill on every page (and ⌘J / Ctrl+J, and ⌘K → "Open the Skill Studio"). Brief an archetype, subject, audience, feeling, CTA, palette and length → a tailored agent prompt is composed live (`src/lib/studio.ts`), with copy / 1-line / download actions. One shared store, so the drawer, the home page and `#/make-your-own` edit the same brief.
+- **"✦ Make one like this"** on every template page opens the Studio pre-filled from that template.
+- **Home** shows the skill's real output live (`components/live-world.tsx` — the starter's *Umbra* and *Obsidian Gate* running in-page) and the inline Studio.
+- **Agent-fetchable URLs:** `GET /skill.md` (single-file edition) and `GET /skill.zip` (installable folder) — `curl -L <site>/skill.zip -o aura.zip && unzip aura.zip -d ~/.claude/skills/`.
+
+### What changed in the skill (`skill-src/aura-3d-web`)
+- Engine: deterministic QA hook `window.__aura.seek(p)` / `info()` / `?p=`; first chapter visible in frame one and last chapter stays (the starter used to end on an empty frame); `fitType()` measured giant type; calmer aberration; render stats.
+- New helpers: `atmosphere.ts` (sky with eclipse + stars, light shafts, glow, haze), `terrain.ts` (dunes + `heightAt`).
+- New reference world **Umbra** (`scene.umbra.ts`, `UmbraExperience.tsx`; run with `?world=umbra`) next to Obsidian Gate.
+- `scripts/audit.mjs` replaces the old screenshot script: per-frame metrics, chapter collision / empty-first-or-last-frame / missing-CTA checks, shot-list lint, no-WebGL + reduced-motion tests, contact sheets, automated score (80 pts; the other 20 are art-direction).
+- `references/10-frontier-techniques.md` (raymarched heroes, GPU particles, 2.5D, cinematic type, camera craft, WebGPU, splats, world recipes, failure-mode table) and a *verification contract* in `SKILL.md`.
+
 ## Architecture
 
 The site ships as **one html file**, so nothing is fetched at runtime: every asset is bundled as raw text and assembled in the browser.

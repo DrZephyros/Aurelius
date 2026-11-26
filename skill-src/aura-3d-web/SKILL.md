@@ -33,8 +33,9 @@ If the visitor does not feel something in the first three seconds and again at t
 | optimizing, handling mobile, a11y, fallbacks | `references/07-performance-and-resilience.md` |
 | verifying, scoring, polishing | `references/08-qa-and-polish.md` |
 | you want ready-made kickoff prompts | `references/09-prompt-pack.md` |
+| you want to go BEYOND the starter (raymarched heroes, GPU particles, depth-displaced plates, cinematic type, WebGPU, splats, audio…) and need the world-building recipes | `references/10-frontier-techniques.md` |
 
-3. The working engine is in `starter/`. **Copy it. Do not rewrite it.** It already implements the damped scroll playhead, the shot-list camera, post stack, adaptive quality, DOM choreography, particles, reflective floor, depth-displaced images and a React shell. Your job is the *world*, the *camera moves* and the *story* — that is where the value is.
+3. The working engine is in `starter/` — and it ships **two finished reference worlds** to study: *Obsidian Gate* (an object / product — `scene.example.ts`) and *Umbra* (an event: terrain + eclipse sky + light shafts + a monolith — `scene.umbra.ts`, built only from the helpers, ~190 lines). Run either with `npm run dev` (`?world=umbra`). **Copy it. Do not rewrite it.** It already implements the damped scroll playhead, a **deterministic `window.__aura.seek(p)` / `?p=` QA hook, procedural sky + eclipse, light shafts, haze, glow, dunes (`atmosphere.ts`, `terrain.ts`), measured fit-to-viewport giant type (`fitType`), the shot-list camera, post stack, adaptive quality, DOM choreography, particles, reflective floor, depth-displaced images and a React shell. Your job is the *world*, the *camera moves* and the *story* — that is where the value is.
 
 ---
 
@@ -91,7 +92,7 @@ Copy `starter/src/aura/*` into the project (Vite + React is the default; for Nex
 Pass A *Motion:* timing of every entrance, hold lengths, easing, velocity feel. Pass B *Image:* color grade, contrast, highlights, depth separation, kill any flat frame. Pass C *Details:* micro-typography, cursor, loader, hover states, 404, favicon, OG image, scroll-snap-free ending.
 
 ### Phase 7 — QA gate
-Run `references/08-qa-and-polish.md` (the screenshot script is `scripts/shoot.mjs`): capture screenshots at 12 scroll positions and 3 viewports, measure FPS, test no-WebGL, reduced motion, mobile touch scroll, resize, tab-hidden. Score. **If < 85, fix the lowest-scoring category and re-score.** Ship the score in your final message.
+Run `node scripts/audit.mjs <url>` (see `references/08-qa-and-polish.md`): it seeks the playhead deterministically, captures 14 stops × 3 viewports, measures every frame, lints the shot list and DOM chapters, and tests no-WebGL + reduced-motion. Then **open the contact sheets and critique them**. Also check FPS (`--gpu`), reduced motion, mobile touch scroll, resize, tab-hidden. Score. **If < 85, fix the lowest-scoring category and re-score.** Ship the score in your final message.
 
 ---
 
@@ -148,3 +149,15 @@ Run `references/08-qa-and-polish.md` (the screenshot script is `scripts/shoot.mj
 
 ## 7 · When the user says "make it better"
 Don't add features. Go through the rubric, find the **lowest-scoring pillar** (A/U/R/A), and fix that: usually *more depth separation, a stronger hold, bigger type, or a better rim light.* Then re-screenshot.
+
+## 8 · The verification contract (what "done" means)
+You may not say "done" until ALL of these are true — paste the evidence in your final message:
+1. `node scripts/audit.mjs <url>` exits 0 (**no blockers**) on desktop, mobile, wide — and you read `REPORT.md`.
+2. You opened `contact-desktop.png` and `contact-mobile.png` and wrote a one-line art-director critique **per frame** (poster test · 5 depth planes · light · type) and fixed what you found, ≥ 3 loops.
+3. Frame one has type on screen; the last frame is a composed image with ONE live CTA (the engine hides neither if you start chapter 1 at `data-a="0"` and end the last at `data-b="1"`).
+4. Giant type uses `data-fit` — never guessed vw. Nothing is cropped or collides at 390 px.
+5. `__aura.info().drawCalls` ≤ 160 and the no-WebGL fallback is a designed poster, not a blank page.
+6. Your score table includes the audit's automated points **and** your own judged Authorship points, honestly.
+
+## 9 · Calibrate against the references
+Before you ship, put your contact sheet next to `starter/src/aura/scene.umbra.ts` / `scene.example.ts` renders. If yours has fewer depth planes, a weaker last frame or flatter light than those zero-asset worlds, you are not done.

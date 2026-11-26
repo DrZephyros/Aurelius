@@ -2,35 +2,37 @@
 
 The agent's biggest handicap is that it can't *see* its work unless it makes itself look. **Make yourself look.** Every phase ends with screenshots.
 
-## 1 · The screenshot loop (Playwright)
-Install once: `npm i -D playwright && npx playwright install chromium`. GPU in headless needs flags:
+## 1 · The audit loop (`scripts/audit.mjs`) — run it, then LOOK
 
-```js
-// scripts/shoot.mjs  —  node scripts/shoot.mjs http://localhost:5173
-import { chromium } from "playwright";
-const url = process.argv[2] ?? "http://localhost:5173";
-const sizes = [{ w: 1440, h: 900, n: "desktop" }, { w: 390, h: 844, n: "mobile" }, { w: 1920, h: 1080, n: "wide" }];
-const stops = [0, 0.04, 0.12, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
-const browser = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--enable-webgl"] });
-for (const s of sizes) {
-  const page = await browser.newPage({ viewport: { width: s.w, height: s.h }, deviceScaleFactor: 1 });
-  const logs = []; page.on("console", (m) => ["error", "warning"].includes(m.type()) && logs.push(m.text())); page.on("pageerror", (e) => logs.push(String(e)));
-  await page.goto(url, { waitUntil: "networkidle" });
-  await page.waitForTimeout(2500);                                   // loader
-  const max = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
-  for (const p of stops) {
-    await page.evaluate((y) => window.scrollTo(0, y), Math.round(max * p));
-    await page.waitForTimeout(1600);                                 // let the damped playhead settle
-    await page.screenshot({ path: `shots/${s.n}-${String(Math.round(p * 100)).padStart(3, "0")}.png` });
-  }
-  console.log(s.n, "console issues:", logs.slice(0, 8));
-  await page.close();
-}
-await browser.close();
+The agent's biggest handicap is that it can't *see* its work unless it makes itself look. **Make yourself look — and let a machine catch the mechanical failures first.**
+
+```bash
+npm i -D playwright pngjs && npx playwright install chromium
+npm run dev &                                     # or serve a build
+node scripts/audit.mjs http://localhost:5173 --out shots      # add --gpu on a real machine for true FPS
 ```
-Then **open the images** (use your image-reading tool) and critique them. Software GL (SwiftShader) is slow but accurate for composition; ignore its FPS.
 
-If screenshots are all black: the WebGL context failed (check flags / the poster fallback), or the loader is still up (increase wait), or exposure/fog is wrong.
+It is **deterministic**: the engine exposes `window.__aura.seek(p)` (and `?p=0.37` in the URL) which locks the playhead and settles instantly — identical input, identical frame. No scroll timing, no waiting for damping. In your own debugging use `__aura.info()` to read the live camera position, look target, fov, draw calls and triangles while you tune shots.
+
+What it measures at 14 stops × 3 viewports (a fresh browser per viewport):
+| Check | Catches |
+| --- | --- |
+| luma / contrast σ / clipped % / edge energy | black frames, washed-out frames, flat frames, blown bloom, empty frames |
+| frame-to-frame Δ | **dead zones** (scroll that does nothing) and **jump cuts** (a cut where there should be a glide) |
+| DOM chapters at every stop | copy colliding with copy, copy leaving the viewport (measured on the *text*, not the box), **empty first frame**, **empty last frame**, **no CTA in the last frame** |
+| shot-list lint | not covering 0→1, no HOLD, no wide/close alternation, teleporting cuts, too few shots |
+| chapters | late opening, early closing, long silences, headlines > 14 words |
+| budgets | > 160 draw calls, > 1.8 M triangles |
+| resilience | page with WebGL disabled (must not crash or hang on the loader), reduced-motion load |
+
+It writes `shots/REPORT.md`, `report.json`, `shots/contact-desktop.png|mobile|wide` and exits non-zero on any **BLOCKER**. It also prints an *automated* score out of 80 (atmosphere 25 · unbroken 20 · rhythm 20 · craft 15). **The remaining 20 points — Authorship — and the real taste judgement are yours.**
+
+> **Gate:** 0 blockers → open `contact-desktop.png` and `contact-mobile.png` with your image tool → critique (§2) → fix → re-run. Do this **at least three times** (blockout, light/material, polish).
+>
+> A green audit proves the film is *mechanically sound*, never that it is *beautiful*. Both reference worlds scored 80/80 only after a real critique pass fixed things the numbers could not see (square stars, water-looking dunes, a hot corona).
+
+Software GL (SwiftShader) is slow but pixel-accurate for composition; ignore its FPS.
+If every screenshot is black: the WebGL context failed (flags / poster fallback), the loader is still up, or exposure/fog is wrong — the audit reports `dark` at p=0 as a BLOCKER for this reason.
 
 ## 2 · Critique protocol (be a harsh art director)
 For each screenshot, answer in one line each:

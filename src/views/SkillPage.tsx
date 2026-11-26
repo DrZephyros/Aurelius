@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNod
 import { Link } from "@/lib/router";
 import { Reveal } from "@/components/reveal";
 import { CopyButton } from "@/components/copy-button";
-import ExampleExperience from "../../skill-src/aura-3d-web/starter/src/aura/ExampleExperience";
+import { LiveWorld } from "@/components/live-world";
+import { SkillStudio } from "@/components/skill-studio";
 import {
   ARCHETYPES, FAQ, INSTALLS, KICKOFFS, LAWS, MASTER_PROMPT, PHASES, PILLARS, SHORT_PROMPT, SKILL_FILES, SKILL_STATS,
   buildSinglePrompt, downloadSkill, skillFile, type SkillDownload,
@@ -34,23 +35,6 @@ function Code({ text, label }: { text: string; label?: string }) {
         <CopyButton text={text} label="Copy" />
       </div>
       <pre className="max-h-[320px] overflow-auto whitespace-pre-wrap px-4 py-4 font-mono text-[12.5px] leading-relaxed text-[#cdd3df]">{text}</pre>
-    </div>
-  );
-}
-
-/* the live proof only boots when it nears the viewport, and tears its WebGL context down when you leave */
-function LiveProof() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [on, setOn] = useState(false);
-  useEffect(() => {
-    const el = ref.current!;
-    const io = new IntersectionObserver(([e]) => setOn(e.isIntersecting), { rootMargin: "60% 0px 60% 0px" });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-  return (
-    <div ref={ref} style={{ minHeight: "560vh" }}>
-      {on && <ExampleExperience scrollVh={560} />}
     </div>
   );
 }
@@ -162,7 +146,8 @@ export default function SkillPage() {
             A templates shelf answers one brief. <b className="font-semibold text-fg">AURA</b> is the skill that lets an AI agent author a new cinematic, scroll-driven 3D world for <i>any</i> brief — a product, a portfolio, a house, a game, a cause — with a camera engine, a creative method and a quality gate that refuses to ship “just another website”.
           </p>
           <div className="rise mt-9 flex flex-wrap items-center gap-3" style={{ "--d": "700ms" } as CSSProperties}>
-            <button type="button" onClick={() => scrollToId("get")} className="btn btn-primary h-[54px] px-8 text-[15px]">Get the skill <span aria-hidden>↓</span></button>
+            <button type="button" onClick={() => scrollToId("studio")} className="btn btn-primary h-[54px] px-8 text-[15px]">Brief your own site <span aria-hidden>↓</span></button>
+            <button type="button" onClick={() => scrollToId("get")} className="btn btn-ghost h-[54px] px-7 text-[15px]">Get the skill</button>
             <button type="button" onClick={() => scrollToId("proof")} className="btn btn-ghost h-[54px] px-7 text-[15px]">Scroll the live engine</button>
             <Link href="/library" className="px-3 text-[14px] text-dim underline-offset-4 transition hover:text-fg hover:underline">or browse ready-made worlds</Link>
           </div>
@@ -175,6 +160,14 @@ export default function SkillPage() {
             </div>
           ))}
         </dl>
+      </section>
+
+      {/* ───────── studio ───────── */}
+      <section id="studio" className={`${WRAP} py-24`}>
+        <Head eyebrow="Skill Studio" title={<>Brief it here.<br /><span className="aurora-text">Paste it anywhere.</span></>}>
+          No separate tool, no dead end: describe the site, get a tailored prompt, take the skill with you. The same Studio floats on every page of this site — press <kbd className="rounded border border-line px-1.5 font-mono text-[12px]">⌘J</kbd>.
+        </Head>
+        <SkillStudio />
       </section>
 
       {/* ───────── why ───────── */}
@@ -214,11 +207,11 @@ export default function SkillPage() {
       {/* ───────── live proof ───────── */}
       <section id="proof" className="relative">
         <div className={`${WRAP} pb-10 pt-6`}>
-          <Head eyebrow="Proof, not a screenshot" title={<>This is the starter engine.<br />Scroll it.</>}>
-            “Obsidian Gate” ships inside the skill: five shots, a hold, a fly-through — zero image assets. One damped playhead drives the camera, the light, the particles and every word on screen. It is the pattern the agent is taught to extend.
+          <Head eyebrow="Proof, not a screenshot" title={<>Two worlds. Zero assets.<br />Both made by the skill.</>}>
+            “Umbra” (an event) and “Obsidian Gate” (an object) ship inside the skill — switch between them above the stage. Umbra is ~190 lines built only from the starter’s helpers: dunes, an eclipse sky, light shafts, haze, a monolith. One damped playhead drives the camera, the light, the particles and every word on screen. It is the pattern the agent is taught to extend.
           </Head>
         </div>
-        <LiveProof />
+        <LiveWorld initial="umbra" scrollVh={620} />
         <div className={`${WRAP} pt-10`}>
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-[14px] text-dim">
             <span>Read exactly how it works: <button type="button" className="text-aurora underline-offset-4 hover:underline" onClick={() => scrollToId("pack")}>starter/src/aura/scene.example.ts</button></span>
@@ -416,7 +409,8 @@ export default function SkillPage() {
           Go make<br /><span className="aurora-text">AURA.</span>
         </h2>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <button type="button" onClick={() => scrollToId("get")} className="btn btn-primary h-[54px] px-8 text-[15px]">Get the skill <span aria-hidden>↓</span></button>
+          <button type="button" onClick={() => scrollToId("studio")} className="btn btn-primary h-[54px] px-8 text-[15px]">Brief your own site <span aria-hidden>↓</span></button>
+            <button type="button" onClick={() => scrollToId("get")} className="btn btn-ghost h-[54px] px-7 text-[15px]">Get the skill</button>
           <Link href="/library" className="btn btn-ghost h-[54px] px-7 text-[15px]">Prefer ready-made? Open the library</Link>
         </div>
       </section>

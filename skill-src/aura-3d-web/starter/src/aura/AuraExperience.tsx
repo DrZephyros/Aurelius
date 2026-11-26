@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 import { mountAura, type Builder, type AuraHandle } from "./engine";
-import { bindDom, trackProgress } from "./choreo";
+import { bindDom, fitType, trackProgress } from "./choreo";
 
 /* ─────────────────────────────────────────────────────────────
    AURA · AuraExperience — drop-in React shell.
@@ -57,6 +57,7 @@ export function AuraExperience({ build, children, scrollVh = 700, title = "", po
     const t0 = performance.now();
     THREE.DefaultLoadingManager.onProgress = (_u, l, n) => setPct(n ? l / n : 1);
     const update = bindDom(ov);
+    const unfit = fitType(ov);
     mountAura(hostEl, build, { progress: trackProgress(t) })
       .then((h) => {
         if (dead) { h.dispose(); return; }
@@ -70,7 +71,7 @@ export function AuraExperience({ build, children, scrollVh = 700, title = "", po
         setTimeout(() => !dead && setReady(true), Math.max(0, 900 - (performance.now() - t0)));
       })
       .catch(() => !dead && setFailed(true));
-    return () => { dead = true; handle?.dispose(); };
+    return () => { dead = true; unfit(); handle?.dispose(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

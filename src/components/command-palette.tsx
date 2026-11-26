@@ -1,5 +1,6 @@
 "use client";
 
+import { openSkill } from "@/lib/studio";
 import { BUNDLES } from "@/bundles/data";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@/lib/router";
@@ -54,6 +55,7 @@ export function CommandPalette() {
     const go = (href: string) => () => navigate(href);
     return [
       { id: "p-home", group: "Go to", title: "Home", hint: "Start", run: go("/") },
+      { id: "a-studio", group: "Actions", title: "Open the Skill Studio", hint: "Brief it, copy the prompt, grab the skill — right here (⌘J)", run: () => openSkill() },
       { id: "p-skill", group: "Go to", title: "Make your own — the AURA skill", hint: "Teach an agent to build immersive 3D sites", run: go("/make-your-own") },
       { id: "p-library", group: "Go to", title: "Library", hint: "All the shelves", run: go("/library") },
       { id: "p-landing", group: "Go to", title: "Landing pages", hint: `${TEMPLATES.length} 3D templates`, run: go("/landing-pages") },

@@ -1,6 +1,7 @@
 "use client";
 
 import { Link } from "@/lib/router";
+import { openSkill } from "@/lib/studio";
 import { TEMPLATES, bySlug, indexOf } from "@/lib/templates";
 import { PROMPTS, fill } from "@/lib/prompts";
 import { ZIP_FILE_TREE, downloadTemplate, metricsFor, readSource } from "@/lib/files";
@@ -53,6 +54,13 @@ export default function TemplatePage({ slug }: { slug: string }) {
             Download .zip
           </button>
           <button type="button" onClick={() => openDemo(t.slug)} className="btn btn-ghost">Open fullscreen ↗</button>
+          <button
+            type="button"
+            onClick={() => openSkill({ subject: `A new scroll-driven 3D world in the spirit of “${t.name}” — ${t.tagline}. ${t.blurb}`, archetype: "brand" })}
+            className="btn btn-ghost !border-[rgb(92_255_196/0.45)] !text-aurora"
+          >
+            ✦ Make one like this — with the skill
+          </button>
           <p className="text-center font-mono text-[11px] text-dim">{m.kb} KB source · {(stats?.downloads ?? 0).toLocaleString()} downloads</p>
         </div>
       </header>

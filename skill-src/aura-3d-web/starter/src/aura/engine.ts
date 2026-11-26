@@ -94,7 +94,26 @@ export interface AuraOptions {
   progress?: () => number;
 }
 
+export interface AuraInfo {
+  p: number;
+  locked: boolean;
+  fps: number;
+  quality: number;
+  size: [number, number];
+  shots: Shot[];
+  /** the camera's current world position / look target / fov — handy when an agent is tuning shots from screenshots */
+  camera: { pos: V3; look: V3; fov: number };
+  drawCalls: number;
+  triangles: number;
+}
+
 export interface AuraHandle {
+  /** DETERMINISTIC SEEK — lock the playhead to p and settle instantly (no damping, no pointer drift, no velocity effects).
+   *  Identical input → identical frame. This is how agents screenshot a scroll position exactly. Also available as window.__aura.seek(p). */
+  seek(p: number): void;
+  /** hand control back to the scroll position */
+  release(): void;
+  info(): AuraInfo;
   setProgress(p: number): void;
   progress(): number;
   /** dim the world (0..1), e.g. while a modal is open */
@@ -114,7 +133,7 @@ const FX = {
     uVel: { value: 0 },
     uVignette: { value: 0.65 },
     uGrain: { value: 0.045 },
-    uAberr: { value: 0.045 },
+    uAberr: { value: 0.018 },
     uContrast: { value: 1.06 },
     uSat: { value: 1.05 },
     uShadows: { value: new THREE.Vector3(0, 0.02, 0.06) },
@@ -128,7 +147,7 @@ const FX = {
     float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
     void main(){
       vec2 c = vUv - .5; float d = dot(c, c);
-      vec2 off = c * (d * uAberr + uVel * .005);
+      vec2 off = c * (d * uAberr + uVel * .0028);
       vec3 col = vec3(texture2D(tDiffuse, vUv + off).r, texture2D(tDiffuse, vUv).g, texture2D(tDiffuse, vUv - off).b);
       float l = dot(col, vec3(.2126, .7152, .0722));
       col = mix(vec3(l), col, uSat);
@@ -170,6 +189,7 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
 
   const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance", stencil: false });
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.info.autoReset = false; // composer renders several passes per frame — we reset once per frame so info() reports the whole frame
   renderer.domElement.style.cssText = "display:block;width:100%;height:100%";
   host.appendChild(renderer.domElement);
 
@@ -208,7 +228,7 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
   if (g.highlights) U.uHighlights.value.set(...g.highlights);
   if (reduced) { U.uGrain.value *= 0.5; U.uAberr.value = 0; }
 
-  const S = { target: 0, prog: 0, dim: 0, dimT: 0, fade: 0, speed: 0, bank: 0, ptrX: 0, ptrY: 0, tx: 0, ty: 0 };
+  const S = { locked: false, target: 0, prog: 0, dim: 0, dimT: 0, fade: 0, speed: 0, bank: 0, ptrX: 0, ptrY: 0, tx: 0, ty: 0 };
   const onMove = (e: PointerEvent) => { S.tx = (e.clientX / innerWidth) * 2 - 1; S.ty = (e.clientY / innerHeight) * 2 - 1; };
   addEventListener("pointermove", onMove, { passive: true });
 
@@ -238,7 +258,9 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
   const pos = new THREE.Vector3(), look = new THREE.Vector3(), prev = new THREE.Vector3();
   const right = new THREE.Vector3();
   let last = performance.now(), elapsed = 0; // (THREE.Clock is deprecated in recent three)
-  let raf = 0, running = true, first = true, frames = 0, acc = 0;
+  let raf = 0, running = true, first = true, frames = 0, acc = 0, fps = 60, ema = 1 / 60;
+  const lastShot = built.shots[built.shots.length - 1].at;
+  if (built.shots[0].at !== 0 || lastShot !== 1) console.warn(`[aura] shots should start at 0 and end at 1 (got ${built.shots[0].at} → ${lastShot}). The camera freezes outside the rail.`);
 
   const frame = () => {
     if (!running) return;
@@ -260,14 +282,16 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
       }
     }
 
-    if (opts.progress) S.target = clamp(opts.progress());
+    ema += (raw - ema) * 0.05; fps = Math.round(1 / Math.max(ema, 1e-3));
+    if (!S.locked && opts.progress) S.target = clamp(opts.progress());
     const before = S.prog;
-    S.prog = first ? S.target : damp(S.prog, S.target, reduced ? 20 : 3.2, dt);
+    S.prog = first || S.locked ? S.target : damp(S.prog, S.target, reduced ? 20 : 3.2, dt);
+    if (S.locked) { S.fade = 1; S.tx = S.ty = S.ptrX = S.ptrY = 0; }
     S.dim = damp(S.dim, S.dimT, 2.4, dt);
     S.fade = Math.min(1, S.fade + dt * 0.8);
     S.ptrX = damp(S.ptrX, S.tx, 2.4, dt);
     S.ptrY = damp(S.ptrY, S.ty, 2.4, dt);
-    const vel = dt > 0 ? Math.abs(S.prog - before) / dt : 0;
+    const vel = dt > 0 && !S.locked ? Math.abs(S.prog - before) / dt : 0;
     S.speed = damp(S.speed, vel, 4, dt);
 
     const p = clamp(S.prog, 0, 0.9999);
@@ -298,13 +322,27 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
     U.uFade.value = S.fade;
     U.uDim.value = S.dim;
     U.uVel.value = reduced ? 0 : Math.min(S.speed * 4, 0.5);
+    renderer.info.reset();
     composer.render(dt);
     listeners.forEach((cb) => cb(fr));
     first = false;
   };
   frame();
 
+  const seek = (p: number) => { S.locked = true; S.target = S.prog = clamp(p); S.speed = 0; };
+  const release = () => { S.locked = false; };
+  const info = (): AuraInfo => ({
+    p: S.prog, locked: S.locked, fps, quality, size: [w, h], shots: built.shots,
+    camera: { pos: camera.position.toArray() as V3, look: look.toArray() as V3, fov: camera.fov },
+    drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+  });
+  // agent / QA hook:  window.__aura.seek(0.37)  then screenshot.   ?p=0.37 in the URL does the same on load.
+  const urlP = new URLSearchParams(location.search).get("p");
+  if (urlP !== null && !Number.isNaN(parseFloat(urlP))) seek(parseFloat(urlP));
+  (window as unknown as { __aura?: unknown }).__aura = { seek, release, info };
+
   return {
+    seek, release, info,
     setProgress: (p) => { S.target = clamp(p); },
     progress: () => S.prog,
     setDim: (d) => { S.dimT = clamp(d); },
@@ -314,6 +352,7 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
       running = false;
       cancelAnimationFrame(raf);
       removeEventListener("pointermove", onMove);
+      delete (window as unknown as { __aura?: unknown }).__aura;
       ro.disconnect(); io.disconnect();
       built.dispose?.();
       built.scene.traverse((o) => {

@@ -10,7 +10,7 @@ If your agent supports skills (Claude Code, Claude.ai Skills, Cursor Rules, Code
 Use the aura-3d-web skill. Build a scroll-driven immersive 3D website for [SUBJECT].
 Audience: [WHO]. They should feel [ONE EMOTION]. Final action: [CTA].
 Brand assets: [logo/colors/copy/images or "none — art-direct it yourself"].
-Don't ask me questions unless something is truly blocking — make decisions, state your assumptions, build it, screenshot it, score it, polish it.
+Don't ask me questions unless something is truly blocking — make decisions, state your assumptions, build it, run `node scripts/audit.mjs <url>` until there are 0 blockers, open the contact sheets and critique them frame by frame (≥3 loops), score it honestly, polish it.
 ```
 
 ## 🧠 Master prompt (no skill support — paste this)
@@ -29,7 +29,7 @@ NON-NEGOTIABLES
 9. Deliver a stunning preloader (giant counter + title wipe).
 
 PROCESS (do in order, write files): AURA_BRIEF.md (world metaphor, hero, emotional arc, palette hex, type, lens language, light, atmosphere, never-list) → STORYBOARD.md (table: chapter | scroll range | shot+lens | world change | copy ≤12 words | type treatment | transition) → ASSETS.md (procedural vs generated image layers vs GLB; ≤12MB) → scaffold (Vite+React+TS+three) → blockout shots first → light → materials/hero → atmosphere → typography+DOM choreography with data-a/data-b windows bound to the same playhead → post/grade → interaction → conversion → 3 polish passes.
-VERIFY: use Playwright to screenshot 12 scroll positions on desktop+mobile, inspect them like a harsh art director, fix, repeat. Score yourself out of 100 (Atmosphere 25, Unbroken 20, Rhythm 20, Authorship 20, Production 15). Ship only ≥85.
+VERIFY: expose window.__aura.seek(p) from the engine so every frame is reproducible; use Playwright to screenshot 14 scroll positions on desktop+mobile (measure luminance/contrast/clipping, detect text collisions, require copy + a CTA in the first and last frame), inspect them like a harsh art director, fix, repeat. Score yourself out of 100 (Atmosphere 25, Unbroken 20, Rhythm 20, Authorship 20, Production 15). Ship only ≥85.
 
 BAN LIST: spinning-logo hero with a normal site below, fade-up cards, OrbitControls turntable, purple-blue blob gradients, glass cards on mesh gradient, centered Inter 64px, flat MeshBasic, bloom on everything, 200vh scroll for 8 moments, autoplay sound, lorem ipsum.
 

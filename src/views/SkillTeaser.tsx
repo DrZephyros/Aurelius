@@ -3,11 +3,15 @@
 import { Link } from "@/lib/router";
 import { Reveal } from "@/components/reveal";
 import { LAWS, PHASES, SKILL_STATS } from "@/lib/skill";
+import { openSkill } from "@/lib/studio";
+import { LiveWorld } from "@/components/live-world";
+import { SkillStudio } from "@/components/skill-studio";
 
 /** Home-page doorway into the “Make your own” section — a separate product shelf, not another template. */
 export function SkillTeaser() {
   return (
-    <section className="mx-auto max-w-[1320px] px-5 py-28 sm:px-8">
+    <>
+    <section className="mx-auto max-w-[1320px] px-5 pt-28 pb-12 sm:px-8">
       <Reveal>
         <div className="relative overflow-hidden rounded-[28px] border border-[rgb(92_255_196/0.28)] bg-[linear-gradient(135deg,rgb(8_14_24/0.9),rgb(3_5_11/0.9))] p-8 sm:p-12 lg:p-16">
           {/* a little camera rail */}
@@ -43,8 +47,9 @@ export function SkillTeaser() {
               Everything above is a finished world. <b className="font-semibold text-fg">AURA</b> is the skill behind worlds like them: a creative doctrine, an {SKILL_STATS.engineLines}-line cinematic camera engine and a 100-point quality gate — packaged so an AI agent can build an immersive, scroll-driven 3D site for <i>any</i> brief.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href="/make-your-own" className="btn btn-primary h-[52px] px-7">Make your own <span aria-hidden>→</span></Link>
-              <Link href="/make-your-own#get" className="btn btn-ghost h-[52px] px-6">Get the skill</Link>
+              <a href="#studio-inline" onClick={(e) => { e.preventDefault(); document.getElementById("studio-inline")?.scrollIntoView({ behavior: "smooth" }); }} className="btn btn-primary h-[52px] px-7">Brief your own site <span aria-hidden>↓</span></a>
+              <button type="button" onClick={() => openSkill()} className="btn btn-ghost h-[52px] px-6">Open Studio <kbd className="ml-1 font-mono text-[10px] text-dim">⌘J</kbd></button>
+              <Link href="/make-your-own" className="px-2 text-[13px] text-dim underline-offset-4 hover:text-fg hover:underline">Read the skill</Link>
             </div>
             <dl className="mt-10 flex flex-wrap gap-x-9 gap-y-3 border-t border-white/10 pt-6">
               {([[LAWS.length, "laws"], [PHASES.length, "phases"], [SKILL_STATS.docs, "references"], [SKILL_STATS.files, "files"]] as const).map(([n, l]) => (
@@ -58,5 +63,26 @@ export function SkillTeaser() {
         </div>
       </Reveal>
     </section>
+
+    {/* the proof: the skill's actual output, live — scroll it */}
+    <section aria-label="Built by the skill, live" className="relative">
+      <div className="mx-auto max-w-[1320px] px-5 pb-8 sm:px-8">
+        <div className="eyebrow">Built by the skill · live</div>
+        <h3 className="h-display mt-4 text-[clamp(1.8rem,3.6vw,3rem)]">Scroll it. No video, no assets — just the skill’s engine.</h3>
+      </div>
+      <LiveWorld initial="umbra" scrollVh={460} />
+    </section>
+
+    <section id="studio-inline" className="mx-auto max-w-[1320px] scroll-mt-24 px-5 py-24 sm:px-8">
+      <Reveal>
+        <div className="mb-10 max-w-[760px]">
+          <div className="eyebrow">Skill Studio</div>
+          <h3 className="h-display mt-4 text-[clamp(2rem,4.4vw,3.8rem)]">Now make <span className="aurora-text">yours.</span></h3>
+          <p className="mt-4 text-[15px] leading-relaxed text-fg/70">Describe the site. Get a tailored prompt for any agent, and take the skill with you — all without leaving this page. It follows you everywhere: press ⌘J.</p>
+        </div>
+        <SkillStudio />
+      </Reveal>
+    </section>
+    </>
   );
 }
