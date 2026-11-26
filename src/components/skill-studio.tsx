@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import { Link } from "@/lib/router";
 import { CopyButton } from "@/components/copy-button";
-import { ARCHETYPES, downloadSkill, type SkillDownload } from "@/lib/skill";
+import { ARCHETYPES } from "@/lib/skill";
 import { LENGTHS, PALETTES, composePrompt, patchStudio, useStudio, type StudioState } from "@/lib/studio";
 
 const field =
@@ -14,27 +15,6 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
       <span className="mb-1.5 block font-mono text-[10px] tracking-[0.2em] text-dim uppercase">{label}</span>
       {children}
     </label>
-  );
-}
-
-function DownloadBtn({ kind, children }: { kind: SkillDownload; children: ReactNode }) {
-  const [busy, setBusy] = useState(false);
-  return (
-    <button
-      type="button"
-      disabled={busy}
-      onClick={async () => {
-        setBusy(true);
-        try {
-          await downloadSkill(kind);
-        } finally {
-          setBusy(false);
-        }
-      }}
-      className="btn btn-ghost !h-10 !px-4 !text-[12.5px]"
-    >
-      {busy ? "Packing…" : children}
-    </button>
   );
 }
 
@@ -161,9 +141,7 @@ export function SkillStudio({ layout = "split" }: { layout?: "split" | "stack" }
             <span className="font-mono text-[10.5px] text-dim">works with Claude Code · Cursor · Codex · Gemini · Copilot</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <DownloadBtn kind="skill">↓ Skill .zip</DownloadBtn>
-            <DownloadBtn kind="single">↓ Single-file .md</DownloadBtn>
-            <DownloadBtn kind="starter">↓ Starter engine</DownloadBtn>
+            <Link href="/skill#get" className="btn btn-primary !h-10 !px-4 !text-[12.5px]">Get the full skill · $10</Link>
             <a className="btn btn-ghost !h-10 !px-4 !text-[12.5px]" href="/skill.md" target="_blank" rel="noreferrer">/skill.md ↗</a>
           </div>
           <div className="mt-3 flex items-center gap-2 rounded-xl border border-line bg-[#090b0f] py-2 pr-2 pl-3">

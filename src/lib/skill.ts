@@ -1,45 +1,35 @@
-import RAW from "@/generated/raw-skill";
-import { bump } from "./stats";
+import RAW, { SKILL_INDEX } from "@/generated/raw-skill-public";
 
-/* The skill lives as real files in /skill-src/aura-3d-web. scripts/gen-raw.ts snapshots them as text, so
-   what the page shows, what the zip contains and what the one-file prompt compiles are always the same bytes. */
+/* CLIENT-SAFE edition. The full skill (every reference, the starter engine, the examples) lives in
+   /skill-src/aura-3d-web and is only ever assembled on the server (lib/skill-server.ts) for paying customers.
+   The browser gets an index of the files plus a handful of free sample files. */
 
 export const SKILL_SLUG = "aura-3d-web";
 const PREFIX = `/skill-src/${SKILL_SLUG}/`;
 
-export type SkillFile = { path: string; name: string; group: string; code: string; lines: number };
+export type SkillFile = { path: string; name: string; group: string; code: string; lines: number; bytes: number; locked: boolean };
 
-const ORDER = ["SKILL.md", "README.md", "references/", "templates/", "scripts/", "starter/"];
+const ORDER = ["SKILL.md", "README.md", "references/", "examples/", "templates/", "scripts/", "starter/"];
 const rank = (p: string) => {
   const i = ORDER.findIndex((o) => (o.endsWith("/") ? p.startsWith(o) : p === o));
   return i < 0 ? 99 : i;
 };
 
-export const SKILL_FILES: SkillFile[] = Object.entries(RAW)
-  .filter(([k]) => k.startsWith(PREFIX))
-  .map(([k, code]) => {
-    const path = k.slice(PREFIX.length);
-    const parts = path.split("/");
-    return {
-      path,
-      name: parts[parts.length - 1],
-      group: parts.length === 1 ? "root" : parts[0],
-      code,
-      lines: code.split("\n").length,
-    };
-  })
-  .sort((a, b) => rank(a.path) - rank(b.path) || a.path.localeCompare(b.path));
+export const SKILL_FILES: SkillFile[] = SKILL_INDEX.map((f) => {
+  const parts = f.path.split("/");
+  const code = RAW[PREFIX + f.path] ?? "";
+  return { path: f.path, name: parts[parts.length - 1], group: parts.length === 1 ? "root" : parts[0], code, lines: f.lines, bytes: f.bytes, locked: !code };
+}).sort((a, b) => rank(a.path) - rank(b.path) || a.path.localeCompare(b.path));
 
 export const skillFile = (path: string) => SKILL_FILES.find((f) => f.path === path);
-
-const strip = (md: string) => md.replace(/^---\n[\s\S]*?\n---\n/, "").trim();
 
 export const SKILL_STATS = {
   files: SKILL_FILES.length,
   docs: SKILL_FILES.filter((f) => f.group === "references").length,
+  examples: SKILL_FILES.filter((f) => f.group === "examples" && f.name !== "README.md").length,
   docLines: SKILL_FILES.filter((f) => f.path.endsWith(".md")).reduce((a, f) => a + f.lines, 0),
   engineLines: SKILL_FILES.filter((f) => f.path.startsWith("starter/src/aura/")).reduce((a, f) => a + f.lines, 0),
-  kb: Math.round(SKILL_FILES.reduce((a, f) => a + f.code.length, 0) / 1024),
+  kb: Math.round(SKILL_FILES.reduce((a, f) => a + f.bytes, 0) / 1024),
 };
 
 /* ── prompts parsed straight out of references/09-prompt-pack.md ── */
@@ -70,55 +60,6 @@ export const KICKOFFS: KickoffPrompt[] = section(pack, /Archetype kickoff/)
     return { id: title.toLowerCase().replace(/[^a-z]+/g, "-"), title, text: firstFence(b) };
   })
   .filter((k) => k.text);
-
-/** Everything compiled into ONE markdown file — for agents / chat UIs with no skills support. */
-export function buildSinglePrompt(): string {
-  const parts: string[] = [];
-  parts.push(`# AURA — immersive 3D website skill (single-file edition)\n\nYou are about to receive a complete operating manual for building AAA-grade, scroll-driven, immersive 3D websites. Read ALL of it before writing code. Follow SKILL.md as the operating system; consult the reference sections as the SKILL tells you. The engine source is included at the end — copy it into the project instead of rewriting it.\n`);
-  const doc = (p: string, title?: string) => {
-    const f = skillFile(p);
-    if (!f) return;
-    parts.push(`\n\n${"=".repeat(72)}\n# FILE: ${title ?? p}\n${"=".repeat(72)}\n\n${p === "SKILL.md" ? strip(f.code) : f.code.trim()}`);
-  };
-  doc("SKILL.md");
-  SKILL_FILES.filter((f) => f.group === "references").forEach((f) => doc(f.path));
-  SKILL_FILES.filter((f) => f.group === "templates").forEach((f) => doc(f.path));
-  parts.push(`\n\n${"=".repeat(72)}\n# STARTER ENGINE SOURCE (copy these files into src/aura/)\n${"=".repeat(72)}`);
-  SKILL_FILES.filter((f) => f.path.startsWith("starter/src/aura/")).forEach((f) => {
-    const lang = f.name.endsWith(".css") ? "css" : f.name.endsWith(".tsx") ? "tsx" : "ts";
-    parts.push(`\n\n## ${f.path}\n\`\`\`${lang}\n${f.code.trim()}\n\`\`\``);
-  });
-  return parts.join("\n") + "\n";
-}
-
-function save(blob: Blob, name: string) {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-}
-
-export type SkillDownload = "skill" | "starter" | "single";
-
-export async function downloadSkill(kind: SkillDownload) {
-  if (kind === "single") {
-    save(new Blob([buildSinglePrompt()], { type: "text/markdown" }), "aura-3d-web.single-file.md");
-  } else {
-    const { default: JSZip } = await import("jszip");
-    const zip = new JSZip();
-    if (kind === "skill") {
-      const root = zip.folder(SKILL_SLUG)!;
-      SKILL_FILES.forEach((f) => root.file(f.path, f.code));
-    } else {
-      const root = zip.folder("aura-starter")!;
-      SKILL_FILES.filter((f) => f.path.startsWith("starter/")).forEach((f) => root.file(f.path.replace(/^starter\//, ""), f.code));
-      root.file("scripts/audit.mjs", skillFile("scripts/audit.mjs")?.code ?? "");
-    }
-    save(await zip.generateAsync({ type: "blob", compression: "DEFLATE" }), kind === "skill" ? "aura-3d-web.zip" : "aura-starter.zip");
-  }
-  bump("skill-" + kind, "download");
-}
 
 /* ── editorial content for the page (the files are the source of truth for the skill itself) ── */
 export const LAWS: [string, string][] = [
@@ -211,4 +152,31 @@ export const FAQ: [string, string][] = [
   ["Will it run on phones?", "Yes — an adaptive-quality governor, pixel-ratio caps, a mobile shot list, reduced-motion and no-WebGL fallbacks are part of the contract, not an afterthought."],
   ["How do I know the output is good?", "The skill makes the agent look at its own work: Playwright captures 12 scroll positions on three viewports, then it critiques them and scores itself on a 100-point rubric. It must reach 85 before it ships."],
   ["Is the engine real?", "It is the live scene on this page. The starter kit is type-checked source — engine, choreography, materials, particles, depth layers, mirror floor and a React shell — about " + SKILL_STATS.engineLines + " lines you can read in the explorer below."],
+];
+
+/* ── the 12 art directions (mirrors references/11-art-directions.md) ── */
+export type Direction = { n: string; name: string; feels: string; best: string; move: string; pal: [string, string, string] };
+export const DIRECTIONS: Direction[] = [
+  { n: "01", name: "Product Altar", feels: "A flagship launch where the object floats in a hostile, beautiful landscape.", best: "Audio, wearables, devices, bottles", move: "The Exploded Ascent", pal: ["#05070b", "#7dffd9", "#9fb4c8"] },
+  { n: "02", name: "Showroom Sweep", feels: "A hypercar reveal. Light is the actor; one highlight travels the body.", best: "Cars, watches, jewellery", move: "The Light Pass", pal: ["#07080a", "#d9b98a", "#8d96a0"] },
+  { n: "03", name: "Dusk Arrival", feels: "Giant name, ignited windows, still water. You've already arrived.", best: "Estates, hotels, developments", move: "Windows Ignite", pal: ["#07131f", "#ffb45e", "#cbd5de"] },
+  { n: "04", name: "The Instrument", feels: "A machined dial you want to touch; scroll calibrates it.", best: "Nav, audio, fintech, fitness", move: "Calibration", pal: ["#06141b", "#ffa94d", "#2a4350"] },
+  { n: "05", name: "Night Walk", feels: "A lantern-lit alley under a blood moon — type between depth layers.", best: "Hospitality, games, culture", move: "Type Between Layers", pal: ["#0b0a14", "#c4202a", "#ffb25e"] },
+  { n: "06", name: "Liquid Particles", feels: "A sculpture of light that dissolves, streams and re-forms.", best: "AI, agencies, entertainment", move: "The Dissolve", pal: ["#04060f", "#7f6bff", "#3de7ff"] },
+  { n: "07", name: "Observatory Folio", feels: "A portfolio as a place. Every project is a lit room on the rail.", best: "Designers, devs, directors", move: "Project Rooms", pal: ["#0a0c14", "#e0b86a", "#6b88ff"] },
+  { n: "08", name: "Void Tunnel", feels: "Velocity. Words fly past as slabs and settle when you stop.", best: "Labels, festivals, manifestos", move: "Velocity Type", pal: ["#050505", "#b6ff3c", "#f2f2f2"] },
+  { n: "09", name: "Terrain Epic", feels: "Scale, a character sky, one human landmark.", best: "Expeditions, events, games", move: "Totality", pal: ["#04050c", "#ff7a3a", "#34150a"] },
+  { n: "10", name: "Macro Appetite", feels: "Steam, amber light, a scrubbed slow-motion pour.", best: "Food, whisky, fragrance", move: "The Pour", pal: ["#120a05", "#ff9f43", "#f3e3c8"] },
+  { n: "11", name: "Interface Cosmos", feels: "The product as a place — real UI floating in depth, data as light.", best: "SaaS, fintech, infrastructure", move: "Plane Activation", pal: ["#050a18", "#4d7cff", "#e8eefc"] },
+  { n: "12", name: "Glass Atrium", feels: "LIGHT mode. Frosted glass, caustics, bone white, calm luxury.", best: "Skincare, fashion, clinics, studios", move: "Refraction Reveal", pal: ["#f4efe7", "#9fb39a", "#c58f73"] },
+];
+
+export const EXAMPLES: { n: string; name: string; dir: string; prompt: string; move: string }[] = [
+  { n: "01", name: "NOCTA", dir: "Product Altar", prompt: "Premium earbuds, dark and cinematic, product is the hero.", move: "Exploded Ascent on an asteroid altar" },
+  { n: "02", name: "ARDVALE", dir: "Dusk Arrival", prompt: "Four lakeside Alpine villas. Buyers should feel they've arrived.", move: "Windows ignite; the name mirrored in water" },
+  { n: "03", name: "BEARING", dir: "The Instrument", prompt: "An offline compass for sailors. Precise. Trustworthy.", move: "Scroll calibrates a machined dial" },
+  { n: "04", name: "TSUKI", dir: "Night Walk", prompt: "A 12-seat ramen and sake house. Make people feel they're walking in.", move: "Letters split between depth layers" },
+  { n: "05", name: "ONEIRIC", dir: "Liquid Particles", prompt: "A creative-AI studio. It should feel like the future.", move: "200k points dissolve and re-form" },
+  { n: "06", name: "MIRA OKONKWO", dir: "Observatory Folio", prompt: "Product designer, six case studies, memorable in a week.", move: "Each project is a lit room" },
+  { n: "07", name: "LUMEN", dir: "Glass Atrium", prompt: "Clinical-luxury serum. Light, airy — absolutely not dark.", move: "Glass slab refracts the headline" },
 ];

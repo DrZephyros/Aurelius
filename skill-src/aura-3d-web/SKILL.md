@@ -1,6 +1,6 @@
 ---
 name: aura-3d-web
-description: Build AAA-grade, scroll-driven, immersive 3D websites that feel like high-budget game trailers or Awwwards Site-of-the-Year winners — for ANY subject (product launch, portfolio, real estate, brand, restaurant, game, film, SaaS, event, personal site). Use this skill whenever the user asks for a 3D website, an immersive / cinematic / scrollytelling / WebGL / three.js experience, a "wow" or "AAA" landing page, scroll-choreographed animation, a camera that flies through a world, or anything that should make a visitor feel awe. Covers concept, storyboard, asset generation, the cinematic camera engine, lighting, materials, atmosphere, typography, post-processing, performance and a scored QA gate. Do NOT build "just another website" when this skill is active.
+description: Build AAA-grade, scroll-driven, immersive 3D websites that feel like high-budget game trailers or Awwwards Site-of-the-Year winners — for ANY subject (product launch, portfolio, real estate, brand, restaurant, game, film, SaaS, event, personal site). Use this skill whenever the user asks for a 3D website, an immersive / cinematic / scrollytelling / WebGL / three.js experience, a "wow" or "AAA" landing page, scroll-choreographed animation, a camera that flies through a world, or anything that should make a visitor feel awe. Covers concept, storyboard, asset generation, the cinematic camera engine, lighting, materials, atmosphere, typography, post-processing, performance and a scored QA gate. Includes 12 art directions (product altar, showroom, estate, instrument, night walk, liquid particles, folio, tunnel, terrain, macro appetite, interface cosmos, light-mode glass), seven worked examples and a $10,000 delivery standard. Do NOT build "just another website" when this skill is active.
 ---
 
 # AURA — the immersive 3D web skill
@@ -33,9 +33,16 @@ If the visitor does not feel something in the first three seconds and again at t
 | optimizing, handling mobile, a11y, fallbacks | `references/07-performance-and-resilience.md` |
 | verifying, scoring, polishing | `references/08-qa-and-polish.md` |
 | you want ready-made kickoff prompts | `references/09-prompt-pack.md` |
+| **choosing the art direction (ALWAYS, in Phase 1)** | `references/11-art-directions.md` |
+| the site revolves around a product / object render | `references/12-product-hero-playbook.md` |
+| a portfolio, studio, agency or brand | `references/13-portfolio-and-brand-playbook.md` |
+| scoping the full deliverable to a $10k standard (loader, routes, SEO, audio, mobile edit, conversion) | `references/14-premium-delivery.md` |
+| writing shaders / particles / dissolves / liquid chrome / caustics | `references/15-shader-recipes.md` |
+| you need to SEE what the user wants — read the two closest | `examples/README.md` + `examples/0N-*.md` |
 | you want to go BEYOND the starter (raymarched heroes, GPU particles, depth-displaced plates, cinematic type, WebGPU, splats, audio…) and need the world-building recipes | `references/10-frontier-techniques.md` |
 
-3. The working engine is in `starter/` — and it ships **two finished reference worlds** to study: *Obsidian Gate* (an object / product — `scene.example.ts`) and *Umbra* (an event: terrain + eclipse sky + light shafts + a monolith — `scene.umbra.ts`, built only from the helpers, ~190 lines). Run either with `npm run dev` (`?world=umbra`). **Copy it. Do not rewrite it.** It already implements the damped scroll playhead, a **deterministic `window.__aura.seek(p)` / `?p=` QA hook, procedural sky + eclipse, light shafts, haze, glow, dunes (`atmosphere.ts`, `terrain.ts`), measured fit-to-viewport giant type (`fitType`), the shot-list camera, post stack, adaptive quality, DOM choreography, particles, reflective floor, depth-displaced images and a React shell. Your job is the *world*, the *camera moves* and the *story* — that is where the value is.
+3. The working engine is in `starter/` — and it ships **three finished reference worlds** (add *NOCTA*, a product altar: `scene.halo.ts`, `?world=halo`, with `studio.ts` (designed environment map + product light rig), `rock.ts` (asteroid ground + boulders), `objects.ts` (earbuds with exploded-ascent parts, machined dial, glass bottle)) — study
+   the closest to your brief. The original two: to study: *Obsidian Gate* (an object / product — `scene.example.ts`) and *Umbra* (an event: terrain + eclipse sky + light shafts + a monolith — `scene.umbra.ts`, built only from the helpers, ~190 lines). Run either with `npm run dev` (`?world=umbra`). **Copy it. Do not rewrite it.** It already implements the damped scroll playhead, a **deterministic `window.__aura.seek(p)` / `?p=` QA hook, procedural sky + eclipse, light shafts, haze, glow, dunes (`atmosphere.ts`, `terrain.ts`), measured fit-to-viewport giant type (`fitType`), the shot-list camera, post stack, adaptive quality, DOM choreography, particles, reflective floor, depth-displaced images and a React shell. Your job is the *world*, the *camera moves* and the *story* — that is where the value is.
 
 ---
 
@@ -60,6 +67,9 @@ If the visitor does not feel something in the first three seconds and again at t
 Extract or infer: **subject** (what/who), **audience**, **the one emotion** to leave them with, **the conversion goal** (buy / book / hire / enter / follow), **brand assets** (logo, colors, copy, images, models), **constraints** (stack, deadline, must-support devices).
 - If critical info is missing, ask **at most 3–5 sharp questions in ONE message** — otherwise *decide for the user*, state your assumptions in one paragraph, and proceed. Never stall on a questionnaire.
 - *Exit:* you can state the project in one sentence: "A [scroll-driven film] that takes [audience] through [world] so they feel [emotion] and then [action]."
+
+### Phase 1a — Direction Lock (do this BEFORE the brief; 60 seconds; non-negotiable)
+Open `references/11-art-directions.md`. Pick ONE of the 12 directions (blend at most a second at 20 %), then write the **Direction Lock** block (direction · world · hero · *named signature move* · palette · camera personality · three forbidden things). Read the two closest files in `examples/` and match their *level of specificity*. If the subject is a product, also read `references/12-product-hero-playbook.md`; a portfolio/brand → `13-…`. Say the direction out loud in your creative statement. **Never default to "dark cinematic with a glowing orb".** A light-mode, a macro-appetite or an instrument direction is often the winning, surprising choice.
 
 ### Phase 1 — Concept → `AURA_BRIEF.md`
 Follow `references/02-concept-and-storyboard.md` (fill `templates/AURA_BRIEF.template.md`). Produce: world metaphor, hero object/hero image, emotional arc (3 acts), palette (hex), type pairing, lighting mood, camera language, sound mood, "never do" list. **Run the Authorship test:** if you could paste the concept onto a competitor, it's not done.
@@ -159,5 +169,8 @@ You may not say "done" until ALL of these are true — paste the evidence in you
 5. `__aura.info().drawCalls` ≤ 160 and the no-WebGL fallback is a designed poster, not a blank page.
 6. Your score table includes the audit's automated points **and** your own judged Authorship points, honestly.
 
-## 9 · Calibrate against the references
+## 9 · The $10,000 bar
+A paid-for site is the film **plus** an end-state, routes, metadata, a designed loader, a mobile edit, a reduced-motion edit, a fallback poster, a hand-off README and one `config.ts` for every knob — see `references/14-premium-delivery.md`. If you only built the hero, you built a demo. Say so, or finish the job.
+
+## 10 · Calibrate against the references
 Before you ship, put your contact sheet next to `starter/src/aura/scene.umbra.ts` / `scene.example.ts` renders. If yours has fewer depth planes, a weaker last frame or flatter light than those zero-asset worlds, you are not done.

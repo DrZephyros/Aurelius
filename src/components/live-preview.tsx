@@ -26,16 +26,35 @@ export function LivePreview({
   const ref = useRef<HTMLDivElement>(null);
   const ownFrame = useRef<HTMLIFrameElement>(null);
   const frame = frameRef ?? ownFrame;
-  const [live, setLive] = useState(false);
+  const [vis, setVis] = useState(false);
+  const [hot, setHot] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
+  const [poster, setPoster] = useState(true);
   const [scale, setScale] = useState(0.34);
+  // A real WebGL scene per card does not scale: cards show a rendered poster instantly, and the LIVE scene boots only
+  // for the card you hover / focus (one at a time), with a timeout back to the poster if the machine can't keep up.
+  const live = vis && hot && !failed;
+
+  useEffect(() => {
+    if (!live) return;
+    const t = setTimeout(() => { if (!ready) { setFailed(true); } }, 16000);
+    return () => clearTimeout(t);
+  }, [live, ready]);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const card = (el.closest("article") as HTMLElement | null) ?? el;
+    const on = () => setHot(true);
+    const off = () => { setHot(false); setReady(false); setFailed(false); };
+    card.addEventListener("pointerenter", on);
+    card.addEventListener("pointerleave", off);
+    card.addEventListener("focusin", on);
+    card.addEventListener("focusout", off);
     const io = new IntersectionObserver(
       ([e]) => {
-        setLive(e.isIntersecting);
+        setVis(e.isIntersecting);
         if (!e.isIntersecting) setReady(false);
       },
       { rootMargin: "80px", threshold: 0.15 }
@@ -47,6 +66,10 @@ export function LivePreview({
     return () => {
       io.disconnect();
       ro.disconnect();
+      card.removeEventListener("pointerenter", on);
+      card.removeEventListener("pointerleave", off);
+      card.removeEventListener("focusin", on);
+      card.removeEventListener("focusout", off);
     };
   }, []);
 
@@ -56,8 +79,12 @@ export function LivePreview({
       className="relative aspect-[16/10] w-full overflow-hidden"
       style={{ background: `radial-gradient(120% 90% at 30% 20%, ${accent}33, transparent 60%), ${bg}` }}
     >
-      {/* poster: visible until the live scene fades in */}
-      <div className={`absolute inset-0 grid place-items-center transition-opacity duration-700 ${ready ? "opacity-0" : "opacity-100"}`}>
+      {poster && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={`/posters/${slug}.jpg`} alt="" loading="lazy" onError={() => setPoster(false)} className="absolute inset-0 h-full w-full object-cover" />
+      )}
+      {/* loading veil: visible until the live scene fades in */}
+      <div className={`absolute inset-0 grid place-items-center transition-opacity duration-700 ${ready || (poster && !live) ? "opacity-0" : "opacity-100"}`}>
         <div className="flex flex-col items-center gap-3">
           <span className="size-2 rounded-full" style={{ background: accent, boxShadow: `0 0 18px ${accent}`, animation: "pulse-dot 1.4s infinite" }} />
           <span className="font-mono text-[10px] tracking-[0.3em] text-white/50 uppercase">{live ? "Rendering" : name}</span>

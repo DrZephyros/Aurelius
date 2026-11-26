@@ -83,6 +83,26 @@ Use the aura-3d-web skill. Event/cause: [NAME, date, place]. The date as giant t
 
 ---
 
+### Product launch — hero object world
+```
+Use the aura-3d-web skill. Build a scroll-driven immersive 3D website for [PRODUCT] by [BRAND]. Direction: 01 Product Altar. Place the product in a story-bearing environment that expresses [BENEFIT] (not a studio void). Build it from primitives or the client GLB, with designed studio lighting and an exploded-ascent chapter with projected labels. Signature move: the Exploded Ascent. Palette: near-black + one accent taken from the product. Finish to the $10,000 standard in references/14 (end-state, /buy route, metadata, mobile edit). Show me the contact sheet and score before you say done.
+```
+
+### Instrument / precision object
+```
+Use the aura-3d-web skill. Direction 04 The Instrument for [PRODUCT]. A machined 3D dial is the hero (see objects.ts dial()), scroll calibrates it, HUD readouts in mono, detents swap the headline. Dark, trustworthy, tactile. End on a pre-order frame.
+```
+
+### Light-mode luxury (not dark)
+```
+Use the aura-3d-web skill. Direction 12 Glass Atrium for [BRAND]. LIGHT mode — bone white, one muted pigment, frosted glass and refraction, real contact shadows. Signature move: Refraction Reveal. It must look expensive and calm, not like a tech demo.
+```
+
+### Liquid particles studio
+```
+Use the aura-3d-web skill. Direction 06 Liquid Particles for [STUDIO]. A figure of ~200k GPU points that dissolves, streams and re-forms into the studio glyph and a planet with scroll; pointer pushes the points; glass panels carry copy. Follow references/15 §2.
+```
+
 ## 🔁 Refinement prompts (after the first build)
 - **"Make it feel more expensive"** → `Run the Aura Score; fix the lowest category. Prioritise lighting (rim light colour/intensity), depth separation, type scale, and grade (split-toning, contrast, bloom threshold). Re-screenshot all 12 stops.`
 - **"More cinematic"** → `Add a hold, vary lenses, add one Dutch roll beat, add a spatial transition between chapters 3 and 4, add foreground silhouettes and a near-bokeh particle band.`

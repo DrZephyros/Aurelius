@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, usePath } from "@/lib/router";
-import { SITE } from "@/lib/site";
+import { SITE, SKILL } from "@/lib/site";
 
 export function Logo({ size = 24 }: { size?: number }) {
   return (
@@ -21,32 +21,33 @@ export function Logo({ size = 24 }: { size?: number }) {
   );
 }
 
-/** The shelves of the library — shared by the nav, the hub, the tab bar and the footer. */
+/** The shelves of the library — shared by the nav dropdown, the hub and the footer. */
 export const SHELVES: { label: string; href: string; hint: string }[] = [
-  { label: "Bundles", href: "/bundles", hint: "Immersive 3D, one theme" },
-  { label: "Landing pages", href: "/landing-pages", hint: "Cinematic 3D sites" },
+  { label: "Landing pages", href: "/landing-pages", hint: "24 cinematic 3D sites to study" },
   { label: "App pages", href: "/pages", hint: "Auth, billing, dashboards" },
   { label: "Components", href: "/components", hint: "Drop-in React pieces" },
   { label: "Text effects", href: "/text-effects", hint: "Import onto any text" },
   { label: "Elements", href: "/elements", hint: "Interactive demos" },
-  { label: "Prompts", href: "/prompts", hint: "58 battle-tested prompts" },
+  { label: "Prompts", href: "/prompts", hint: "Battle-tested prompts" },
 ];
 
-const NAV: [string, string][] = [
-  ["Make your own", "/make-your-own"],
-  ["Bundles", "/bundles"],
-  ["Library", "/library"],
-  ["Landing pages", "/landing-pages"],
-  ["Components", "/components"],
-  ["Text effects", "/text-effects"],
-  ["Prompts", "/prompts"],
+const PRIMARY: [string, string][] = [
+  ["The skill", "/skill"],
+  ["Showcase", "/bundles"],
+  ["Request a site", "/request"],
 ];
+
+const isLib = (p: string) =>
+  ["/library", "/landing-pages", "/templates", "/pages", "/elements", "/components", "/text-effects", "/prompts"].some((x) => p.startsWith(x));
 
 export function SiteNav() {
   const [solid, setSolid] = useState(false);
   const [open, setOpen] = useState(false);
+  const [menu, setMenu] = useState(false);
   const [p, setP] = useState(0);
   const path = usePath();
+  const libRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const on = () => {
       setSolid(window.scrollY > 40);
@@ -57,46 +58,69 @@ export function SiteNav() {
     window.addEventListener("scroll", on, { passive: true });
     return () => window.removeEventListener("scroll", on);
   }, [path]);
-  useEffect(() => setOpen(false), [path]);
+  useEffect(() => { setOpen(false); setMenu(false); }, [path]);
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => void (document.body.style.overflow = "");
   }, [open]);
+  useEffect(() => {
+    if (!menu) return;
+    const off = (e: PointerEvent) => { if (!libRef.current?.contains(e.target as Node)) setMenu(false); };
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
+    addEventListener("pointerdown", off);
+    addEventListener("keydown", esc);
+    return () => { removeEventListener("pointerdown", off); removeEventListener("keydown", esc); };
+  }, [menu]);
+
+  const pill = (on: boolean) => `rounded-full px-4 py-2 text-[13px] transition ${on ? "bg-white/12 text-fg" : "text-dim hover:bg-white/8 hover:text-fg"}`;
 
   return (
     <>
-      <header className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${solid || open ? "border-b border-line bg-bg/70 backdrop-blur-xl" : "border-b border-transparent"}`}>
-        <div className="mx-auto flex h-[68px] max-w-[1320px] items-center justify-between px-5 sm:px-8">
-          <Link href="/" className="group flex items-center gap-3 font-display text-[17px] font-semibold tracking-[0.02em]">
+      <header className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${solid || open ? "border-b border-line bg-bg/75 backdrop-blur-xl" : "border-b border-transparent"}`}>
+        <div className="mx-auto flex h-[68px] max-w-[1320px] items-center justify-between gap-4 px-5 sm:px-8">
+          <Link href="/" className="group flex shrink-0 items-center gap-3 font-display text-[17px] font-semibold tracking-[0.02em]">
             <Logo />
-            <span>
-              {SITE.name}
-              <span className="ml-2 hidden font-mono text-[10px] font-normal tracking-[0.24em] text-dim uppercase sm:inline">Project</span>
-            </span>
+            <span>{SITE.name}</span>
           </Link>
-          <nav className="glass hidden items-center gap-1 rounded-full p-1 lg:flex" aria-label="Main">
-            {NAV.map(([l, h]) => {
-              const on = h === "/library" ? path.startsWith("/library") : path.startsWith(h);
+
+          <nav className="glass hidden items-center gap-1 rounded-full p-1 md:flex" aria-label="Main">
+            {PRIMARY.map(([l, h]) => {
+              const on = path.startsWith(h) || (h === "/skill" && path === "/make-your-own") || (h === "/bundles" && path.startsWith("/bundles"));
               return (
-                <Link key={l} href={h} className={`rounded-full px-4 py-2 text-[13px] transition ${on ? "bg-white/12 text-fg" : "text-dim hover:bg-white/8 hover:text-fg"} ${h === "/make-your-own" ? "!text-aurora" : ""}`} aria-current={on ? "page" : undefined}>
-                  {h === "/make-your-own" && <span className="mr-1.5 inline-block size-1.5 rounded-full bg-aurora align-middle shadow-[0_0_10px_#5cffc4]" />}{l}
+                <Link key={h} href={h} className={pill(on)} aria-current={on ? "page" : undefined}>
+                  {l}
                 </Link>
               );
             })}
+            <div ref={libRef} className="relative">
+              <button type="button" aria-haspopup="menu" aria-expanded={menu} onClick={() => setMenu((m) => !m)} className={`${pill(isLib(path) || menu)} flex items-center gap-1.5`}>
+                Library
+                <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" className={`transition ${menu ? "rotate-180" : ""}`}><path d="m2 4 4 4 4-4" /></svg>
+              </button>
+              <div role="menu" className={`absolute right-0 top-[calc(100%+12px)] w-[320px] origin-top-right rounded-2xl border border-line bg-[rgb(6_9_16/0.96)] p-2 shadow-2xl backdrop-blur-2xl transition duration-200 ${menu ? "visible scale-100 opacity-100" : "invisible scale-95 opacity-0"}`}>
+                <div className="px-3 pb-1 pt-2 font-mono text-[10px] tracking-[0.18em] text-dim uppercase">Study &amp; steal</div>
+                {SHELVES.map((s) => (
+                  <Link key={s.href} href={s.href} role="menuitem" className="flex items-center justify-between rounded-xl px-3 py-2.5 transition hover:bg-white/8">
+                    <span><span className="block text-[14px] text-fg">{s.label}</span><span className="block text-[12px] text-dim">{s.hint}</span></span>
+                    <span className="text-aurora">→</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </nav>
+
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event("aurelius:palette"))}
-              className="glass hidden h-[38px] items-center gap-2 rounded-full px-3.5 text-[13px] text-dim transition hover:text-fg sm:flex"
+              className="glass hidden h-[38px] items-center gap-2 rounded-full px-3.5 text-[13px] text-dim transition hover:text-fg xl:flex"
               aria-label="Search (Ctrl K)"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-              Search
               <kbd className="rounded border border-line px-1.5 font-mono text-[10px]">⌘K</kbd>
             </button>
-            <Link href="/library" className="btn btn-primary btn-sm hidden sm:inline-flex">Enter the library</Link>
-            <button type="button" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="glass grid size-[38px] place-items-center rounded-full lg:hidden">
+            <Link href="/skill#get" className="btn btn-primary btn-sm hidden sm:inline-flex">Get the skill · {SKILL.priceLabel}</Link>
+            <button type="button" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="glass grid size-[38px] place-items-center rounded-full md:hidden">
               <span className="relative block h-3 w-4">
                 <i className={`absolute left-0 top-0 h-px w-4 bg-fg transition ${open ? "translate-y-[6px] rotate-45" : ""}`} />
                 <i className={`absolute left-0 top-[11px] h-px w-4 bg-fg transition ${open ? "-translate-y-[5px] -rotate-45" : ""}`} />
@@ -108,71 +132,62 @@ export function SiteNav() {
       </header>
 
       {/* mobile sheet */}
-      <div className={`fixed inset-0 z-40 bg-bg/90 pt-24 backdrop-blur-2xl transition duration-500 lg:hidden ${open ? "visible opacity-100" : "invisible opacity-0"}`}>
-        <nav className="mx-auto flex max-w-lg flex-col gap-1 px-6">
-          {[["Home", "/"], ["Make your own", "/make-your-own"], ["Library", "/library"], ...SHELVES.map((s) => [s.label, s.href])].map(([l, h]) => (
-            <Link key={l} href={h} className="flex items-center justify-between border-b border-line py-4 font-display text-3xl font-semibold tracking-[-0.04em]">
+      <div className={`fixed inset-0 z-40 overflow-y-auto bg-bg/95 pb-10 pt-24 backdrop-blur-2xl transition duration-500 md:hidden ${open ? "visible opacity-100" : "invisible opacity-0"}`}>
+        <nav className="mx-auto flex max-w-lg flex-col px-6" aria-label="Mobile">
+          {[["Home", "/"], ["The skill — $" + SKILL.price, "/skill"], ["Showcase", "/bundles"], ["Request a site", "/request"]].map(([l, h]) => (
+            <Link key={h} href={h} className="flex items-center justify-between border-b border-line py-4 font-display text-[28px] font-semibold tracking-[-0.04em]">
               {l}<span className="text-aurora">→</span>
             </Link>
           ))}
+          <div className="eyebrow mt-8 !text-dim">Library</div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {SHELVES.map((s) => (
+              <Link key={s.href} href={s.href} className="rounded-xl border border-line px-4 py-3 text-[14px] text-fg/90">{s.label}</Link>
+            ))}
+          </div>
         </nav>
       </div>
     </>
   );
 }
 
-/** Secondary navigation: always shows where you are in the library and lets you hop between shelves. */
-export function LibraryTabs() {
-  const path = usePath();
-  const items: [string, string, (p: string) => boolean][] = [
-    ["All", "/library", (p) => p.startsWith("/library")],
-    ...SHELVES.map((s) => [s.label, s.href, (p: string) => p.startsWith(s.href) || (s.href === "/landing-pages" && p.startsWith("/templates"))] as [string, string, (p: string) => boolean]),
-  ];
-  return (
-    <div className="fixed inset-x-0 top-[68px] z-40 border-b border-line bg-bg/60 backdrop-blur-xl">
-      <div className="mx-auto flex h-11 max-w-[1320px] items-center gap-1 overflow-x-auto px-5 sm:px-8" role="navigation" aria-label="Library sections">
-        {items.map(([l, h, test]) => {
-          const on = test(path);
-          return (
-            <Link key={l} href={h} aria-current={on ? "page" : undefined} className={`relative shrink-0 rounded-full px-3.5 py-1.5 text-[12.5px] transition ${on ? "bg-white/10 text-fg" : "text-dim hover:text-fg"}`}>
-              {on && <span className="absolute -bottom-[7px] left-1/2 h-px w-6 -translate-x-1/2 bg-gradient-to-r from-aurora to-teal" />}
-              {l}
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 export function SiteFooter() {
   return (
-    <footer className="relative z-10 border-t border-line bg-bg/70 backdrop-blur-xl">
-      <div className="mx-auto grid max-w-[1320px] gap-10 px-5 py-16 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr]">
+    <footer className="relative z-10 border-t border-line bg-bg/80 backdrop-blur-xl">
+      <div className="mx-auto grid max-w-[1320px] gap-10 px-5 py-16 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div>
           <div className="flex items-center gap-3 font-display text-lg font-semibold tracking-[0.02em]">
             <Logo size={26} /> {SITE.name}
           </div>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-dim">
-            A library of cinematic 3D websites, app screens and interactive elements — as plain code. For people who ship with AI and would rather spend their tokens on the idea.
+            The skill that teaches an AI agent to direct, build and QA AAA-grade 3D websites. One prompt in, a $10,000 experience out.
           </p>
+          <Link href="/skill#get" className="btn btn-primary btn-sm mt-6">Get the skill · {SKILL.priceLabel}</Link>
         </div>
         <div className="space-y-3 text-sm">
-          <div className="eyebrow !text-dim">The library</div>
-          <Link className="block text-aurora hover:text-fg" href="/make-your-own">Make your own — the AURA skill</Link>
-          <Link className="block text-dim hover:text-fg" href="/library">Overview</Link>
+          <div className="eyebrow !text-dim">Product</div>
+          <Link className="block text-aurora hover:text-fg" href="/skill">AURA — the skill</Link>
+          <Link className="block text-dim hover:text-fg" href="/skill#directions">Art directions</Link>
+          <Link className="block text-dim hover:text-fg" href="/skill#examples">Examples</Link>
+          <Link className="block text-dim hover:text-fg" href="/skill#faq">FAQ</Link>
+        </div>
+        <div className="space-y-3 text-sm">
+          <div className="eyebrow !text-dim">Work with me</div>
+          <Link className="block text-dim hover:text-fg" href="/request">Request a custom website</Link>
+          <Link className="block text-dim hover:text-fg" href="/bundles">Showcase</Link>
+        </div>
+        <div className="space-y-3 text-sm">
+          <div className="eyebrow !text-dim">Library</div>
           {SHELVES.map((s) => (
             <Link key={s.href} className="block text-dim hover:text-fg" href={s.href}>{s.label}</Link>
           ))}
         </div>
-        <div className="space-y-3 text-sm">
-          <div className="eyebrow !text-dim">Under the hood</div>
-          <p className="text-dim">Three.js · vanilla JS · zero build step</p>
-          <p className="text-dim">No AI runs on this site. Every world is hand-built, deterministic code.</p>
-        </div>
       </div>
-      <div className="border-t border-line py-5 text-center font-mono text-[11px] tracking-[0.14em] text-dim uppercase">
-        © 2026 Project {SITE.name} — light, in three dimensions
+      <div className="border-t border-line">
+        <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-3 px-5 py-6 text-[12px] text-dim sm:px-8">
+          <span>© 2026 {SITE.name} — light, in three dimensions</span>
+          <span className="font-mono tracking-[0.12em] uppercase">Three.js · Next.js · AURA {SKILL.version}</span>
+        </div>
       </div>
     </footer>
   );

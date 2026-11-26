@@ -339,7 +339,8 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
   // agent / QA hook:  window.__aura.seek(0.37)  then screenshot.   ?p=0.37 in the URL does the same on load.
   const urlP = new URLSearchParams(location.search).get("p");
   if (urlP !== null && !Number.isNaN(parseFloat(urlP))) seek(parseFloat(urlP));
-  (window as unknown as { __aura?: unknown }).__aura = { seek, release, info };
+  const hook = { seek, release, info };
+  (window as unknown as { __aura?: unknown }).__aura = hook;
 
   return {
     seek, release, info,
@@ -352,7 +353,7 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
       running = false;
       cancelAnimationFrame(raf);
       removeEventListener("pointermove", onMove);
-      delete (window as unknown as { __aura?: unknown }).__aura;
+      if ((window as unknown as { __aura?: unknown }).__aura === hook) delete (window as unknown as { __aura?: unknown }).__aura; // StrictMode double-mount safe
       ro.disconnect(); io.disconnect();
       built.dispose?.();
       built.scene.traverse((o) => {

@@ -1,16 +1,16 @@
-import { createContext, useContext, useEffect, useState, type AnchorHTMLAttributes, type ReactNode } from "react";
+"use client";
 
-/* Tiny hash router. The whole site is one static html file, so routes live after the "#":
-   #/  ·  #/templates/<slug>  ·  #/prompts
-   Links may carry an in-page anchor:  "/#gallery"  or  "/templates/atrium#prompts" */
+import { createContext, useContext, useEffect, useState, type AnchorHTMLAttributes, type MouseEvent, type ReactNode } from "react";
+
+/* Real-URL router (History API). Every page has a proper path — /skill, /templates/folio — so the back button,
+   refresh, deep links and "open in new tab" all behave. Links may carry an in-page anchor: "/skill#pricing".
+   The Next.js catch-all route renders this client app for every path. */
 
 const ctx = createContext("/");
 let pendingAnchor: string | null = null;
 
-const current = () => {
-  const h = location.hash.replace(/^#/, "");
-  return h.startsWith("/") ? h.split("?")[0] : "/";
-};
+const clean = (p: string) => (p.replace(/\/+$/, "") || "/");
+const current = () => clean(location.pathname);
 
 function scrollToAnchor(id: string) {
   const el = document.getElementById(id);
@@ -18,8 +18,8 @@ function scrollToAnchor(id: string) {
 }
 
 export function navigate(href: string) {
-  const [path, anchor] = href.split("#");
-  const target = path || current();
+  const [rawPath, anchor] = href.split("#");
+  const target = clean((rawPath || current()).split("?")[0]);
   pendingAnchor = anchor || null;
   if (target === current()) {
     if (anchor) scrollToAnchor(anchor);
@@ -27,15 +27,28 @@ export function navigate(href: string) {
     pendingAnchor = null;
     return;
   }
-  location.hash = target;
+  history.pushState({}, "", target);
+  window.dispatchEvent(new Event("aurelius:nav"));
 }
 
 export function Router({ children }: { children: ReactNode }) {
-  const [path, setPath] = useState(current);
+  const [path, setPath] = useState(() => {
+    // legacy "#/route" links still work: upgrade them to real paths
+    if (location.hash.startsWith("#/")) {
+      const p = clean(location.hash.slice(1).split("?")[0]);
+      history.replaceState({}, "", p);
+      return p;
+    }
+    return current();
+  });
   useEffect(() => {
     const on = () => setPath(current());
-    addEventListener("hashchange", on);
-    return () => removeEventListener("hashchange", on);
+    addEventListener("popstate", on);
+    addEventListener("aurelius:nav", on);
+    return () => {
+      removeEventListener("popstate", on);
+      removeEventListener("aurelius:nav", on);
+    };
   }, []);
   useEffect(() => {
     const a = pendingAnchor;
@@ -49,14 +62,14 @@ export function Router({ children }: { children: ReactNode }) {
 export const usePath = () => useContext(ctx);
 
 export function Link({ href, onClick, children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
-  const path = href.split("#")[0] || current();
+  const path = href.split("#")[0];
   return (
     <a
       {...rest}
-      href={"#" + path}
-      onClick={(e) => {
+      href={path ? href : href}
+      onClick={(e: MouseEvent<HTMLAnchorElement>) => {
         onClick?.(e);
-        if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0 || rest.target === "_blank") return;
         e.preventDefault();
         navigate(href);
       }}

@@ -1,6 +1,39 @@
 # Project Aurelius
 
-Cinematic scroll-driven 3D website templates, app pages, a **modular library of drop-in React components**, **text effects**, prompts and vibe-coding tools — all as plain code. This is the **v8** rewrite: a fully client-side React app that Vite bundles into a **single HTML file** (`vite-plugin-singlefile`), so the whole site — templates included — runs from `file://` or any static host with no server.
+**v12 — the skill is the product.** Aurelius sells *AURA*, an agent skill that makes Claude / Codex / Cursor design and build $10,000-grade, scroll-driven 3D websites for any subject. Templates are now proof (a library to study), not the product.
+
+## What's here
+| Route | What |
+| --- | --- |
+| `/` | Skill-first home: live NOCTA world, the 12 directions, examples, two CTAs (get the skill / request a site) |
+| `/skill` | The skill landing page: capabilities, vs. "just asking", 12 art directions, 7 worked examples, pipeline, file index (🔒 = paid), free samples, free brief composer, **$10 pricing**, install, FAQ |
+| `/skill/checkout` → `/skill/download` | Email → `POST /api/orders` → Stripe Checkout (if `STRIPE_SECRET_KEY` is set) **or** instant "test mode" order → token-gated downloads |
+| `/request` | "Request a website from me" form → `POST /api/requests` (Postgres `site_requests`) |
+| `/bundles`, `/landing-pages`, `/templates/<slug>`, `/pages`, `/elements`, `/components`, `/text-effects`, `/prompts` | Showcase + library (study & steal) |
+
+Navigation uses **real URLs** (History API router in `src/lib/router.tsx`, one Next catch-all route `src/app/[[...slug]]/page.tsx`); old `#/…` links are upgraded automatically.
+
+## Payments & delivery
+- `POST /api/orders {email}`: with `STRIPE_SECRET_KEY` → creates a Stripe Checkout Session over REST (no SDK) and stores it; `GET /api/orders/verify?session_id=` confirms payment and returns the download token. Without the key the order is recorded as `preview` and unlocks immediately (clearly labelled in the UI).
+- `GET /api/download?token=&kind=skill|starter|single` streams the zip / single-file markdown. The full skill text lives only in `src/generated/raw-skill.ts`, imported **only** by `src/lib/skill-server.ts` (`server-only`). The browser bundle gets `raw-skill-public.ts`: a file index + the free sample files.
+- Tables (`src/db/schema.ts`): `skill_orders`, `site_requests`.
+
+## The skill (`skill-src/aura-3d-web`)
+v2 adds: Direction Lock (Phase 1a) + `references/11-art-directions.md` (12 directions), `12-product-hero-playbook`, `13-portfolio-and-brand-playbook`, `14-premium-delivery` (the $10k standard), `15-shader-recipes`, `examples/` (7 worked briefs), new prompt-pack entries, and starter modules `studio.ts` (designed env map + product rig + contact shadow), `rock.ts` (asteroid ground), `objects.ts` (earbuds with exploded parts, dial, bottle), `scene.halo.ts` + `HaloExperience.tsx` (world #3, `?world=halo`), `snap()`/`spring()` in `choreo.ts`. Engine fix: `window.__aura` is no longer deleted by a StrictMode double-mount.
+Tested by running the starter under Vite in headless Chromium (software GL), seeking `__aura.seek(p)` and reading contact sheets — which caught a blue-tinted product, blown-out bloom and z-fighting, all fixed.
+
+## Previews
+Template cards show a rendered poster (`public/posters/<slug>.jpg`) instantly; the live WebGL scene boots only for the hovered/focused card, with a 16 s timeout back to the poster.
+
+## Run
+```bash
+npm install
+npm run dev     # or: npm run build && npm start
+```
+Env: `DATABASE_URL` (Postgres), optional `STRIPE_SECRET_KEY`.
+
+---
+(Older notes about the v8 single-file build follow; the component registry, templates and bundles work as described there, except routing is now path-based and there is a database.)
 
 ## Routes
 

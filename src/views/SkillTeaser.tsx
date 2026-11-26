@@ -49,7 +49,7 @@ export function SkillTeaser() {
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <a href="#studio-inline" onClick={(e) => { e.preventDefault(); document.getElementById("studio-inline")?.scrollIntoView({ behavior: "smooth" }); }} className="btn btn-primary h-[52px] px-7">Brief your own site <span aria-hidden>↓</span></a>
               <button type="button" onClick={() => openSkill()} className="btn btn-ghost h-[52px] px-6">Open Studio <kbd className="ml-1 font-mono text-[10px] text-dim">⌘J</kbd></button>
-              <Link href="/make-your-own" className="px-2 text-[13px] text-dim underline-offset-4 hover:text-fg hover:underline">Read the skill</Link>
+              <Link href="/skill" className="px-2 text-[13px] text-dim underline-offset-4 hover:text-fg hover:underline">Read the skill</Link>
             </div>
             <dl className="mt-10 flex flex-wrap gap-x-9 gap-y-3 border-t border-white/10 pt-6">
               {([[LAWS.length, "laws"], [PHASES.length, "phases"], [SKILL_STATS.docs, "references"], [SKILL_STATS.files, "files"]] as const).map(([n, l]) => (

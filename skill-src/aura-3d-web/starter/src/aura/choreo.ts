@@ -102,3 +102,21 @@ export function trackProgress(track: HTMLElement) {
     return range > 0 ? clamp(-r.top / range) : 0;
   };
 }
+
+/** Mechanical detent: pulls v toward the nearest stop when within `width`, so a scrubbed dial/knob "clicks" into place.
+ *  Pass the scrubbed value (0..1) and the stops; use the result for rotation, not for the camera. */
+export function snap(v: number, stops: number[], width = 0.035) {
+  let best = stops[0];
+  for (const s of stops) if (Math.abs(v - s) < Math.abs(v - best)) best = s;
+  const d = v - best, a = Math.abs(d);
+  if (a >= width) return v;
+  const t = a / width;
+  return best + Math.sign(d) * width * t * t * (3 - 2 * t);
+}
+
+/** Critically-underdamped spring step (for needles, dials, labels that should overshoot a little). Mutates and returns state. */
+export function spring(s: { x: number; v: number }, target: number, dt: number, k = 60, c = 9) {
+  s.v += ((target - s.x) * k - s.v * c) * dt;
+  s.x += s.v * dt;
+  return s.x;
+}

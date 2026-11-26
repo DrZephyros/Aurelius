@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Router, usePath, Link } from "@/lib/router";
-import { SiteNav, SiteFooter, LibraryTabs } from "@/components/chrome";
+import { SiteNav, SiteFooter } from "@/components/chrome";
 import { AuroraScene } from "@/components/aurora-scene";
 import { CommandPalette } from "@/components/command-palette";
 import Home from "@/views/Home";
@@ -8,7 +8,9 @@ import LibraryPage from "@/views/LibraryPage";
 import TemplatePage from "@/views/TemplatePage";
 import DemoPage from "@/views/DemoPage";
 import PromptsPage from "@/views/PromptsPage";
-import SkillPage from "@/views/SkillPage";
+import SkillLanding from "@/views/SkillLanding";
+import { CheckoutPage, DownloadPage } from "@/views/SkillCheckout";
+import RequestPage from "@/views/RequestPage";
 import { SkillDock } from "@/components/skill-dock";
 import BundlesIndex from "@/bundles/BundlesIndex";
 import BundleShell from "@/bundles/BundleShell";
@@ -20,7 +22,7 @@ function NotFound() {
   return (
     <main className="mx-auto max-w-[1320px] px-5 pb-28 pt-40 sm:px-8">
       <h1 className="h-display text-[clamp(3rem,8vw,6rem)]">Not found</h1>
-      <Link href="/library" className="btn btn-primary mt-8">Back to the library</Link>
+      <Link href="/" className="btn btn-primary mt-8">Back home</Link>
     </main>
   );
 }
@@ -54,7 +56,10 @@ function Routes() {
   if (path === "/elements") return <LibraryPage key="elements" shelf="elements" />;
   if (path === "/bundles") return <BundlesIndex />;
   if (path === "/prompts") return <PromptsPage />;
-  if (path === "/make-your-own") return <SkillPage />;
+  if (path === "/skill" || path === "/make-your-own") return <SkillLanding />;
+  if (path === "/skill/checkout") return <CheckoutPage />;
+  if (path === "/skill/download") return <DownloadPage />;
+  if (path === "/request") return <RequestPage />;
   if (path === "/") return <Home />;
   return <NotFound />;
 }
@@ -62,7 +67,6 @@ function Routes() {
 function Shell() {
   const path = usePath().replace(/\/+$/, "") || "/";
   const home = path === "/";
-  const skill = path === "/make-your-own";
   const bundle = path.match(/^\/bundles\/([\w-]+)(?:\/([\w-]+))?$/);
   // a bundle owns the whole screen: its own world, its own nav, no site chrome
   if (bundle) {
@@ -87,7 +91,6 @@ function Shell() {
         <div className="css-aurora"><i /><i /><i /></div>
       )}
       <SiteNav />
-      {!home && !skill && <LibraryTabs />}
       <div id="main" className="relative z-10"><Routes /></div>
       <CommandPalette />
       <SkillDock />

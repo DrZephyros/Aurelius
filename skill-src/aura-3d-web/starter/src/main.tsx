@@ -4,11 +4,15 @@ import "@fontsource-variable/space-grotesk";
 import "@fontsource/jetbrains-mono/500.css";
 import ExampleExperience from "./aura/ExampleExperience";
 import UmbraExperience from "./aura/UmbraExperience";
+import HaloExperience from "./aura/HaloExperience";
 
-// ?world=umbra shows the second reference world (an event site). Default: Obsidian Gate (a product / object).
-const World = new URLSearchParams(location.search).get("world") === "umbra" ? UmbraExperience : ExampleExperience;
+// ?world=halo   → NOCTA, a PRODUCT altar (exploded ascent, studio env, asteroid)
+// ?world=umbra  → an EVENT / terrain world (eclipse sky, light shafts)
+// default       → Obsidian Gate, an OBJECT world (crystal, rings, mirror floor)
+const w = new URLSearchParams(location.search).get("world");
+const World = w === "halo" ? HaloExperience : w === "umbra" ? UmbraExperience : ExampleExperience;
 
-// Replace ExampleExperience with your own <AuraExperience build={yourScene}>…chapters…</AuraExperience>
+// Replace with your own <AuraExperience build={yourScene}>…chapters…</AuraExperience>
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <World />
