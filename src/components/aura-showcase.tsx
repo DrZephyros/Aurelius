@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "@/lib/router";
 import { PILLARS } from "@/lib/skill";
 import { SKILL, TIERS } from "@/lib/site";
@@ -72,14 +72,9 @@ export function AuraTierCard({ items }: { items: string[] }) {
 
 /* ───────────── the AURA acronym stage ───────────── */
 export function AuraStage({ children }: { children?: ReactNode }) {
-  const [on, setOn] = useState(0);
-  const [auto, setAuto] = useState(true);
-  useEffect(() => {
-    if (!auto || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => setOn((v) => (v + 1) % PILLARS.length), 3200);
-    return () => clearInterval(t);
-  }, [auto]);
-  const pick = (i: number) => { setAuto(false); setOn(i); };
+  // Nothing stays open once the pointer or focus leaves the list: every row returns to its shrunk state.
+  const [on, setOn] = useState(-1);
+  const rest = () => setOn(-1);
 
   return (
     <div className="stage p-6 sm:p-10 lg:p-14">
@@ -91,32 +86,35 @@ export function AuraStage({ children }: { children?: ReactNode }) {
       <div className="relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-14">
         <div>{children}</div>
 
-        <div>
-          <div className="flex flex-col gap-3 sm:h-[380px] sm:flex-row" role="tablist" aria-label="What AURA stands for">
-            {PILLARS.map((p, i) => {
-              const c = LETTER_COLORS[i];
-              const isOn = on === i;
-              return (
-                <button key={i} type="button" role="tab" aria-selected={isOn} data-on={isOn} className="letter-tile flex flex-col justify-between p-5 sm:p-5 lg:p-5" style={st({ "--lc": c, flexGrow: isOn ? 2.2 : 1, flexBasis: 0 })}
-                  onMouseEnter={() => pick(i)} onFocus={() => pick(i)} onClick={() => pick(i)}>
-                  <div className="flex items-start justify-between">
-                    <span className="font-mono text-[10px] tracking-[0.2em] uppercase" style={{ color: c }}>{p.pts} pts</span>
-                    <span className="size-2 rounded-full" style={{ background: c, boxShadow: `0 0 12px ${c}`, opacity: isOn ? 1 : 0.4 }} />
-                  </div>
-                  <div className="my-2 flex items-center sm:my-0">
-                    <span className="letter-glyph text-[96px] sm:text-[120px] lg:text-[104px]">{p.k}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="font-display text-[20px] font-semibold tracking-[-0.03em] text-fg">{p.t}</div>
-                    <div className="grid transition-[grid-template-rows,opacity] duration-700 ease-out sm:[grid-template-rows:var(--r)] sm:opacity-[var(--o)]" style={st({ "--r": isOn ? "1fr" : "0fr", "--o": isOn ? 1 : 0 })}>
-                      <p className="overflow-hidden text-[13px] leading-snug text-fg/65 sm:min-w-[190px]">{p.d}</p>
-                    </div>
-                    <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/10"><i className="block h-full rounded-full transition-all duration-1000" style={{ width: isOn ? `${p.pts * 4}%` : "12%", background: c, boxShadow: `0 0 12px ${c}` }} /></div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+        <div className="flex flex-col gap-4">
+          <p className="flex items-center gap-2.5 font-mono text-[11px] tracking-[0.2em] text-aurora uppercase"><span className="size-1.5 animate-pulse rounded-full bg-aurora shadow-[0_0_10px_#5cffc4]" aria-hidden />Hover each letter to open it</p>
+        <div role="tablist" aria-label="What AURA stands for" className="flex flex-col gap-2.5"
+          onMouseLeave={rest}
+          onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) rest(); }}>
+          {PILLARS.map((p, i) => {
+            const c = LETTER_COLORS[i];
+            const isOn = on === i;
+            return (
+              <button key={i} type="button" role="tab" aria-selected={isOn} aria-expanded={isOn} data-on={isOn}
+                className="letter-tile flex items-center gap-4 rounded-2xl px-4 py-3.5 sm:gap-6 sm:px-6 sm:py-4"
+                style={st({ "--lc": c, "--i": i })}
+                onMouseEnter={() => setOn(i)} onFocus={() => setOn(i)} onClick={() => setOn(i)}>
+                <span className="letter-glyph w-[44px] shrink-0 text-center text-[52px] sm:w-[58px] sm:text-[60px]">{p.k}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-baseline justify-between gap-4">
+                    <span className="font-display text-[18px] font-semibold tracking-[-0.03em] text-fg sm:text-[21px]">{p.t}</span>
+                    <span className="shrink-0 font-mono text-[10px] tracking-[0.2em] uppercase" style={{ color: c }}>{p.pts} pts</span>
+                  </span>
+                  <span className="grid transition-[grid-template-rows,opacity] duration-500 ease-out" style={st({ gridTemplateRows: isOn ? "1fr" : "0fr", opacity: isOn ? 1 : 0 })}>
+                    <span className="min-h-0 overflow-hidden">
+                      <span className="block pt-2 text-left text-[13.5px] leading-relaxed text-fg/70">{p.d}</span>
+                    </span>
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
         </div>
       </div>
     </div>

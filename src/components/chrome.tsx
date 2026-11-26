@@ -25,9 +25,8 @@ export function Logo({ size = 24 }: { size?: number }) {
 export const SHELVES: { label: string; href: string; hint: string }[] = [
   { label: "Landing pages", href: "/landing-pages", hint: "24 cinematic 3D sites to study" },
   { label: "App pages", href: "/pages", hint: "Auth, billing, dashboards" },
-  { label: "Components", href: "/components", hint: "Drop-in React pieces" },
+  { label: "Components", href: "/components", hint: "Drop-in pieces and live demos" },
   { label: "Text effects", href: "/text-effects", hint: "Import onto any text" },
-  { label: "Elements", href: "/elements", hint: "Interactive demos" },
   { label: "Prompts", href: "/prompts", hint: "Battle-tested prompts" },
 ];
 
@@ -216,7 +215,6 @@ export function SiteFooter() {
         </div>
         <div className="space-y-3 text-sm">
           <div className="eyebrow !text-dim">Services</div>
-          <Link className="block text-dim hover:text-fg" href="/services#build">Build it for me · $80</Link>
           <Link className="block text-dim hover:text-fg" href="/library#agent">Get your agent link</Link>
           <Link className="block text-dim hover:text-fg" href="/">Showcase</Link>
         </div>

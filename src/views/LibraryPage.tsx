@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "@/lib/router";
 import { TEMPLATES } from "@/lib/templates";
-import { ELEMENTS, ELEMENT_CATEGORIES, PAGES, PAGE_CATEGORIES, type Demo } from "@/lib/collections";
+import { ELEMENTS, PAGES, PAGE_CATEGORIES, type Demo } from "@/lib/collections";
 import { ALL_PROMPTS } from "@/lib/library";
 import { REG_CATS, REG_ITEMS, TEXT_EFFECTS, catHref, itemHref, itemsOf } from "@/lib/registry";
 import { CAT_COLORS, DemoStage } from "@/components/registry/registry-ui";
@@ -16,9 +16,9 @@ import { Reveal } from "@/components/reveal";
 import { AgentLink } from "@/components/agent-link";
 import { TIERS } from "@/lib/site";
 import { FilterPanel } from "@/components/library-filter";
-import { isActive, matchLibrary, useLibFilter } from "@/lib/library-filter";
+import { familySize, isActive, matchLibrary, useLibFilter } from "@/lib/library-filter";
 
-export type Shelf = "all" | "worlds" | "pages" | "elements";
+export type Shelf = "all" | "worlds" | "pages";
 
 const COPY: Record<Shelf, { eyebrow: string; title: ReactNode; body: string }> = {
   all: {
@@ -35,11 +35,6 @@ const COPY: Record<Shelf, { eyebrow: string; title: ReactNode; body: string }> =
     eyebrow: "App pages",
     title: <>The screens every product needs, <span className="aurora-text">finished.</span></>,
     body: "Sign in, booking, inbox, invoices, status, checkout, dashboards — each one a single HTML file with real validation, real states and real motion. Hover a card and the page reacts to you.",
-  },
-  elements: {
-    eyebrow: "Interactive elements",
-    title: <>Small things that make people <span className="aurora-text">smile.</span></>,
-    body: "Magnetic buttons, spring-loaded controls, a swipe deck, a radial menu. Self-contained, dependency-free and satisfying to touch — copy them straight into your project.",
   },
 };
 
@@ -158,20 +153,16 @@ function Overview() {
               <div className={grid}>{hits.pages.map((d) => <DemoCard key={d.slug} demo={d} index={PAGES.indexOf(d)} />)}</div>
             </ResultGroup>
           )}
-          {hits.elements.length > 0 && (
-            <ResultGroup title="Elements" n={hits.elements.length}>
-              <div className={grid}>{hits.elements.map((d) => <DemoCard key={d.slug} demo={d} index={ELEMENTS.indexOf(d)} />)}</div>
-            </ResultGroup>
-          )}
-          {hits.components.length > 0 && (
-            <ResultGroup title="Components" n={hits.components.length}>
+          {hits.components.length + hits.demos.length > 0 && (
+            <ResultGroup title="Components" n={hits.components.length + hits.demos.length}>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {hits.components.map((c, i) => (
                   <Link key={c.slug} href={catHref(c.slug)} className="panel group block overflow-hidden !rounded-[22px] transition duration-500 hover:-translate-y-1 hover:border-line-strong">
                     <div className="pointer-events-none"><DemoStage id={`${c.slug}/${itemsOf(c.slug)[0].slug}`} /></div>
-                    <div className="p-4"><div className="font-display text-[17px] font-semibold tracking-[-0.03em]" style={{ color: CAT_COLORS[i % CAT_COLORS.length] }}>{c.name}</div><div className="mt-1 font-mono text-[10.5px] tracking-[0.14em] text-dim uppercase">{itemsOf(c.slug).length} components</div></div>
+                    <div className="p-4"><div className="font-display text-[17px] font-semibold tracking-[-0.03em]" style={{ color: CAT_COLORS[i % CAT_COLORS.length] }}>{c.name}</div><div className="mt-1 font-mono text-[10.5px] tracking-[0.14em] text-dim uppercase">{familySize(c.slug)} components</div></div>
                   </Link>
                 ))}
+                {hits.demos.map((d) => <DemoCard key={d.slug} demo={d} index={ELEMENTS.indexOf(d)} />)}
               </div>
             </ResultGroup>
           )}
@@ -195,22 +186,14 @@ function Overview() {
           </section>
 
           <section className="mt-24">
-            <SectionHead id="sec-elements" n="03" title="Elements" count={ELEMENTS.length} unit="components" href="/elements" accent="#a58bff" />
-            <div className={grid}>
-              {ELEMENTS.slice(0, 6).map((d, i) => <Reveal key={d.slug} delay={(i % 3) * 70}><DemoCard demo={d} index={i} /></Reveal>)}
-            </div>
-            <Link href="/elements" className="btn btn-ghost mt-7 w-full sm:w-auto">See all {ELEMENTS.length} elements <span aria-hidden>→</span></Link>
-          </section>
-
-          <section className="mt-24">
-            <SectionHead id="sec-components" n="04" title="Components" count={REG_ITEMS.filter((i) => i.category !== TEXT_EFFECTS).length} unit="drop-in React pieces" href="/components" accent="#ff7ad9" />
+            <SectionHead id="sec-components" n="03" title="Components" count={REG_ITEMS.filter((i) => i.category !== TEXT_EFFECTS).length + ELEMENTS.length} unit="drop-in React pieces" href="/components" accent="#ff7ad9" />
             <p className="-mt-3 mb-6 max-w-2xl text-[14.5px] leading-relaxed text-dim">One file each, zero dependencies, and a README written for your coding agent. Download a folder, hand it over, done.</p>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {REG_CATS.filter((c) => c.slug !== TEXT_EFFECTS).slice(0, 8).map((c, i) => (
                 <Reveal key={c.slug} delay={(i % 4) * 60}>
                   <Link href={catHref(c.slug)} className="panel group block overflow-hidden !rounded-[22px] transition duration-500 hover:-translate-y-1 hover:border-line-strong">
                     <div className="pointer-events-none"><DemoStage id={`${c.slug}/${itemsOf(c.slug)[0].slug}`} /></div>
-                    <div className="p-4"><div className="font-display text-[17px] font-semibold tracking-[-0.03em]" style={{ color: CAT_COLORS[i % CAT_COLORS.length] }}>{c.name}</div><div className="mt-1 font-mono text-[10.5px] tracking-[0.14em] text-dim uppercase">{itemsOf(c.slug).length} components</div></div>
+                    <div className="p-4"><div className="font-display text-[17px] font-semibold tracking-[-0.03em]" style={{ color: CAT_COLORS[i % CAT_COLORS.length] }}>{c.name}</div><div className="mt-1 font-mono text-[10.5px] tracking-[0.14em] text-dim uppercase">{familySize(c.slug)} components</div></div>
                   </Link>
                 </Reveal>
               ))}
@@ -219,7 +202,7 @@ function Overview() {
           </section>
 
           <section className="mt-24">
-            <SectionHead id="sec-text" n="05" title="Text effects" count={itemsOf(TEXT_EFFECTS).length} unit="import onto any text" href="/text-effects" accent="#ffd28a" />
+            <SectionHead id="sec-text" n="04" title="Text effects" count={itemsOf(TEXT_EFFECTS).length} unit="import onto any text" href="/text-effects" accent="#ffd28a" />
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {itemsOf(TEXT_EFFECTS).slice(0, 6).map((it, i) => (
                 <Reveal key={it.slug} delay={(i % 3) * 60}>
@@ -274,7 +257,7 @@ function Overview() {
 export default function LibraryPage({ shelf = "all" }: { shelf?: Shelf }) {
   const c = COPY[shelf];
   const worlds = useMemo(worldItems, []);
-  const stats: [number, string][] = [[TEMPLATES.length, "3D worlds"], [PAGES.length, "app pages"], [ELEMENTS.length, "elements"]];
+  const stats: [number, string][] = [[TEMPLATES.length, "3D worlds"], [PAGES.length, "app pages"], [REG_ITEMS.filter((i) => i.category !== TEXT_EFFECTS).length + ELEMENTS.length, "components"]];
 
   return (
     <main className="relative">
@@ -298,14 +281,13 @@ export default function LibraryPage({ shelf = "all" }: { shelf?: Shelf }) {
         </div>
 
         {shelf === "all" && (
-          <div className="mt-10"><AgentLink counts={[{ label: "landing pages", n: TEMPLATES.length }, { label: "components", n: REG_ITEMS.length }, { label: "app pages", n: PAGES.length }, { label: "elements", n: ELEMENTS.length }]} /></div>
+          <div className="mt-10"><AgentLink counts={[{ label: "landing pages", n: TEMPLATES.length }, { label: "components", n: REG_ITEMS.length + ELEMENTS.length }, { label: "app pages", n: PAGES.length }]} /></div>
         )}
 
         <div className="mt-10">
           {shelf === "all" && <Overview />}
           {shelf === "worlds" && <Gallery items={worlds} />}
           {shelf === "pages" && <DemoShelf key="p" list={PAGES} cats={PAGE_CATEGORIES} placeholder="Search: login, booking, chart…" />}
-          {shelf === "elements" && <DemoShelf key="e" list={ELEMENTS} cats={ELEMENT_CATEGORIES} placeholder="Search: drag, menu, motion…" />}
         </div>
       </div>
     </main>

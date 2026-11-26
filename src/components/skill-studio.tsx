@@ -141,7 +141,7 @@ export function SkillStudio({ layout = "split" }: { layout?: "split" | "stack" }
             <span className="font-mono text-[10.5px] text-dim">works with Claude Code · Cursor · Codex · Gemini · Copilot</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href="/services#skill-pricing" className="btn btn-primary !h-10 !px-4 !text-[12.5px]">Get the full skill · $19</Link>
+            <Link href="/services#skill-pricing" className="btn btn-primary !h-10 !px-4 !text-[12.5px]">Get the full skill · $25</Link>
             <a className="btn btn-ghost !h-10 !px-4 !text-[12.5px]" href="/skill.md" target="_blank" rel="noreferrer">/skill.md ↗</a>
           </div>
           <div className="mt-3 flex items-center gap-2 rounded-xl border border-line bg-[#090b0f] py-2 pr-2 pl-3">

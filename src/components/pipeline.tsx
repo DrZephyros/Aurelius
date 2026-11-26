@@ -21,7 +21,7 @@ function useMedia(q: string) {
 }
 
 /** The pipeline as a scroll-driven machine: the section pins, and scrolling opens one gate at a time. */
-export function Pipeline() {
+export function Pipeline({ heading = true }: { heading?: boolean } = {}) {
   const wrap = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -73,11 +73,11 @@ export function Pipeline() {
 
   return (
     <div id="pipeline" className="relative scroll-mt-20" aria-label="The AURA pipeline">
-      <div className="mx-auto max-w-[1320px] px-5 pt-4 pb-10 sm:px-8">
+      {heading && <div className="mx-auto max-w-[1320px] px-5 pt-4 pb-10 sm:px-8">
         <div className="eyebrow">The pipeline</div>
         <h2 className="h-display mt-4 text-[clamp(2.2rem,5.4vw,4.8rem)]">Eight gates.<br /><span className="aurora-text">Nothing ships until each one opens.</span></h2>
         <p className="mt-5 max-w-[620px] text-[16px] leading-relaxed text-fg/70">Every phase has an exit criterion and a file to prove it. {pinned ? "Keep scrolling — the machine runs as you do." : "Tap through the gates."}</p>
-      </div>
+      </div>}
 
       <div ref={wrap} style={pinned ? { height: `calc(100vh + ${N * SEG_VH}vh)` } : undefined}>
         <div className={pinned ? "sticky top-0 flex min-h-screen items-center" : ""}>

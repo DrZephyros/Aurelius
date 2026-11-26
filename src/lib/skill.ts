@@ -88,9 +88,9 @@ export const PHASES: { n: string; t: string; d: string; out: string }[] = [
 
 export const PILLARS: { k: string; t: string; d: string; pts: number }[] = [
   { k: "A", t: "Atmosphere", d: "Light, air, matter and depth you could almost touch.", pts: 25 },
-  { k: "U", t: "Unbroken", d: "One continuous camera through one continuous world.", pts: 20 },
-  { k: "R", t: "Rhythm", d: "Crescendo, hold, release. Silence is a design element.", pts: 20 },
-  { k: "A", t: "Authorship", d: "A point of view nothing else could wear.", pts: 20 },
+  { k: "U", t: "Unbroken", d: "One continuous camera through one continuous world.", pts: 25 },
+  { k: "R", t: "Rhythm", d: "Crescendo, hold, release. Silence is a design element.", pts: 25 },
+  { k: "A", t: "Authorship", d: "A point of view nothing else could wear.", pts: 25 },
 ];
 
 export const ARCHETYPES: { id: string; t: string; world: string; arc: string[]; hold: string }[] = [
@@ -104,46 +104,8 @@ export const ARCHETYPES: { id: string; t: string; world: string; arc: string[]; 
   { id: "event", t: "Event / cause", world: "The date as giant type; a glowing path the camera follows toward the day.", arc: ["Date as giant type", "Path through the map", "One human moment", "Impact numbers", "RSVP"], hold: "The single human photograph." },
 ];
 
-export const INSTALLS: { id: string; t: string; steps: { label: string; code: string }[] }[] = [
-  {
-    id: "claude-code",
-    t: "Claude Code",
-    steps: [
-      { label: "1 · Unzip into your skills folder (all projects) — or .claude/skills in one repo", code: "mkdir -p ~/.claude/skills\nunzip aura-3d-web.zip -d ~/.claude/skills/" },
-      { label: "2 · Start your session and say", code: "Use the aura-3d-web skill. Build a scroll-driven immersive 3D website for [SUBJECT]." },
-    ],
-  },
-  {
-    id: "claude-ai",
-    t: "Claude.ai",
-    steps: [
-      { label: "1 · Upload", code: "Settings → Capabilities → Skills → Upload skill → choose aura-3d-web.zip" },
-      { label: "2 · Ask", code: "Use the aura-3d-web skill to build [SUBJECT]. I want them to feel [EMOTION]." },
-    ],
-  },
-  {
-    id: "cursor",
-    t: "Cursor",
-    steps: [
-      { label: "1 · Put the folder in your repo", code: "unzip aura-3d-web.zip -d skills/" },
-      { label: "2 · Add .cursor/rules/aura.mdc", code: "---\ndescription: Immersive scroll-driven 3D websites (three.js, cinematic camera, WebGL)\nalwaysApply: false\n---\nFor any 3D / immersive / cinematic / scroll-driven website request, read skills/aura-3d-web/SKILL.md first and follow its pipeline exactly." },
-    ],
-  },
-  {
-    id: "codex",
-    t: "Codex · Gemini · Copilot · Windsurf",
-    steps: [
-      { label: "1 · Add the folder, then reference it in AGENTS.md (or your tool’s instruction file)", code: "unzip aura-3d-web.zip -d skills/\n\n# AGENTS.md\nFor any 3D / immersive / cinematic / scroll-driven website, read skills/aura-3d-web/SKILL.md first and follow it. Load references/ files just-in-time. Copy starter/src/aura into the project instead of rewriting the engine." },
-    ],
-  },
-  {
-    id: "none",
-    t: "ChatGPT / any chat",
-    steps: [
-      { label: "No skills support? Paste the one-file edition (or the compact master prompt) as your first message, then your subject", code: "[paste aura-3d-web.single-file.md]\n\nSUBJECT: …  AUDIENCE: …  FEELING: …  CTA: …" },
-    ],
-  },
-];
+/** The one prompt for any agent: it installs the skill; the user starts projects later. */
+export const SKILL_PROMPT = "Install the aura-3d-web folder in this directory into your skills directory so it is available as a skill. Confirm it is installed and that SKILL.md can be read. Do not start a project yet.";
 
 export const FAQ: [string, string][] = [
   ["Is this a template?", "No. Templates are one answer to one brief. The skill is a method plus a camera engine — it lets an agent author a new world for every brief: a product, a portfolio, a house, a game, a cause."],

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "@/lib/router";
-import { INSTALLS, SKILL_STATS } from "@/lib/skill";
+import { SKILL_STATS } from "@/lib/skill";
+import { SkillPrompt } from "@/components/skill-prompt";
 import { SKILL } from "@/lib/site";
 
 export function CheckoutPage() {
@@ -78,10 +79,13 @@ export function DownloadPage() {
               <a key={k as string} href={dl(k as string)} className={`panel block !rounded-[20px] p-5 transition hover:-translate-y-1 ${p ? "!border-[rgb(92_255_196/0.5)]" : ""}`}><div className="text-aurora">↓</div><b className="mt-3 block font-display text-[18px]">{t}</b><p className="mt-1 text-[13px] text-dim">{d}</p></a>
             ))}
           </div>
-          <div className="mt-10 font-mono text-[11px] tracking-[0.2em] text-dim uppercase">Install & first prompt</div>
-          <div className="mt-3 space-y-3">
-            {INSTALLS.slice(0, 2).flatMap((x) => x.steps.map((s) => ({ ...s, who: x.t }))).map((s) => (<div key={s.who + s.label} className="panel !rounded-2xl p-4"><div className="text-[12.5px] text-dim">{s.who} — {s.label}</div><pre className="mt-2 overflow-x-auto font-mono text-[12px] whitespace-pre-wrap text-fg/85">{s.code}</pre></div>))}
-          </div>
+          <div className="mt-10 font-mono text-[11px] tracking-[0.2em] text-dim uppercase">After you download</div>
+          <ol className="mt-4 space-y-2 text-[14px] text-dim">
+            <li>1 · Unzip the skill. You get one folder: aura-3d-web.</li>
+            <li>2 · Open that folder in your agent: Claude Code, Cursor, Codex, Gemini CLI, or any agent that can read files.</li>
+            <li>3 · Paste the prompt. Your agent adds the skill to its skills directory.</li>
+          </ol>
+          <div className="mt-5"><SkillPrompt /></div>
           <p className="mt-8 text-[13px] text-dim">Bookmark this page — the link stays valid. Want it built for you? <Link href="/services#build" className="text-aurora hover:underline">Request a site</Link>.</p>
         </>
       )}

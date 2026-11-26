@@ -1,32 +1,30 @@
 import { useSyncExternalStore } from "react";
 import { FILTERS } from "@/lib/templates";
-import { ELEMENTS, ELEMENT_CATEGORIES, PAGES, PAGE_CATEGORIES } from "@/lib/collections";
+import { ELEMENTS, PAGES, PAGE_CATEGORIES, elementsIn, familyOf, type Demo } from "@/lib/collections";
 import { REG_CATS, TEXT_EFFECTS, itemsOf } from "@/lib/registry";
 
 /* Shared library filter: the search box, type toggles and category chips. One store feeds both the
    inline panel on /library and the floating dock that is reachable from every page. */
 
-export type LibKind = "worlds" | "pages" | "elements" | "components";
+export type LibKind = "worlds" | "pages" | "components";
 
 export const KINDS: { id: LibKind; label: string }[] = [
   { id: "worlds", label: "Landing pages" },
   { id: "pages", label: "App pages" },
-  { id: "elements", label: "Elements" },
   { id: "components", label: "Components" },
 ];
 
 export const CATEGORIES = FILTERS.filter((c) => c !== "All");
 
 export const PAGE_CATS = PAGE_CATEGORIES.filter((c) => c !== "All");
-export const ELEMENT_CATS = ELEMENT_CATEGORIES.filter((c) => c !== "All");
 export const COMPONENT_CATS = REG_CATS.filter((c) => c.slug !== TEXT_EFFECTS);
 
-/** cats = landing-page categories · pageCats / elCats = app-page / element categories · compCats = component category slugs */
-export type LibFilter = { q: string; kinds: LibKind[]; cats: string[]; pageCats: string[]; elCats: string[]; compCats: string[] };
-const EMPTY: LibFilter = { q: "", kinds: [], cats: [], pageCats: [], elCats: [], compCats: [] };
+/** cats = landing-page categories · pageCats = app-page categories · compCats = component category slugs (elements included) */
+export type LibFilter = { q: string; kinds: LibKind[]; cats: string[]; pageCats: string[]; compCats: string[] };
+const EMPTY: LibFilter = { q: "", kinds: [], cats: [], pageCats: [], compCats: [] };
 
 /** number of individual choices selected (search text excluded) */
-export const countChoices = (f: LibFilter) => f.kinds.length + f.cats.length + f.pageCats.length + f.elCats.length + f.compCats.length;
+export const countChoices = (f: LibFilter) => f.kinds.length + f.cats.length + f.pageCats.length + f.compCats.length;
 
 let state: LibFilter = EMPTY;
 const subs = new Set<() => void>();
@@ -49,12 +47,16 @@ export const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((
 export function matchLibrary<W extends { name: string; tagline: string; blurb: string; tags: string[]; bestFor: string[] }>(f: LibFilter, worlds: W[]) {
   const n = f.q.trim().toLowerCase();
   const has = (parts: string[]) => !n || parts.join(" ").toLowerCase().includes(n);
-  const sel = { worlds: f.cats, pages: f.pageCats, elements: f.elCats, components: f.compCats };
+  const sel = { worlds: f.cats, pages: f.pageCats, components: f.compCats };
   const anySel = Object.values(sel).some((l) => l.length > 0);
   const on = (k: LibKind) => (f.kinds.length > 0 ? f.kinds.includes(k) : !anySel || sel[k].length > 0);
   const landing = on("worlds") ? worlds.filter((t) => (!f.cats.length || t.tags.some((x) => f.cats.includes(x))) && has([t.name, t.tagline, t.blurb, ...t.tags, ...t.bestFor])) : [];
   const pages = on("pages") ? PAGES.filter((d) => (!f.pageCats.length || f.pageCats.includes(d.category)) && has([d.name, d.tagline, d.blurb, d.category, ...d.features])) : [];
-  const elements = on("elements") ? ELEMENTS.filter((d) => (!f.elCats.length || f.elCats.includes(d.category)) && has([d.name, d.tagline, d.blurb, d.category, ...d.features])) : [];
-  const components = on("components") ? REG_CATS.filter((c) => c.slug !== TEXT_EFFECTS && (!f.compCats.length || f.compCats.includes(c.slug)) && has([c.name, c.blurb, ...itemsOf(c.slug).map((i) => i.name)])) : [];
-  return { worlds: landing, pages, elements, components, total: landing.length + pages.length + elements.length + components.length };
+  const inFamily = (slug: string) => !f.compCats.length || f.compCats.includes(slug);
+  const demos: Demo[] = on("components") ? ELEMENTS.filter((d) => inFamily(familyOf(d)) && has([d.name, d.tagline, d.blurb, d.category, ...d.features])) : [];
+  const components = on("components") ? REG_CATS.filter((c) => c.slug !== TEXT_EFFECTS && inFamily(c.slug) && has([c.name, c.blurb, ...itemsOf(c.slug).map((i) => i.name)])) : [];
+  return { worlds: landing, pages, demos, components, total: landing.length + pages.length + demos.length + components.length };
 }
+
+/** Pieces in one component family: registry items plus the element demos that belong to it. */
+export const familySize = (slug: string) => itemsOf(slug).length + elementsIn(slug).length;

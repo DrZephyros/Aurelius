@@ -13,7 +13,7 @@ export default function DemoPage({ kind, slug }: { kind: Kind; slug: string }) {
   const d = demoBySlug(kind, slug);
   const [device, setDevice] = useState<keyof typeof DEVICES>("Desktop");
   const [nonce, setNonce] = useState(0);
-  const root = kind === "page" ? "/pages" : "/elements";
+  const root = kind === "page" ? "/pages" : "/components";
   if (!d) {
     return (
       <main className="mx-auto max-w-[1320px] px-5 pb-28 pt-40 sm:px-8">

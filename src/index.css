@@ -352,3 +352,24 @@ details[open] .plus { transform: rotate(45deg); }
   .aura-ring::before, .aura-ring-glow, .aura-sheen::after, .btn-shimmer::after, .spark, .aura-wordmark, .stage-rays, .orbit, .orbit * { animation: none !important; }
   .phase-in > * { animation: none; }
 }
+
+/* Collapsed AURA letters invite a hover: a colour sweep and a slow glow, staggered per letter. */
+@keyframes letter-sweep {
+  0%, 100% { background-position: -120% 0; }
+  55%, 70% { background-position: 220% 0; }
+}
+@keyframes letter-glow {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 26px -8px var(--lc); }
+}
+.letter-tile:not([data-on="true"]) {
+  background-image: linear-gradient(105deg, transparent 38%, color-mix(in srgb, var(--lc) 16%, transparent) 50%, transparent 62%);
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  animation: letter-sweep 6s ease-in-out infinite, letter-glow 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.9s);
+}
+.letter-tile:not([data-on="true"]):hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .letter-tile:not([data-on="true"]) { animation: none; }
+}

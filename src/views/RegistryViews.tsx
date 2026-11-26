@@ -6,6 +6,8 @@ import { REG_CATS, REG_ITEMS, TEXT_EFFECTS, agentPrompt, catBySlug, catHref, dow
 import { CodeViewer } from "@/components/code-viewer";
 import { CopyButton } from "@/components/copy-button";
 import { Reveal } from "@/components/reveal";
+import { DemoCard } from "@/components/demo-frame";
+import { ELEMENTS, elementsIn } from "@/lib/collections";
 import { CAT_COLORS, DemoStage, Markdown, RegistryCard } from "@/components/registry/registry-ui";
 
 const accentOf = (cat: string) => CAT_COLORS[Math.max(0, REG_CATS.findIndex((c) => c.slug === cat)) % CAT_COLORS.length];
@@ -24,12 +26,12 @@ export function ComponentsHub() {
           <div className="eyebrow">Modular components</div>
           <h1 className="h-display mt-5 text-[clamp(2.8rem,7vw,6rem)]">Pieces you can<br /><span className="aurora-text">drop into anything.</span></h1>
           <p className="mt-6 max-w-xl text-[16.5px] leading-relaxed text-fg/70">
-            {REG_ITEMS.length} self-contained React components in {REG_CATS.length} categories. One file each, zero dependencies, and a README written for your coding agent: download the folder, hand it over, done.
+            {REG_ITEMS.length} self-contained React components and {ELEMENTS.length} interactive demos in {REG_CATS.length} categories. One file each, zero dependencies, and a README written for your coding agent: download the folder, hand it over, done.
           </p>
         </div>
         <div className="flex flex-col items-start gap-3">
           <a href="#download" onClick={downloadClick()} className="btn btn-primary h-[54px] px-8 text-[15px]"><DownloadIcon /> Download everything (.zip)</a>
-          <span className="font-mono text-[10.5px] tracking-[0.16em] text-dim uppercase">{REG_ITEMS.length} components · README each · master agent guide</span>
+          <span className="font-mono text-[10.5px] tracking-[0.16em] text-dim uppercase">{REG_ITEMS.length} components · {ELEMENTS.length} demos · README each · master agent guide</span>
         </div>
       </div>
 
@@ -56,7 +58,7 @@ export function ComponentsHub() {
                       <div className="flex items-center gap-3">
                         <span className="grid size-9 place-items-center rounded-xl border border-line-strong text-[15px]" style={{ color: accent }} aria-hidden>{c.icon}</span>
                         <h2 className="font-display text-2xl font-semibold tracking-[-0.04em]">{c.name}</h2>
-                        <span className="font-mono text-[11px] tracking-[0.14em] text-dim uppercase">{list.length}</span>
+                        <span className="font-mono text-[11px] tracking-[0.14em] text-dim uppercase">{list.length + elementsIn(c.slug).length}</span>
                       </div>
                       <p className="mt-3 max-w-md text-[14px] leading-relaxed text-dim">{c.blurb}</p>
                     </div>
@@ -91,12 +93,14 @@ export function ComponentsHub() {
 export function CategoryView({ category }: { category: string }) {
   const cat = catBySlug(category)!;
   const list = itemsOf(category);
+  const demos = useMemo(() => elementsIn(category), [category]);
   const [q, setQ] = useState("");
   const accent = accentOf(category);
   const shown = useMemo(() => {
     const n = q.trim().toLowerCase();
-    return list.filter((i) => !n || [i.name, i.tagline, ...i.tags].join(" ").toLowerCase().includes(n));
-  }, [list, q]);
+    const hit = (parts: string[]) => !n || parts.join(" ").toLowerCase().includes(n);
+    return { items: list.filter((i) => hit([i.name, i.tagline, ...i.tags])), demos: demos.filter((d) => hit([d.name, d.tagline, d.blurb, d.category])) };
+  }, [list, demos, q]);
   const isText = category === TEXT_EFFECTS;
 
   return (
@@ -131,12 +135,13 @@ export function CategoryView({ category }: { category: string }) {
         </div>
       </div>
 
-      <p className="mt-6 font-mono text-[11px] tracking-[0.14em] text-dim uppercase">{shown.length} / {list.length} · every preview is the live component</p>
-      {shown.length === 0 ? (
+      <p className="mt-6 font-mono text-[11px] tracking-[0.14em] text-dim uppercase">{shown.items.length + shown.demos.length} / {list.length + demos.length} · every preview is the live component</p>
+      {shown.items.length + shown.demos.length === 0 ? (
         <div className="panel mt-8 p-12 text-center text-dim">Nothing matches “{q}”. <button className="text-aurora underline" onClick={() => setQ("")}>Reset</button></div>
       ) : (
         <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {shown.map((it, i) => <Reveal key={it.slug} delay={(i % 3) * 70}><RegistryCard item={it} index={list.indexOf(it)} accent={accent} /></Reveal>)}
+          {shown.items.map((it, i) => <Reveal key={it.slug} delay={(i % 3) * 70}><RegistryCard item={it} index={list.indexOf(it)} accent={accent} /></Reveal>)}
+          {shown.demos.map((d, i) => <Reveal key={d.slug} delay={((shown.items.length + i) % 3) * 70}><DemoCard demo={d} index={ELEMENTS.indexOf(d)} /></Reveal>)}
         </div>
       )}
     </main>

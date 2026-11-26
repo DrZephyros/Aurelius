@@ -986,6 +986,41 @@
    "file": "cta-banner.tsx",
    "lines": 39,
    "order": 9
+  },
+  {
+    "category": "sections",
+    "slug": "comparison-cards",
+    "name": "Comparison cards",
+    "tagline": "Three side-by-side cards that set a generic option against a better one",
+    "tags": [
+      "comparison",
+      "before-after",
+      "pricing",
+      "landing",
+      "conversion"
+    ],
+    "deps": [],
+    "file": "comparison-cards.tsx",
+    "lines": 58,
+    "order": 10
+  },
+  {
+    "category": "scroll-motion",
+    "slug": "pipeline",
+    "name": "Pipeline",
+    "tagline": "A pinned, scroll-driven walk through the phases of a build, with a rail, a visual per phase, and gate checks",
+    "tags": [
+      "scroll",
+      "pinned",
+      "timeline",
+      "process",
+      "steps",
+      "storytelling"
+    ],
+    "deps": [],
+    "file": "pipeline.tsx",
+    "lines": 417,
+    "order": 7
   }
  ]
 }

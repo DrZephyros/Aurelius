@@ -1,59 +1,79 @@
 "use client";
 
-import { useState } from "react";
-import { Link } from "@/lib/router";
+import { useState, type ReactNode } from "react";
 import { Reveal } from "@/components/reveal";
 import { Pipeline } from "@/components/pipeline";
-import { FAQ, INSTALLS } from "@/lib/skill";
+import { SkillPrompt } from "@/components/skill-prompt";
+import { FAQ } from "@/lib/skill";
 
-const COMPARE: [string, string, string][] = [
-  ["The idea", "A spinning cube, a gradient, fade-up cards", "One authored world and one camera. Scroll is the playhead"],
-  ["Look", "Default lights, no environment map, flat materials", "Key / rim / fill / practical, a designed environment map, matter with a story"],
-  ["Depth", "One plane", "Five depth planes in every frame — occluder, subject, mid, back, atmosphere"],
-  ["Type", "Inter 64px, centred", "Giant fitted type the world occludes, reflects and lights"],
-  ["Quality bar", "“Looks good”", "12 frames × 3 viewports, 100-point score, three polish loops"],
-  ["Delivery", "A hero section", "Hero film + end-state + routes + metadata + mobile edit + hand-off"],
+const STEPS: [string, string][] = [
+  ["Unzip the skill", "You get one folder: aura-3d-web."],
+  ["Open that folder in your agent", "Claude Code, Cursor, Codex, Gemini CLI, or any agent that can read files."],
+  ["Paste the prompt", "Your agent adds the skill to its skills directory. That's all it does for now."],
 ];
 
-/** The skill's detail sections on the Services page: the difference, the pipeline, install, FAQ. */
-export default function SkillLanding() {
-  const [inst, setInst] = useState(INSTALLS[0].id);
-  const ins = INSTALLS.find((x) => x.id === inst)!;
+const ITEMS: [string, ReactNode][] = FAQ;
 
+/** Accordion where one answer opens at a time; the bar and the plus-to-minus morph animate. */
+function Faq() {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <div className="mt-12 border-t border-line">
+      {ITEMS.map(([q, a], i) => {
+        const on = open === i;
+        return (
+          <Reveal key={q} delay={(i % 4) * 60}>
+            <div className="relative border-b border-line transition-colors duration-500 hover:bg-white/[0.02]">
+              <span className="absolute top-0 left-0 h-full w-[2px] origin-top bg-aurora shadow-[0_0_12px_#5cffc4] transition-transform duration-700 ease-out" style={{ transform: on ? "scaleY(1)" : "scaleY(0)" }} aria-hidden />
+              <button type="button" aria-expanded={on} onClick={() => setOpen(on ? null : i)} className="group flex w-full items-center gap-5 py-6 pr-2 pl-5 text-left">
+                <span className="font-mono text-[12px] tracking-[0.18em] text-dim tabular-nums transition-colors duration-500 group-hover:text-aurora">{String(i + 1).padStart(2, "0")}</span>
+                <span className="flex-1 font-display text-[clamp(1.15rem,2.3vw,1.6rem)] font-semibold tracking-[-0.03em] transition-colors duration-300 group-hover:text-aurora">{q}</span>
+                <span className="relative grid size-10 shrink-0 place-items-center rounded-full border border-line transition-colors duration-500 group-hover:border-aurora" aria-hidden>
+                  <span className="absolute h-px w-4 bg-aurora" />
+                  <span className="absolute h-px w-4 bg-aurora transition-transform duration-500" style={{ transform: on ? "rotate(0deg) scaleX(0)" : "rotate(90deg)" }} />
+                </span>
+              </button>
+              <div className="grid transition-[grid-template-rows] duration-500 ease-out" style={{ gridTemplateRows: on ? "1fr" : "0fr" }}>
+                <div className="overflow-hidden">
+                  <p className="max-w-[720px] pr-2 pb-7 pl-[calc(2.5rem+2.4ch)] text-[15px] leading-relaxed text-dim transition-all duration-500" style={{ opacity: on ? 1 : 0, transform: on ? "none" : "translateY(-6px)" }}>{a}</p>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        );
+      })}
+    </div>
+  );
+}
+
+/** The skill's detail sections on the Services page: the pipeline, install, FAQ. */
+export default function SkillLanding() {
   return (
     <div className="relative">
-      {/* COMPARE */}
-      <section className="mx-auto max-w-[1320px] px-5 py-20 sm:px-8">
-        <Reveal><div className="eyebrow">The difference</div><h2 className="h-display mt-4 text-[clamp(2rem,4.6vw,4rem)]">Asking an AI vs. giving it AURA.</h2></Reveal>
-        <div className="panel mt-10 overflow-hidden !rounded-[24px]">
-          <div className="grid grid-cols-[0.7fr_1fr_1.3fr] border-b border-line bg-black/30 px-5 py-3 font-mono text-[10.5px] tracking-[0.18em] text-dim uppercase"><span /><span>Just asking</span><span className="text-aurora">With AURA</span></div>
-          {COMPARE.map(([a, b, c]) => (
-            <div key={a} className="grid grid-cols-1 gap-1 border-b border-line px-5 py-4 last:border-0 sm:grid-cols-[0.7fr_1fr_1.3fr] sm:gap-4">
-              <span className="font-display text-[15px] font-semibold">{a}</span>
-              <span className="text-[14px] text-dim line-through decoration-white/20">{b}</span>
-              <span className="text-[14px] text-fg/90">{c}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* PIPELINE */}
       <Pipeline />
 
       {/* INSTALL */}
       <section className="mx-auto max-w-[1320px] px-5 py-24 sm:px-8">
-        <Reveal><div className="eyebrow">After you download</div><h2 className="h-display mt-4 text-[clamp(1.8rem,3.6vw,3rem)]">Installs in one minute.</h2></Reveal>
-        <div className="mt-6 flex flex-wrap gap-2">{INSTALLS.map((x) => (<button key={x.id} type="button" onClick={() => setInst(x.id)} aria-pressed={x.id === inst} className={`rounded-full border px-4 py-2 text-[13px] transition ${x.id === inst ? "border-transparent bg-white text-black" : "border-line text-dim hover:text-fg"}`}>{x.t}</button>))}</div>
-        <div className="mt-5 space-y-3">{ins.steps.map((s) => (<div key={s.label} className="panel !rounded-2xl p-4"><div className="text-[12.5px] text-dim">{s.label}</div><pre className="mt-2 overflow-x-auto font-mono text-[12px] whitespace-pre-wrap text-fg/85">{s.code}</pre></div>))}</div>
+        <Reveal><div className="eyebrow">After you download</div><h2 className="h-display mt-4 text-[clamp(1.8rem,3.6vw,3rem)]">Install it. <span className="aurora-text">Paste one prompt.</span></h2></Reveal>
+        <Reveal delay={100}>
+          <ol className="mt-10 grid gap-4 md:grid-cols-3">
+            {STEPS.map(([t, d], i) => (
+              <li key={t} className="rounded-[24px] border border-line bg-white/[0.02] p-6">
+                <span className="font-mono text-[11px] tracking-[0.2em] text-aurora">0{i + 1}</span>
+                <h3 className="mt-4 font-display text-[20px] font-semibold tracking-[-0.02em]">{t}</h3>
+                <p className="mt-2 text-[14px] leading-relaxed text-dim">{d}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-6"><SkillPrompt /></div>
+        </Reveal>
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="mx-auto max-w-[900px] scroll-mt-24 px-5 pb-20 sm:px-8">
-        <Reveal><div className="eyebrow">FAQ</div><h2 className="h-display mt-4 text-[clamp(1.8rem,3.6vw,3rem)]">Questions.</h2></Reveal>
-        <div className="mt-6">
-          {FAQ.map(([q, a]) => (<details key={q} className="group border-t border-line py-4"><summary className="flex cursor-pointer list-none items-center justify-between font-display text-[18px] font-semibold tracking-[-0.02em]">{q}<span className="text-aurora transition group-open:rotate-45">+</span></summary><p className="mt-3 text-[14.5px] leading-relaxed text-dim">{a}</p></details>))}
-          <details className="group border-y border-line py-4"><summary className="flex cursor-pointer list-none items-center justify-between font-display text-[18px] font-semibold tracking-[-0.02em]">Can I just hire you to build it?<span className="text-aurora transition group-open:rotate-45">+</span></summary><p className="mt-3 text-[14.5px] leading-relaxed text-dim">Yes — <Link href="/services#build" className="text-aurora underline-offset-4 hover:underline">send a request</Link> with your brief, budget and timeline. Custom builds use this exact skill plus hand-finishing.</p></details>
-        </div>
+      <section className="mx-auto max-w-[1100px] px-5 py-24 sm:px-8">
+        <Reveal><div className="eyebrow">FAQ</div><h2 className="h-display mt-4 text-[clamp(1.8rem,3.6vw,3rem)]">Questions<span className="text-aurora">.</span></h2></Reveal>
+        <Faq />
       </section>
     </div>
   );

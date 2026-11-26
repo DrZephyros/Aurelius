@@ -2,10 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { TEMPLATES } from "@/lib/templates";
-import { ELEMENTS, PAGES } from "@/lib/collections";
-import { itemsOf } from "@/lib/registry";
+import { PAGES } from "@/lib/collections";
 import {
-  CATEGORIES, COMPONENT_CATS, ELEMENT_CATS, KINDS, PAGE_CATS,
+  CATEGORIES, COMPONENT_CATS, KINDS, PAGE_CATS, familySize,
   clearFilter, countChoices, isActive, matchLibrary, setFilter, toggle, useLibFilter,
   type LibFilter,
 } from "@/lib/library-filter";
@@ -59,12 +58,8 @@ function groupsOf(f: LibFilter): Group[] {
       chips: PAGE_CATS.map((c) => ({ key: c, label: c, count: PAGES.filter((d) => d.category === c).length, on: f.pageCats.includes(c), toggle: () => setFilter({ pageCats: toggle(f.pageCats, c) }) })),
     },
     {
-      id: "elements", label: "Element style", hint: "Buttons, motion, drag…", selected: f.elCats.length,
-      chips: ELEMENT_CATS.map((c) => ({ key: c, label: c, count: ELEMENTS.filter((d) => d.category === c).length, on: f.elCats.includes(c), toggle: () => setFilter({ elCats: toggle(f.elCats, c) }) })),
-    },
-    {
       id: "components", label: "Component family", hint: "Sections, forms, overlays…", selected: f.compCats.length,
-      chips: COMPONENT_CATS.map((c) => ({ key: c.slug, label: c.name, count: itemsOf(c.slug).length, on: f.compCats.includes(c.slug), toggle: () => setFilter({ compCats: toggle(f.compCats, c.slug) }) })),
+      chips: COMPONENT_CATS.map((c) => ({ key: c.slug, label: c.name, count: familySize(c.slug), on: f.compCats.includes(c.slug), toggle: () => setFilter({ compCats: toggle(f.compCats, c.slug) }) })),
     },
   ];
 }
@@ -112,7 +107,7 @@ export function FilterPanel({ idPrefix = "lib" }: { idPrefix?: string }) {
               aria-label="Search the library"
               value={f.q}
               onChange={(e) => setFilter({ q: e.target.value })}
-              placeholder="Search landing pages, app pages, elements…"
+              placeholder="Search landing pages, app pages, components…"
               className="h-full min-w-0 flex-1 bg-transparent text-[14.5px] text-fg outline-none placeholder:text-dim"
             />
             {f.q ? (

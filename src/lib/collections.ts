@@ -21,7 +21,11 @@ export type Demo = {
 
 
 export const PAGE_CATEGORIES = ["All", "Authentication", "Commerce", "Product", "Utility"] as const;
-export const ELEMENT_CATEGORIES = ["All", "Buttons & cards", "Navigation", "Feedback", "Data & drag", "Motion"] as const;
+/* Elements are live demos of component families. Each one files under a registry category, so the
+   library has one taxonomy for components instead of a second, overlapping one. */
+const ELEMENT_FAMILY: Record<string, string> = { "Buttons & cards": "buttons-cards", Navigation: "navigation", Feedback: "overlays", "Data & drag": "data", Motion: "scroll-motion" };
+export const familyOf = (d: Demo) => ELEMENT_FAMILY[d.category] ?? "utilities";
+export const elementsIn = (family: string) => ELEMENTS.filter((d) => familyOf(d) === family);
 
 export const PAGES: Demo[] = [
   {

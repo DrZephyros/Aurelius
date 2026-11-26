@@ -67,7 +67,7 @@ function Routes() {
   if (path === "/library") return <LibraryPage key="all" shelf="all" />;
   if (path === "/landing-pages") return <LibraryPage key="worlds" shelf="worlds" />;
   if (path === "/pages") return <LibraryPage key="pages" shelf="pages" />;
-  if (path === "/elements") return <LibraryPage key="elements" shelf="elements" />;
+  if (path === "/elements") return <Redirect to="/components" />;
   if (path === "/bundles") return <BundlesIndex />;
   if (path === "/prompts") return <PromptsPage />;
   if (path === "/services") return <ServicesPage />;
