@@ -32,9 +32,8 @@ export const SHELVES: { label: string; href: string; hint: string }[] = [
 ];
 
 const PRIMARY: [string, string][] = [
-  ["The skill", "/skill"],
   ["Showcase", "/bundles"],
-  ["Request a site", "/request"],
+  ["Agent link", "/library#agent"],
 ];
 
 const isLib = (p: string) =>
@@ -85,7 +84,7 @@ export function SiteNav() {
 
           <nav className="glass hidden items-center gap-1 rounded-full p-1 md:flex" aria-label="Main">
             {PRIMARY.map(([l, h]) => {
-              const on = path.startsWith(h) || (h === "/skill" && path === "/make-your-own") || (h === "/bundles" && path.startsWith("/bundles"));
+              const on = h === "/bundles" && path.startsWith("/bundles");
               return (
                 <Link key={h} href={h} className={pill(on)} aria-current={on ? "page" : undefined}>
                   {l}
@@ -119,7 +118,7 @@ export function SiteNav() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
               <kbd className="rounded border border-line px-1.5 font-mono text-[10px]">⌘K</kbd>
             </button>
-            <Link href="/skill#get" className="btn btn-primary btn-sm hidden sm:inline-flex">Get the skill · {SKILL.priceLabel}</Link>
+            <Link href="/services" className="aurora-ring" aria-current={path === "/services" ? "page" : undefined}>Services <span aria-hidden className="text-[#8fb4ff]">→</span></Link>
             <button type="button" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="glass grid size-[38px] place-items-center rounded-full md:hidden">
               <span className="relative block h-3 w-4">
                 <i className={`absolute left-0 top-0 h-px w-4 bg-fg transition ${open ? "translate-y-[6px] rotate-45" : ""}`} />
@@ -134,7 +133,7 @@ export function SiteNav() {
       {/* mobile sheet */}
       <div className={`fixed inset-0 z-40 overflow-y-auto bg-bg/95 pb-10 pt-24 backdrop-blur-2xl transition duration-500 md:hidden ${open ? "visible opacity-100" : "invisible opacity-0"}`}>
         <nav className="mx-auto flex max-w-lg flex-col px-6" aria-label="Mobile">
-          {[["Home", "/"], ["The skill — $" + SKILL.price, "/skill"], ["Showcase", "/bundles"], ["Request a site", "/request"]].map(([l, h]) => (
+          {[["Home", "/"], ["Library — free", "/library"], ["Agent link", "/library#agent"], ["Showcase", "/bundles"], ["Services — from $" + SKILL.price, "/services"]].map(([l, h]) => (
             <Link key={h} href={h} className="flex items-center justify-between border-b border-line py-4 font-display text-[28px] font-semibold tracking-[-0.04em]">
               {l}<span className="text-aurora">→</span>
             </Link>
@@ -160,20 +159,21 @@ export function SiteFooter() {
             <Logo size={26} /> {SITE.name}
           </div>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-dim">
-            The skill that teaches an AI agent to direct, build and QA AAA-grade 3D websites. One prompt in, a $10,000 experience out.
+            The skill that teaches an AI agent to direct, build and QA AAA-grade 3D websites. Start with the free library, upgrade when you want the art director.
           </p>
-          <Link href="/skill#get" className="btn btn-primary btn-sm mt-6">Get the skill · {SKILL.priceLabel}</Link>
+          <Link href="/services" className="aurora-ring mt-6">Services <span aria-hidden className="text-[#8fb4ff]">→</span></Link>
         </div>
         <div className="space-y-3 text-sm">
           <div className="eyebrow !text-dim">Product</div>
           <Link className="block text-aurora hover:text-fg" href="/skill">AURA — the skill</Link>
-          <Link className="block text-dim hover:text-fg" href="/skill#directions">Art directions</Link>
-          <Link className="block text-dim hover:text-fg" href="/skill#examples">Examples</Link>
-          <Link className="block text-dim hover:text-fg" href="/skill#faq">FAQ</Link>
+          <Link className="block text-dim hover:text-fg" href="/services#directions">Art directions</Link>
+          <Link className="block text-dim hover:text-fg" href="/services#examples">Examples</Link>
+          <Link className="block text-dim hover:text-fg" href="/services#faq">FAQ</Link>
         </div>
         <div className="space-y-3 text-sm">
-          <div className="eyebrow !text-dim">Work with me</div>
-          <Link className="block text-dim hover:text-fg" href="/request">Request a custom website</Link>
+          <div className="eyebrow !text-dim">Services</div>
+          <Link className="block text-dim hover:text-fg" href="/services#build">Build it for me · $199</Link>
+          <Link className="block text-dim hover:text-fg" href="/library#agent">Get your agent link</Link>
           <Link className="block text-dim hover:text-fg" href="/bundles">Showcase</Link>
         </div>
         <div className="space-y-3 text-sm">

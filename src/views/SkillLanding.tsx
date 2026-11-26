@@ -22,7 +22,7 @@ const INCLUDED = [
   "12 art directions with signature moves, palettes, camera personalities and build recipes",
   `${SKILL_STATS.examples} worked examples: prompt → direction lock → storyboard → implementation`,
   `A ${SKILL_STATS.engineLines}-line cinematic engine (damped playhead, camera rail, post stack, adaptive quality)`,
-  "Three finished reference worlds — object, event, product altar — plus studio light, asteroid ground and hero-object builders",
+  "Four finished reference worlds — object, event, product altar, and a Folio portfolio — plus studio light, asteroid ground and hero-object builders",
   "A QA gate script: deterministic scroll seeks, contact sheets, collision lint, no-WebGL and reduced-motion tests",
   "Works as a Claude skill, a Cursor rule, an AGENTS.md include — or a single-file prompt for any chat",
   "Free updates to every 2.x release",
@@ -46,7 +46,7 @@ function Sample() {
   );
 }
 
-export default function SkillLanding() {
+export default function SkillLanding({ embedded = false }: { embedded?: boolean }) {
   const groups: Record<string, typeof SKILL_FILES> = {};
   SKILL_FILES.forEach((f) => (groups[f.group] ||= []).push(f));
   const order = ["root", "references", "examples", "templates", "scripts", "starter"];
@@ -55,6 +55,7 @@ export default function SkillLanding() {
 
   return (
     <main className="relative">
+      {!embedded && (<>
       {/* HERO */}
       <section className="mx-auto max-w-[1320px] px-5 pb-16 pt-36 sm:px-8 sm:pt-44">
         <div className="eyebrow">AURA {SKILL.version} · agent skill for Claude, Codex, Cursor</div>
@@ -65,9 +66,9 @@ export default function SkillLanding() {
           AURA is a skill you give your AI agent. It makes the agent <b className="text-fg">direct, build and QA</b> scroll-driven, game-grade 3D websites — product renders, estates, instruments, portfolios, whole worlds — to a <b className="text-fg">$10,000 standard</b>, for any brand, from one prompt.
         </p>
         <div className="mt-9 flex flex-wrap items-center gap-3">
-          <Link href="/skill#get" className="btn btn-primary h-[56px] px-8 text-[16px]">Get the skill — {SKILL.priceLabel}</Link>
-          <Link href="/skill#worlds" className="btn btn-ghost h-[56px] px-7">See what it makes ↓</Link>
-          <Link href="/request" className="px-2 text-[14px] text-dim underline-offset-4 hover:text-fg hover:underline">Rather have me build it? Request a site</Link>
+          <Link href="/services#skill-pricing" className="btn btn-primary h-[56px] px-8 text-[16px]">Get the skill — {SKILL.priceLabel}</Link>
+          <Link href="/services#worlds" className="btn btn-ghost h-[56px] px-7">See what it makes ↓</Link>
+          <Link href="/services#build" className="px-2 text-[14px] text-dim underline-offset-4 hover:text-fg hover:underline">Rather have me build it? Request a site</Link>
         </div>
         <dl className="mt-14 grid max-w-[900px] grid-cols-2 gap-6 border-t border-line pt-8 sm:grid-cols-5">
           {([[DIRECTIONS.length, "art directions"], [SKILL_STATS.docs, "references"], [SKILL_STATS.examples, "worked examples"], [SKILL_STATS.engineLines, "engine lines"], [SKILL_STATS.kb + " KB", "of craft"]] as const).map(([n, l]) => (
@@ -76,14 +77,16 @@ export default function SkillLanding() {
         </dl>
       </section>
 
+      </>)}
+
       {/* LIVE */}
       <section id="worlds" className="relative scroll-mt-24">
         <div className="mx-auto max-w-[1320px] px-5 pb-6 sm:px-8">
           <div className="eyebrow">Output of the skill's starter · live</div>
           <h2 className="h-display mt-4 text-[clamp(2rem,4.6vw,4rem)]">Scroll it. Nothing here is a video.</h2>
-          <p className="mt-3 max-w-[560px] text-dim">Three of the reference worlds that ship in the starter — zero downloaded assets, real-time, scrubbed by your scroll wheel. Switch worlds with the pill.</p>
+          <p className="mt-3 max-w-[560px] text-dim">Four of the reference worlds that ship in the starter — zero downloaded assets, real-time, scrubbed by your scroll wheel. Switch worlds with the pill — the first is the Folio.</p>
         </div>
-        <LiveWorld initial="halo" scrollVh={620} />
+        <LiveWorld initial="folio" scrollVh={620} />
       </section>
 
       {/* COMPARE */}
@@ -203,6 +206,7 @@ export default function SkillLanding() {
         <div className="mt-8"><SkillStudio layout="split" /></div>
       </section>
 
+      {!embedded && (<>
       {/* GET */}
       <section id="get" className="mx-auto max-w-[1320px] scroll-mt-24 px-5 pb-24 sm:px-8">
         <div className="relative overflow-hidden rounded-[32px] border border-[rgb(92_255_196/0.3)] bg-[linear-gradient(135deg,rgb(8_16_26/0.95),rgb(3_5_11/0.95))] p-8 sm:p-12 lg:p-16">
@@ -219,12 +223,14 @@ export default function SkillLanding() {
               <p className="mt-2 text-[13.5px] text-dim">Instant download · skill folder, single-file edition and starter engine · use on unlimited projects.</p>
               <Link href="/skill/checkout" className="btn btn-primary mt-6 h-[58px] w-full text-[16px]">Get AURA — {SKILL.priceLabel}</Link>
               <div className="my-5 flex items-center gap-3 text-[11px] text-dim"><i className="h-px flex-1 bg-line" />or<i className="h-px flex-1 bg-line" /></div>
-              <Link href="/request" className="btn btn-ghost h-[52px] w-full">Request a custom site from me</Link>
+              <Link href="/services#build" className="btn btn-ghost h-[52px] w-full">Request a custom site from me</Link>
               <p className="mt-4 text-center text-[11.5px] text-dim">Secure checkout · Works with Claude, Codex, Cursor, Gemini, Copilot, Windsurf</p>
             </div>
           </div>
         </div>
       </section>
+
+      </>)}
 
       {/* INSTALL */}
       <section className="mx-auto max-w-[1320px] px-5 pb-24 sm:px-8">
@@ -238,7 +244,7 @@ export default function SkillLanding() {
         <Reveal><div className="eyebrow">FAQ</div><h2 className="h-display mt-4 text-[clamp(1.8rem,3.6vw,3rem)]">Questions.</h2></Reveal>
         <div className="mt-6">
           {FAQ.map(([q, a]) => (<details key={q} className="group border-t border-line py-4"><summary className="flex cursor-pointer list-none items-center justify-between font-display text-[18px] font-semibold tracking-[-0.02em]">{q}<span className="text-aurora transition group-open:rotate-45">+</span></summary><p className="mt-3 text-[14.5px] leading-relaxed text-dim">{a}</p></details>))}
-          <details className="group border-y border-line py-4"><summary className="flex cursor-pointer list-none items-center justify-between font-display text-[18px] font-semibold tracking-[-0.02em]">Can I just hire you to build it?<span className="text-aurora transition group-open:rotate-45">+</span></summary><p className="mt-3 text-[14.5px] leading-relaxed text-dim">Yes — <Link href="/request" className="text-aurora underline-offset-4 hover:underline">send a request</Link> with your brief, budget and timeline. Custom builds use this exact skill plus hand-finishing.</p></details>
+          <details className="group border-y border-line py-4"><summary className="flex cursor-pointer list-none items-center justify-between font-display text-[18px] font-semibold tracking-[-0.02em]">Can I just hire you to build it?<span className="text-aurora transition group-open:rotate-45">+</span></summary><p className="mt-3 text-[14.5px] leading-relaxed text-dim">Yes — <Link href="/services#build" className="text-aurora underline-offset-4 hover:underline">send a request</Link> with your brief, budget and timeline. Custom builds use this exact skill plus hand-finishing.</p></details>
         </div>
       </section>
     </main>

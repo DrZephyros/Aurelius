@@ -9,7 +9,7 @@ import { setDockOpen, useDockOpen } from "@/lib/studio";
 export function SkillDock() {
   const open = useDockOpen();
   const path = usePath();
-  const onSkillPage = path === "/skill";
+  const onSkillPage = path === "/services";
 
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
@@ -59,7 +59,7 @@ export function SkillDock() {
               <h2 className="mt-1 font-display text-xl font-semibold tracking-[-0.02em]">Brief it. Paste it. Get a film.</h2>
             </div>
             <div className="flex items-center gap-2">
-              <Link href="/skill" className="btn btn-ghost !h-9 !px-4 !text-[12px]">Full skill page →</Link>
+              <Link href="/services#skill" className="btn btn-ghost !h-9 !px-4 !text-[12px]">Full skill page →</Link>
               <button type="button" onClick={() => setDockOpen(false)} aria-label="Close" className="grid size-9 place-items-center rounded-full border border-line text-dim transition hover:text-fg">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M5 5l14 14M19 5L5 19" /></svg>
               </button>

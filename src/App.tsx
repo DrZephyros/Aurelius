@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Router, usePath, Link } from "@/lib/router";
+import { Router, usePath, Link, navigate } from "@/lib/router";
 import { SiteNav, SiteFooter } from "@/components/chrome";
 import { AuroraScene } from "@/components/aurora-scene";
 import { CommandPalette } from "@/components/command-palette";
@@ -8,9 +8,8 @@ import LibraryPage from "@/views/LibraryPage";
 import TemplatePage from "@/views/TemplatePage";
 import DemoPage from "@/views/DemoPage";
 import PromptsPage from "@/views/PromptsPage";
-import SkillLanding from "@/views/SkillLanding";
 import { CheckoutPage, DownloadPage } from "@/views/SkillCheckout";
-import RequestPage from "@/views/RequestPage";
+import ServicesPage from "@/views/ServicesPage";
 import { SkillDock } from "@/components/skill-dock";
 import BundlesIndex from "@/bundles/BundlesIndex";
 import BundleShell from "@/bundles/BundleShell";
@@ -32,6 +31,15 @@ function Item({ category, slug }: { category: string; slug: string }) {
   if (!item) return <NotFound />;
   const { code, readme, body } = readItem(category, slug);
   return <ItemView item={item} code={code} readme={readme} body={body} />;
+}
+
+/** Old URLs (/skill, /request) now live inside Services — keep them working. */
+function Redirect({ to }: { to: string }) {
+  useEffect(() => {
+    history.replaceState({}, "", "/");
+    navigate(to);
+  }, [to]);
+  return null;
 }
 
 function Routes() {
@@ -56,10 +64,11 @@ function Routes() {
   if (path === "/elements") return <LibraryPage key="elements" shelf="elements" />;
   if (path === "/bundles") return <BundlesIndex />;
   if (path === "/prompts") return <PromptsPage />;
-  if (path === "/skill" || path === "/make-your-own") return <SkillLanding />;
+  if (path === "/services") return <ServicesPage />;
+  if (path === "/skill" || path === "/make-your-own") return <Redirect to="/services#skill" />;
+  if (path === "/request") return <Redirect to="/services#build" />;
   if (path === "/skill/checkout") return <CheckoutPage />;
   if (path === "/skill/download") return <DownloadPage />;
-  if (path === "/request") return <RequestPage />;
   if (path === "/") return <Home />;
   return <NotFound />;
 }

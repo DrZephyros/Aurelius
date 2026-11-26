@@ -3,16 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import UmbraExperience from "../../skill-src/aura-3d-web/starter/src/aura/UmbraExperience";
 import HaloExperience from "../../skill-src/aura-3d-web/starter/src/aura/HaloExperience";
+import FolioExperience from "../../skill-src/aura-3d-web/starter/src/aura/FolioExperience";
 import ExampleExperience from "../../skill-src/aura-3d-web/starter/src/aura/ExampleExperience";
 
 export const WORLDS = [
+  { id: "folio", t: "Mira · Folio", k: "Portfolio · six projects on a helix, plates ignite on hold", Comp: FolioExperience },
   { id: "halo", t: "NOCTA", k: "Product · altar, exploded ascent, studio light", Comp: HaloExperience },
   { id: "umbra", t: "Umbra", k: "Event · terrain, eclipse sky, light shafts", Comp: UmbraExperience },
   { id: "obsidian", t: "Obsidian Gate", k: "Object · crystal, rings, mirror floor", Comp: ExampleExperience },
 ] as const;
 
 /** The REAL starter output, running live: scroll it. Boots only near the viewport and tears the WebGL context down when you leave. */
-export function LiveWorld({ initial = "halo", scrollVh = 520, switcher = true }: { initial?: "umbra" | "obsidian" | "halo"; scrollVh?: number; switcher?: boolean }) {
+export function LiveWorld({ initial = "halo", scrollVh = 520, switcher = true }: { initial?: "umbra" | "obsidian" | "halo" | "folio"; scrollVh?: number; switcher?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [on, setOn] = useState(false);
   const [id, setId] = useState<string>(initial);

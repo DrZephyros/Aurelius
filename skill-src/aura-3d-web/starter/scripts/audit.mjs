@@ -3,7 +3,7 @@
    AURA · audit.mjs — the QA gate an agent can actually run.
 
    npm i -D playwright pngjs && npx playwright install chromium
-   node scripts/audit.mjs http://localhost:5173 [--out shots] [--stops 14] [--gpu] [--only desktop]
+   node scripts/audit.mjs http://localhost:5173 [--out shots] [--stops 14] [--gpu] [--only desktop] [--scale 0.5] [--timeout 120000]
 
    What it does (deterministically — it uses window.__aura.seek(p), not scroll timing):
      1. loads the page at 3 viewports (desktop 1440×900 · mobile 390×844 · wide 1920×1080)
@@ -29,7 +29,10 @@ const out = flag("out", "shots");
 const N = Number(flag("stops", 14));
 const gpu = !!flag("gpu", false);
 const only = flag("only", null);
-const VIEWPORTS = [{ n: "desktop", w: 1440, h: 900 }, { n: "mobile", w: 390, h: 844 }, { n: "wide", w: 1920, h: 1080 }].filter((v) => !only || v.n === only);
+// --scale 0.5 halves every viewport (4× faster on software GL); --timeout raises the per-action limit for slow machines
+const SCALE = Number(flag("scale", 1));
+const TIMEOUT = Number(flag("timeout", 120000));
+const VIEWPORTS = [{ n: "desktop", w: 1440, h: 900 }, { n: "mobile", w: 390, h: 844 }, { n: "wide", w: 1920, h: 1080 }].filter((v) => !only || v.n === only).map((v) => ({ ...v, w: Math.round(v.w * SCALE), h: Math.round(v.h * SCALE) }));
 const stops = Array.from({ length: N }, (_, i) => +(i / (N - 1)).toFixed(4)).map((p) => (p >= 1 ? 1 : p));
 mkdirSync(out, { recursive: true });
 
@@ -70,7 +73,8 @@ function sheet(pngs, cols, tw, file) {
 }
 
 const ARGS = gpu ? ["--ignore-gpu-blocklist", "--enable-webgl"] : ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--enable-webgl"];
-const launch = () => chromium.launch({ args: ARGS }); // a fresh browser per viewport: software GL leaks memory across big canvases
+// AURA_CHROME=/path/to/chromium lets locked-down sandboxes (no root, missing system libs) use any Chromium build
+const launch = () => chromium.launch({ args: ARGS, executablePath: process.env.AURA_CHROME || undefined }); // a fresh browser per viewport: software GL leaks memory across big canvases
 let browser;
 const frames = {}, meta = {};
 
@@ -78,6 +82,7 @@ const frames = {}, meta = {};
 for (const vp of VIEWPORTS) {
   browser = await launch();
   const page = await browser.newPage({ viewport: { width: vp.w, height: vp.h }, deviceScaleFactor: 1 });
+  page.setDefaultTimeout(TIMEOUT);
   const logs = [];
   page.on("console", (m) => (m.type() === "error" || (m.type() === "warning" && /\[aura\]/.test(m.text()))) && logs.push(m.text()));
   page.on("pageerror", (e) => logs.push("pageerror: " + e.message));

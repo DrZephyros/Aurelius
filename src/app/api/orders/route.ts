@@ -25,11 +25,11 @@ export async function POST(req: Request) {
     mode: "payment",
     "line_items[0][quantity]": "1",
     "line_items[0][price_data][currency]": "usd",
-    "line_items[0][price_data][unit_amount]": "1000",
+    "line_items[0][price_data][unit_amount]": "1900",
     "line_items[0][price_data][product_data][name]": "AURA — the 3D website skill",
     "line_items[0][price_data][product_data][description]": "Agent skill + starter engine + art directions + worked examples",
     success_url: `${origin}/skill/download?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/skill#get`,
+    cancel_url: `${origin}/services#skill-pricing`,
     customer_email: email,
     client_reference_id: token,
   });

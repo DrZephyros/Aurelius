@@ -6,7 +6,7 @@ export const skillOrders = pgTable("skill_orders", {
   email: text("email").notNull(),
   token: text("token").notNull().unique(),
   status: text("status").notNull().default("pending"),
-  amountCents: integer("amount_cents").notNull().default(1000),
+  amountCents: integer("amount_cents").notNull().default(1900),
   stripeSessionId: text("stripe_session_id"),
   downloads: integer("downloads").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -24,5 +24,14 @@ export const siteRequests = pgTable("site_requests", {
   brief: text("brief").notNull(),
   links: text("links"),
   status: text("status").notNull().default("new"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Issued "agent links": a private URL a user pastes into any AI agent so it can read the whole free library. */
+export const agentLinks = pgTable("agent_links", {
+  id: serial("id").primaryKey(),
+  token: text("token").notNull().unique(),
+  hits: integer("hits").notNull().default(0),
+  lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

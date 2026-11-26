@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { TEMPLATES } from "@/lib/templates";
 
 const KINDS = ["Product launch", "Real estate / hospitality", "Portfolio / personal", "Brand / agency", "SaaS / AI", "Game / film / event", "Food / lifestyle", "Something else"];
 const BUDGETS = ["$2k – $5k", "$5k – $10k", "$10k – $20k", "$20k+", "Not sure yet"];
@@ -12,8 +13,8 @@ function F({ label, children }: { label: string; children: React.ReactNode }) {
 }
 
 /** "Request a website from me" — posts to /api/requests (stored in Postgres). */
-export function RequestForm({ onDone }: { onDone?: () => void }) {
-  const [v, setV] = useState({ name: "", email: "", company: "", kind: KINDS[0], budget: BUDGETS[1], timeline: "", brief: "", links: "" });
+export function RequestForm({ onDone, plan, template }: { onDone?: () => void; plan?: "build"; template?: string }) {
+  const [v, setV] = useState({ name: "", email: "", company: "", kind: KINDS[0], budget: BUDGETS[1], timeline: "", brief: "", links: "", base: template ?? "Not sure — recommend one" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const set = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setV((s) => ({ ...s, [k]: e.target.value }));
@@ -21,7 +22,7 @@ export function RequestForm({ onDone }: { onDone?: () => void }) {
     e.preventDefault();
     setBusy(true); setErr("");
     try {
-      const r = await fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(v) });
+      const r = await fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(plan === "build" ? { ...v, kind: `${v.kind} · BUILD $199 · base: ${v.base}`, budget: "$199 fixed (1 revision, 5 days)" } : v) });
       const j = (await r.json()) as { error?: string };
       if (!r.ok) throw new Error(j.error || "Could not send");
       onDone?.();
@@ -37,14 +38,21 @@ export function RequestForm({ onDone }: { onDone?: () => void }) {
         <F label="Company / project"><input className={inp} value={v.company} onChange={set("company")} /></F>
         <F label="Type of site"><select className={inp} value={v.kind} onChange={set("kind")}>{KINDS.map((k) => <option key={k} className="bg-[#0a0f18]">{k}</option>)}</select></F>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <F label="Budget"><select className={inp} value={v.budget} onChange={set("budget")}>{BUDGETS.map((k) => <option key={k} className="bg-[#0a0f18]">{k}</option>)}</select></F>
-        <F label="Timeline"><input className={inp} value={v.timeline} onChange={set("timeline")} placeholder="e.g. launch in 6 weeks" /></F>
-      </div>
+      {plan === "build" ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <F label="Start from which template?"><select className={inp} value={v.base} onChange={set("base")}><option className="bg-[#0a0f18]">Not sure — recommend one</option>{TEMPLATES.map((t) => <option key={t.slug} value={t.name} className="bg-[#0a0f18]">{t.name} — {t.tagline}</option>)}</select></F>
+          <F label="Deadline (optional)"><input className={inp} value={v.timeline} onChange={set("timeline")} placeholder="e.g. needed by the 14th" /></F>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <F label="Budget"><select className={inp} value={v.budget} onChange={set("budget")}>{BUDGETS.map((k) => <option key={k} className="bg-[#0a0f18]">{k}</option>)}</select></F>
+          <F label="Timeline"><input className={inp} value={v.timeline} onChange={set("timeline")} placeholder="e.g. launch in 6 weeks" /></F>
+        </div>
+      )}
       <F label="The brief"><textarea required minLength={20} rows={5} className={`${inp} h-auto py-3`} value={v.brief} onChange={set("brief")} placeholder="What is it, who is it for, how should people feel, what should they do at the end?" /></F>
       <F label="Links (references, brand, current site)"><input className={inp} value={v.links} onChange={set("links")} /></F>
       {err && <p role="alert" className="text-[13px] text-[#ff8a8a]">{err}</p>}
-      <button disabled={busy} className="btn btn-primary h-[54px] w-full text-[15px] disabled:opacity-60">{busy ? "Sending…" : "Send the request"}</button>
+      <button disabled={busy} className="btn btn-primary h-[54px] w-full text-[15px] disabled:opacity-60">{busy ? "Sending…" : plan === "build" ? "Book my build — $199" : "Send the request"}</button>
     </form>
   );
 }

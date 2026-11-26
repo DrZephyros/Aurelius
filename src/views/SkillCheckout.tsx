@@ -24,7 +24,7 @@ export function CheckoutPage() {
   return (
     <main className="mx-auto grid max-w-[1100px] gap-10 px-5 pb-28 pt-36 sm:px-8 lg:grid-cols-[1.1fr_1fr]">
       <div>
-        <Link href="/skill" className="text-[13px] text-dim hover:text-fg">← Back to the skill</Link>
+        <Link href="/services#skill" className="text-[13px] text-dim hover:text-fg">← Back to the skill</Link>
         <div className="eyebrow mt-6">Checkout</div>
         <h1 className="h-display mt-4 text-[clamp(2.4rem,5vw,4.2rem)]">Get AURA.</h1>
         <p className="mt-4 max-w-[460px] text-dim">Enter your email — your receipt and download link go there. You get the skill folder, the single-file edition and the starter engine.</p>
@@ -67,7 +67,7 @@ export function DownloadPage() {
   return (
     <main className="mx-auto max-w-[900px] px-5 pb-28 pt-36 sm:px-8">
       {state === "loading" && <p className="text-dim">Confirming your order…</p>}
-      {state === "bad" && (<><h1 className="h-display text-[clamp(2.2rem,5vw,4rem)]">Hmm.</h1><p className="mt-4 text-dim">{msg}</p><Link href="/skill#get" className="btn btn-primary mt-8">Back to the skill</Link></>)}
+      {state === "bad" && (<><h1 className="h-display text-[clamp(2.2rem,5vw,4rem)]">Hmm.</h1><p className="mt-4 text-dim">{msg}</p><Link href="/services#skill-pricing" className="btn btn-primary mt-8">Back to the skill</Link></>)}
       {state === "ok" && token && (
         <>
           <div className="eyebrow">Order confirmed</div>
@@ -82,7 +82,7 @@ export function DownloadPage() {
           <div className="mt-3 space-y-3">
             {INSTALLS.slice(0, 2).flatMap((x) => x.steps.map((s) => ({ ...s, who: x.t }))).map((s) => (<div key={s.who + s.label} className="panel !rounded-2xl p-4"><div className="text-[12.5px] text-dim">{s.who} — {s.label}</div><pre className="mt-2 overflow-x-auto font-mono text-[12px] whitespace-pre-wrap text-fg/85">{s.code}</pre></div>))}
           </div>
-          <p className="mt-8 text-[13px] text-dim">Bookmark this page — the link stays valid. Want it built for you? <Link href="/request" className="text-aurora hover:underline">Request a site</Link>.</p>
+          <p className="mt-8 text-[13px] text-dim">Bookmark this page — the link stays valid. Want it built for you? <Link href="/services#build" className="text-aurora hover:underline">Request a site</Link>.</p>
         </>
       )}
     </main>

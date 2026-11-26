@@ -14,7 +14,15 @@ export async function POST(req: Request) {
   if (brief.length < 20) return Response.json({ error: "Give me a few sentences about the project (20+ characters)." }, { status: 400 });
   const [row] = await db
     .insert(siteRequests)
-    .values({ name, email, brief, company: clip(b.company, 160) || null, kind: clip(b.kind, 80) || null, budget: clip(b.budget, 80) || null, timeline: clip(b.timeline, 80) || null, links: clip(b.links, 1000) || null })
-    .returning({ id: siteRequests.id });
+    .values({ name, email, brief, company: clip(b.company, 160) || null, kind: clip(b.kind, 200) || null, budget: clip(b.budget, 80) || null, timeline: clip(b.timeline, 80) || null, links: clip(b.links, 1000) || null })
+    .returning({ id: siteRequests.id })
+    .catch((e: unknown) => {
+      // No database on this deployment — answer in JSON so the form can show something useful.
+      console.error("[api/requests]", e);
+      throw new Response(JSON.stringify({ error: "Requests are offline right now — email me directly and I'll reply within a day." }), {
+        status: 503,
+        headers: { "content-type": "application/json" },
+      });
+    });
   return Response.json({ ok: true, id: row.id });
 }

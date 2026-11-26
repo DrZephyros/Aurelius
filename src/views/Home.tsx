@@ -1,72 +1,110 @@
 "use client";
 
+import { useState } from "react";
 import { Link } from "@/lib/router";
 import { Reveal } from "@/components/reveal";
-import { LiveWorld } from "@/components/live-world";
-import { DIRECTIONS, EXAMPLES, SKILL_STATS } from "@/lib/skill";
-import { SKILL } from "@/lib/site";
+import { Specimen } from "@/components/specimen";
+import { AgentLink } from "@/components/agent-link";
+import { SHELVES } from "@/components/chrome";
+import { bySlug, TEMPLATES, type Template } from "@/lib/templates";
+import { REG_ITEMS } from "@/lib/registry";
+import { PAGES, ELEMENTS } from "@/lib/collections";
+import { TIERS } from "@/lib/site";
+
+/* The three best, in the order the reader meets them. Folio is the favourite, so it leads. */
+const BEST = ["folio", "nebula", "apex"]
+  .map((s) => bySlug(s))
+  .filter((t): t is Template => !!t);
+const NOTES: Record<string, string> = {
+  folio: "Your work as a spiral of glowing screens — the portfolio everyone remembers.",
+  nebula: "A galaxy-to-planet descent: one continuous camera, a whole world.",
+  apex: "A hypercar launch with studio light, reflections and a camera that pans like a film.",
+};
 
 export default function Home() {
+  // worlds boot one after another, ahead of the reader, so each is ready when it arrives
+  const [ready, setReady] = useState(0);
+
   return (
     <main>
       {/* HERO — the aurora world is the fixed backdrop (App.tsx) */}
-      <section className="mx-auto flex min-h-[100svh] max-w-[1320px] flex-col justify-center px-5 pb-16 pt-28 sm:px-8">
-        <div className="eyebrow">Project Aurelius · the 3D web skill</div>
-        <h1 className="h-display mt-6 text-[clamp(3.2rem,10.5vw,9.5rem)] leading-[0.88]">
-          The skill that<br />makes <span className="aurora-text">$10,000</span><br />websites.
+      <section className="mx-auto flex min-h-[92svh] max-w-[1320px] flex-col justify-center px-5 pb-16 pt-28 sm:px-8">
+        <div className="eyebrow rise">Project Aurelius · immersive 3D websites</div>
+        <h1 className="h-display rise mt-6 text-[clamp(3.2rem,10.5vw,9.5rem)] leading-[0.88]" style={{ ["--d" as string]: "100ms" }}>
+          Websites you<br />can <span className="aurora-text">walk into.</span>
         </h1>
-        <p className="mt-8 max-w-[600px] text-[18px] leading-relaxed text-fg/70">
-          Not templates. Give your AI agent AURA and it directs, builds and QAs immersive, scroll-driven, game-grade 3D sites — products, estates, instruments, portfolios, whole worlds.
+        <p className="rise mt-8 max-w-[600px] text-[18px] leading-relaxed text-fg/70" style={{ ["--d" as string]: "220ms" }}>
+          Scroll-driven, game-grade 3D — free to study and steal, with an agent link that hands the whole library to your AI. Below are three of the best. Scroll them.
         </p>
-        <div className="mt-10 flex flex-wrap items-center gap-3">
-          <Link href="/skill" className="btn btn-primary h-[58px] px-9 text-[16px]">Explore the skill →</Link>
-          <Link href="/skill#get" className="btn btn-ghost h-[58px] px-7">Get it — {SKILL.priceLabel}</Link>
-          <Link href="/request" className="px-2 text-[14px] text-dim underline-offset-4 hover:text-fg hover:underline">Or request a site from me</Link>
+        <div className="rise mt-10 flex flex-wrap items-center gap-4" style={{ ["--d" as string]: "340ms" }}>
+          <Link href="/library" className="btn btn-primary h-[58px] px-9 text-[16px]">Browse the free library →</Link>
+          <Link href="/services" className="aurora-ring aurora-ring-lg">Services <span aria-hidden className="text-[#8fb4ff]">→</span></Link>
         </div>
+        <a href="#showcase" className="rise mt-14 inline-flex w-fit items-center gap-3 font-mono text-[11px] tracking-[0.2em] text-dim uppercase transition hover:text-fg" style={{ ["--d" as string]: "460ms" }}>
+          <span className="grid size-8 place-items-center rounded-full border border-line-strong">↓</span> Three live sites below
+        </a>
       </section>
 
-      {/* LIVE PROOF */}
-      <section className="relative bg-bg/60 backdrop-blur-sm">
-        <div className="mx-auto max-w-[1320px] px-5 pt-24 pb-6 sm:px-8">
-          <div className="eyebrow">Built by the skill · live in your browser</div>
-          <h2 className="h-display mt-4 text-[clamp(2rem,4.8vw,4.2rem)]">Scroll it. This is the output.</h2>
+      {/* THE THREE BEST — each is the real site, scrolled through the page */}
+      <section id="showcase" className="relative scroll-mt-16 bg-bg/70 backdrop-blur-sm">
+        <div className="mx-auto max-w-[1320px] px-5 pb-8 pt-20 sm:px-8">
+          <div className="eyebrow">The three best</div>
+          <h2 className="h-display mt-4 text-[clamp(2rem,4.8vw,4.2rem)]">Scroll them. They're real.</h2>
+          <ol className="mt-8 grid gap-3 md:grid-cols-3">
+            {BEST.map((t, i) => (
+              <li key={t.slug}>
+                <a href={`#specimen-${t.slug}`} className={`block h-full rounded-2xl border p-5 transition hover:-translate-y-0.5 ${i === 0 ? "border-[rgb(92_255_196/0.4)] bg-[rgb(92_255_196/0.06)]" : "border-line"}`}>
+                  <div className="flex items-center justify-between font-mono text-[10.5px] tracking-[0.18em] uppercase"><span style={{ color: t.accent }}>N°0{i + 1}</span>{i === 0 && <span className="text-aurora">★ favourite</span>}</div>
+                  <div className="mt-3 font-display text-[22px] font-semibold tracking-[-0.03em]">{t.name}</div>
+                  <p className="mt-1 text-[13px] leading-snug text-dim">{NOTES[t.slug]}</p>
+                </a>
+              </li>
+            ))}
+          </ol>
         </div>
-        <LiveWorld initial="halo" scrollVh={560} />
+        {BEST.map((t, i) => (
+          <Specimen key={t.slug} t={t} index={TEMPLATES.indexOf(t)} total={TEMPLATES.length} load={i <= ready} onReady={() => setReady((r) => Math.max(r, i + 1))} />
+        ))}
       </section>
 
-      <section className="bg-bg/80 backdrop-blur-xl">
+      {/* THE LIBRARY + AGENT LINK */}
+      <section className="bg-bg/85 backdrop-blur-xl">
         <div className="mx-auto max-w-[1320px] px-5 py-24 sm:px-8">
           <Reveal>
-            <div className="eyebrow">Twelve art directions</div>
-            <h2 className="h-display mt-4 text-[clamp(2rem,4.8vw,4.2rem)]">Product renders. Estates. Instruments. Worlds.</h2>
+            <div className="eyebrow">The free library</div>
+            <h2 className="h-display mt-4 text-[clamp(2rem,4.8vw,4.2rem)]">All of it is yours to study.</h2>
+            <p className="mt-4 max-w-[560px] text-dim">{TEMPLATES.length} landing pages, {REG_ITEMS.length} components, {PAGES.length} app pages, {ELEMENTS.length} elements and a prompt library — live, readable, downloadable, and free.</p>
           </Reveal>
-          <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
-            {DIRECTIONS.map((d) => (
-              <Link key={d.n} href="/skill#directions" className="group rounded-2xl border border-line p-4 transition hover:-translate-y-1" style={{ background: `radial-gradient(120% 90% at 85% 0%, ${d.pal[1]}30, transparent 60%), ${d.pal[0]}` }}>
-                <div className="font-mono text-[10px] tracking-[0.2em]" style={{ color: d.pal[1] }}>{d.n}</div>
-                <div className={`mt-6 font-display text-[16px] font-semibold leading-tight tracking-[-0.03em] ${d.n === "12" ? "text-[#1b1b1b]" : ""}`}>{d.name}</div>
-                <div className={`mt-1 text-[11.5px] ${d.n === "12" ? "text-black/55" : "text-dim"}`}>{d.move}</div>
-              </Link>
+          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {SHELVES.map((s, i) => (
+              <Reveal key={s.href} delay={(i % 3) * 60}>
+                <Link href={s.href} className="panel spot group flex h-full items-center justify-between gap-4 !rounded-[20px] p-5 transition hover:-translate-y-1">
+                  <span><span className="block font-display text-[19px] font-semibold tracking-[-0.03em]">{s.label}</span><span className="mt-1 block text-[13px] text-dim">{s.hint}</span></span>
+                  <span className="text-aurora transition group-hover:translate-x-1">→</span>
+                </Link>
+              </Reveal>
             ))}
           </div>
-
-          <div className="mt-24 grid gap-12 lg:grid-cols-2">
-            <Reveal>
-              <div className="eyebrow">Taught by example</div>
-              <h2 className="h-display mt-4 text-[clamp(1.8rem,3.8vw,3.2rem)]">{SKILL_STATS.examples} worked examples calibrate the agent.</h2>
-              <p className="mt-4 max-w-[480px] text-dim">Prompt → direction lock → storyboard → signature move. The agent sees what “$10,000” means before it writes a line.</p>
-              <Link href="/skill#examples" className="btn btn-ghost mt-6">See the examples</Link>
-            </Reveal>
-            <div className="space-y-2">
-              {EXAMPLES.slice(0, 5).map((e) => (
-                <div key={e.n} className="flex items-center gap-4 rounded-2xl border border-line px-5 py-4"><span className="font-mono text-[11px] text-dim">{e.n}</span><b className="font-display text-[17px]">{e.name}</b><span className="chip">{e.dir}</span><span className="ml-auto hidden text-[12px] text-dim md:block">{e.move}</span></div>
-              ))}
-            </div>
+          <div className="mt-14">
+            <AgentLink counts={[{ label: "landing pages", n: TEMPLATES.length }, { label: "components", n: REG_ITEMS.length }, { label: "app pages", n: PAGES.length }, { label: "elements", n: ELEMENTS.length }]} />
           </div>
 
-          <div className="mt-24 grid gap-4 md:grid-cols-2">
-            <Link href="/skill#get" className="panel group !rounded-[28px] p-8 transition hover:-translate-y-1 sm:p-10"><div className="eyebrow">Do it yourself</div><h3 className="h-display mt-4 text-[clamp(1.8rem,3.4vw,2.8rem)]">Get AURA for {SKILL.priceLabel}</h3><p className="mt-3 text-dim">The skill, the engine, the directions and the examples. Use it on unlimited projects.</p><span className="mt-6 inline-block text-aurora">Get the skill →</span></Link>
-            <Link href="/request" className="panel group !rounded-[28px] p-8 transition hover:-translate-y-1 sm:p-10"><div className="eyebrow">Done for you</div><h3 className="h-display mt-4 text-[clamp(1.8rem,3.4vw,2.8rem)]">Request a custom site</h3><p className="mt-3 text-dim">Send a brief. I direct and build it with the skill, then hand-finish it.</p><span className="mt-6 inline-block text-aurora">Request a site →</span></Link>
+          {/* SERVICES */}
+          <div className="mt-24 grid gap-5 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+            <Reveal>
+              <div className="eyebrow">Want the real thing?</div>
+              <h2 className="h-display mt-4 text-[clamp(2rem,4.4vw,3.8rem)]">Build it yourself — or have it built.</h2>
+              <p className="mt-4 max-w-[520px] text-dim">The skill ({TIERS.skill.label}) teaches your agent to art-direct a $10,000-grade 3D site. Or pick a template and I'll customise it for you in five days ({TIERS.build.label}).</p>
+              <Link href="/services" className="aurora-ring aurora-ring-lg mt-8">See services &amp; pricing <span aria-hidden className="text-[#8fb4ff]">→</span></Link>
+            </Reveal>
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+              {[["Library", "Free", "Study, steal, agent link", "/library"], ["The skill", TIERS.skill.label, "AURA · one-time", "/services#skill-pricing"], ["Built for you", TIERS.build.label, "Customised template · 5 days", "/services#build"]].map(([n, p, d, h]) => (
+                <Link key={n} href={h} className="panel flex items-center justify-between gap-4 !rounded-[18px] px-5 py-4 transition hover:-translate-y-0.5">
+                  <span><span className="block font-display text-[17px] font-semibold">{n}</span><span className="block text-[12.5px] text-dim">{d}</span></span>
+                  <span className="font-display text-2xl font-semibold tracking-[-0.04em]">{p}</span>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>

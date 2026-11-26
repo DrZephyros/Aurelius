@@ -1,6 +1,6 @@
 ---
 name: aura-3d-web
-description: Build AAA-grade, scroll-driven, immersive 3D websites that feel like high-budget game trailers or Awwwards Site-of-the-Year winners — for ANY subject (product launch, portfolio, real estate, brand, restaurant, game, film, SaaS, event, personal site). Use this skill whenever the user asks for a 3D website, an immersive / cinematic / scrollytelling / WebGL / three.js experience, a "wow" or "AAA" landing page, scroll-choreographed animation, a camera that flies through a world, or anything that should make a visitor feel awe. Covers concept, storyboard, asset generation, the cinematic camera engine, lighting, materials, atmosphere, typography, post-processing, performance and a scored QA gate. Includes 12 art directions (product altar, showroom, estate, instrument, night walk, liquid particles, folio, tunnel, terrain, macro appetite, interface cosmos, light-mode glass), seven worked examples and a $10,000 delivery standard. Do NOT build "just another website" when this skill is active.
+description: Build AAA-grade, scroll-driven, immersive 3D websites that feel like high-budget game trailers or Awwwards Site-of-the-Year winners — for ANY subject (product launch, portfolio, real estate, brand, restaurant, game, film, SaaS, event, personal site). Use this skill whenever the user asks for a 3D website, an immersive / cinematic / scrollytelling / WebGL / three.js experience, a "wow" or "AAA" landing page, scroll-choreographed animation, a camera that flies through a world, or anything that should make a visitor feel awe. Covers concept, storyboard, asset generation, the cinematic camera engine, lighting, materials, atmosphere, typography, post-processing, performance and a scored QA gate. Works in two modes — WORLD (environment / product / event) and FOLIO (portfolio / studio gallery in depth) — plus a hybrid. Includes 12 art directions (product altar, showroom, estate, instrument, night walk, liquid particles, folio, tunnel, terrain, macro appetite, interface cosmos, light-mode glass), seven worked examples and a $10,000 delivery standard. Do NOT build "just another website" when this skill is active.
 ---
 
 # AURA — the immersive 3D web skill
@@ -39,9 +39,10 @@ If the visitor does not feel something in the first three seconds and again at t
 | scoping the full deliverable to a $10k standard (loader, routes, SEO, audio, mobile edit, conversion) | `references/14-premium-delivery.md` |
 | writing shaders / particles / dissolves / liquid chrome / caustics | `references/15-shader-recipes.md` |
 | you need to SEE what the user wants — read the two closest | `examples/README.md` + `examples/0N-*.md` |
+| **choosing between WORLD and FOLIO mode (ALWAYS, in Phase 1a — before the direction)**, or building a portfolio / studio / case-study site | `references/16-modes-world-folio-hybrid.md` + `?world=folio` in the starter |
 | you want to go BEYOND the starter (raymarched heroes, GPU particles, depth-displaced plates, cinematic type, WebGPU, splats, audio…) and need the world-building recipes | `references/10-frontier-techniques.md` |
 
-3. The working engine is in `starter/` — and it ships **three finished reference worlds** (add *NOCTA*, a product altar: `scene.halo.ts`, `?world=halo`, with `studio.ts` (designed environment map + product light rig), `rock.ts` (asteroid ground + boulders), `objects.ts` (earbuds with exploded-ascent parts, machined dial, glass bottle)) — study
+3. The working engine is in `starter/` — and it ships **four finished reference worlds** (the fourth, *Mira*, is a FOLIO — `scene.folio.ts`, `?world=folio` — see `references/16`) (add *NOCTA*, a product altar: `scene.halo.ts`, `?world=halo`, with `studio.ts` (designed environment map + product light rig), `rock.ts` (asteroid ground + boulders), `objects.ts` (earbuds with exploded-ascent parts, machined dial, glass bottle)) — study
    the closest to your brief. The original two: to study: *Obsidian Gate* (an object / product — `scene.example.ts`) and *Umbra* (an event: terrain + eclipse sky + light shafts + a monolith — `scene.umbra.ts`, built only from the helpers, ~190 lines). Run either with `npm run dev` (`?world=umbra`). **Copy it. Do not rewrite it.** It already implements the damped scroll playhead, a **deterministic `window.__aura.seek(p)` / `?p=` QA hook, procedural sky + eclipse, light shafts, haze, glow, dunes (`atmosphere.ts`, `terrain.ts`), measured fit-to-viewport giant type (`fitType`), the shot-list camera, post stack, adaptive quality, DOM choreography, particles, reflective floor, depth-displaced images and a React shell. Your job is the *world*, the *camera moves* and the *story* — that is where the value is.
 
 ---
@@ -68,7 +69,9 @@ Extract or infer: **subject** (what/who), **audience**, **the one emotion** to l
 - If critical info is missing, ask **at most 3–5 sharp questions in ONE message** — otherwise *decide for the user*, state your assumptions in one paragraph, and proceed. Never stall on a questionnaire.
 - *Exit:* you can state the project in one sentence: "A [scroll-driven film] that takes [audience] through [world] so they feel [emotion] and then [action]."
 
-### Phase 1a — Direction Lock (do this BEFORE the brief; 60 seconds; non-negotiable)
+### Phase 1a — Mode + Direction Lock (do this BEFORE the brief; 60 seconds; non-negotiable)
+First pick the **mode** with the table in `references/16-modes-world-folio-hybrid.md`: *judge the work* → FOLIO; *feel a place / want an object* → WORLD; both → HYBRID. Write it as the first line of the Direction Lock.
+
 Open `references/11-art-directions.md`. Pick ONE of the 12 directions (blend at most a second at 20 %), then write the **Direction Lock** block (direction · world · hero · *named signature move* · palette · camera personality · three forbidden things). Read the two closest files in `examples/` and match their *level of specificity*. If the subject is a product, also read `references/12-product-hero-playbook.md`; a portfolio/brand → `13-…`. Say the direction out loud in your creative statement. **Never default to "dark cinematic with a glowing orb".** A light-mode, a macro-appetite or an instrument direction is often the winning, surprising choice.
 
 ### Phase 1 — Concept → `AURA_BRIEF.md`
@@ -102,7 +105,7 @@ Copy `starter/src/aura/*` into the project (Vite + React is the default; for Nex
 Pass A *Motion:* timing of every entrance, hold lengths, easing, velocity feel. Pass B *Image:* color grade, contrast, highlights, depth separation, kill any flat frame. Pass C *Details:* micro-typography, cursor, loader, hover states, 404, favicon, OG image, scroll-snap-free ending.
 
 ### Phase 7 — QA gate
-Run `node scripts/audit.mjs <url>` (see `references/08-qa-and-polish.md`): it seeks the playhead deterministically, captures 14 stops × 3 viewports, measures every frame, lints the shot list and DOM chapters, and tests no-WebGL + reduced-motion. Then **open the contact sheets and critique them**. Also check FPS (`--gpu`), reduced motion, mobile touch scroll, resize, tab-hidden. Score. **If < 85, fix the lowest-scoring category and re-score.** Ship the score in your final message.
+Run `node scripts/audit.mjs <url>` (from `starter/`) (see `references/08-qa-and-polish.md`): it seeks the playhead deterministically, captures 14 stops × 3 viewports, measures every frame, lints the shot list and DOM chapters, and tests no-WebGL + reduced-motion. Then **open the contact sheets and critique them**. Also check FPS (`--gpu`), reduced motion, mobile touch scroll, resize, tab-hidden. Score. **If < 85, fix the lowest-scoring category and re-score.** Ship the score in your final message.
 
 ---
 
@@ -162,7 +165,7 @@ Don't add features. Go through the rubric, find the **lowest-scoring pillar** (A
 
 ## 8 · The verification contract (what "done" means)
 You may not say "done" until ALL of these are true — paste the evidence in your final message:
-1. `node scripts/audit.mjs <url>` exits 0 (**no blockers**) on desktop, mobile, wide — and you read `REPORT.md`.
+1. `node scripts/audit.mjs <url>` (from `starter/`) exits 0 (**no blockers**) on desktop, mobile, wide — and you read `REPORT.md`.
 2. You opened `contact-desktop.png` and `contact-mobile.png` and wrote a one-line art-director critique **per frame** (poster test · 5 depth planes · light · type) and fixed what you found, ≥ 3 loops.
 3. Frame one has type on screen; the last frame is a composed image with ONE live CTA (the engine hides neither if you start chapter 1 at `data-a="0"` and end the last at `data-b="1"`).
 4. Giant type uses `data-fit` — never guessed vw. Nothing is cropped or collides at 390 px.

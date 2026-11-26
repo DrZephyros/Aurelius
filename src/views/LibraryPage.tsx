@@ -13,7 +13,8 @@ import { BUNDLES } from "@/bundles/data";
 import { Gallery, TemplateCard, type GalleryItem } from "@/components/gallery";
 import { DemoCard } from "@/components/demo-frame";
 import { Reveal } from "@/components/reveal";
-import { RequestForm } from "@/components/request-form";
+import { AgentLink } from "@/components/agent-link";
+import { TIERS } from "@/lib/site";
 
 export type Shelf = "all" | "worlds" | "pages" | "elements";
 
@@ -21,7 +22,7 @@ const COPY: Record<Shelf, { eyebrow: string; title: ReactNode; body: string }> =
   all: {
     eyebrow: "The library",
     title: <>Pick one. <span className="aurora-text">Poke it.</span></>,
-    body: "Every card below is the real thing, running. Glide your cursor across a card to scrub through it — click to step inside, read the source and take the code.",
+    body: "Free, forever. Every card is the real thing, running — glide over one to scrub it, click to step inside, read the source and take the code. Or issue an agent link and let your AI browse it for you.",
   },
   worlds: {
     eyebrow: "Landing pages",
@@ -229,13 +230,16 @@ function Overview() {
 
           <Reveal className="mt-20">
             <div className="glass rounded-[26px] p-6 sm:p-10">
-              <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+              <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
                 <div>
-                  <div className="eyebrow">Missing something?</div>
-                  <h2 className="h-display mt-4 text-[clamp(1.9rem,3.6vw,3rem)]">Tell us what to build next.</h2>
-                  <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-dim">Describe a use case or a vibe. Requests stay on your device until there's a server to send them to.</p>
+                  <div className="eyebrow">Beyond the library</div>
+                  <h2 className="h-display mt-4 text-[clamp(1.9rem,3.6vw,3rem)]">Want it built — or want to build like this?</h2>
+                  <p className="mt-3 max-w-lg text-[14.5px] leading-relaxed text-dim">The AURA skill ({TIERS.skill.label}) teaches your agent to art-direct bespoke 3D sites. Or pick any template here and have it customised for you for {TIERS.build.label}.</p>
                 </div>
-                <RequestForm />
+                <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+                  <Link href="/services#skill" className="btn btn-ghost">Explore the skill · {TIERS.skill.label}</Link>
+                  <Link href="/services" className="aurora-ring aurora-ring-lg">Services <span aria-hidden className="text-[#8fb4ff]">→</span></Link>
+                </div>
               </div>
             </div>
           </Reveal>
@@ -271,7 +275,11 @@ export default function LibraryPage({ shelf = "all" }: { shelf?: Shelf }) {
           )}
         </div>
 
-        <div className="mt-8">
+        {shelf === "all" && (
+          <div className="mt-10"><AgentLink counts={[{ label: "landing pages", n: TEMPLATES.length }, { label: "components", n: REG_ITEMS.length }, { label: "app pages", n: PAGES.length }, { label: "elements", n: ELEMENTS.length }]} /></div>
+        )}
+
+        <div className="mt-10">
           {shelf === "all" && <Overview />}
           {shelf === "worlds" && <Gallery items={worlds} />}
           {shelf === "pages" && <DemoShelf key="p" list={PAGES} cats={PAGE_CATEGORIES} placeholder="Search: login, booking, chart…" />}

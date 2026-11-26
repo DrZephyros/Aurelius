@@ -10,4 +10,5 @@ export { createSky, createLightShafts, createGlow, createHaze, type SkyOptions, 
 export { createDunes, type DunesOptions } from "./terrain";
 export { createStudioEnv, productRig, createContactShadow, type StripSpec } from "./studio";
 export { createRockGround, createBoulders, fbm2, type RockGroundOptions } from "./rock";
+export { folio, PROJECTS as FOLIO_PROJECTS, folioAt } from "./scene.folio";
 export { earbuds, dial, bottle, type ExplodePart } from "./objects";

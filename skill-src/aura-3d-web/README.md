@@ -19,7 +19,7 @@ aura-3d-web/
 │  ├─ 08-qa-and-polish.md           ← Playwright screenshot loop, the 100-pt Aura Score, polish passes
 │  ├─ 09-prompt-pack.md             ← master prompt + archetype kickoffs + refinement prompts
 │  └─ 10-frontier-techniques.md     ← raymarched heroes, GPU particles, 2.5D plates, cinematic type, WebGPU, splats, audio…
-├─ scripts/audit.mjs                ← the QA gate: deterministic seek, per-frame metrics, chapter/shot lint, fallback tests
+├─ starter/scripts/audit.mjs        ← the QA gate: deterministic seek, per-frame metrics, chapter/shot lint, fallback tests
 └─ starter/                         ← the working engine (Vite + React + three), type-checked
    └─ src/aura/ engine · choreo · materials · particles · layers · floor · atmosphere · terrain · assets · AuraExperience · aura.css · scene.example (Obsidian) · scene.umbra (Umbra)
 ```
@@ -47,5 +47,5 @@ You'll see **Obsidian Gate** (a product world); open `/?world=umbra` for **Umbra
 ## Verify
 ```bash
 npm i -D playwright pngjs && npx playwright install chromium
-node scripts/audit.mjs http://localhost:5173      # deterministic frames + metrics + contact sheets
+(cd starter && node scripts/audit.mjs http://localhost:5173)      # deterministic frames + metrics + contact sheets
 ```

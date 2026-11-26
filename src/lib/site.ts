@@ -10,7 +10,14 @@ export const SITE = {
 export const SKILL = {
   name: "AURA",
   slug: "aura-3d-web",
-  price: 10,
-  priceLabel: "$10",
-  version: "2.0",
+  price: 19,
+  priceLabel: "$19",
+  version: "2.1",
 };
+
+/** The three tiers. The library is free forever; the skill is a one-time purchase; the build is done-for-you. */
+export const TIERS = {
+  library: { price: 0, label: "Free" },
+  skill: { price: 19, label: "$19" },
+  build: { price: 199, label: "$199", days: 5, revisions: 1 },
+} as const;
