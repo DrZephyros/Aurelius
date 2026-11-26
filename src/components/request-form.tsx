@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TEMPLATES } from "@/lib/templates";
+import { TIERS } from "@/lib/site";
 
 const KINDS = ["Product launch", "Real estate / hospitality", "Portfolio / personal", "Brand / agency", "SaaS / AI", "Game / film / event", "Food / lifestyle", "Something else"];
 const BUDGETS = ["$2k – $5k", "$5k – $10k", "$10k – $20k", "$20k+", "Not sure yet"];
@@ -22,7 +23,7 @@ export function RequestForm({ onDone, plan, template }: { onDone?: () => void; p
     e.preventDefault();
     setBusy(true); setErr("");
     try {
-      const r = await fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(plan === "build" ? { ...v, kind: `${v.kind} · BUILD $199 · base: ${v.base}`, budget: "$199 fixed (1 revision, 5 days)" } : v) });
+      const r = await fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(plan === "build" ? { ...v, kind: `${v.kind} · BUILD ${TIERS.build.label} · base: ${v.base}`, budget: `${TIERS.build.label} fixed (1 revision, 5 days)` } : v) });
       const j = (await r.json()) as { error?: string };
       if (!r.ok) throw new Error(j.error || "Could not send");
       onDone?.();
@@ -52,7 +53,7 @@ export function RequestForm({ onDone, plan, template }: { onDone?: () => void; p
       <F label="The brief"><textarea required minLength={20} rows={5} className={`${inp} h-auto py-3`} value={v.brief} onChange={set("brief")} placeholder="What is it, who is it for, how should people feel, what should they do at the end?" /></F>
       <F label="Links (references, brand, current site)"><input className={inp} value={v.links} onChange={set("links")} /></F>
       {err && <p role="alert" className="text-[13px] text-[#ff8a8a]">{err}</p>}
-      <button disabled={busy} className="btn btn-primary h-[54px] w-full text-[15px] disabled:opacity-60">{busy ? "Sending…" : plan === "build" ? "Book my build — $199" : "Send the request"}</button>
+      <button disabled={busy} className="btn btn-primary h-[54px] w-full text-[15px] disabled:opacity-60">{busy ? "Sending…" : plan === "build" ? `Book my build — ${TIERS.build.label}` : "Send the request"}</button>
     </form>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { Link } from "@/lib/router";
 import { frameProps } from "@/lib/demo";
 import type { Template } from "@/lib/templates";
 
@@ -39,18 +38,17 @@ const setCovering = (slug: string, on: boolean) => {
 
 export function Specimen({
   t,
-  index,
-  total,
   load = true,
   onReady,
+  src,
 }: {
-  t: Template;
-  index: number;
-  total: number;
+  t: Pick<Template, "slug" | "name" | "tagline" | "accent" | "bg">;
   /** permission to start booting (the landing page warms specimens up one at a time, ahead of the reader) */
   load?: boolean;
   /** fired once the world has rendered and faded in */
   onReady?: () => void;
+  /** Optional same-origin experience, such as the Yoru bundle. */
+  src?: string;
 }) {
   const track = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
@@ -200,7 +198,7 @@ export function Specimen({
         {mounted && (
           <iframe
             ref={frame}
-            {...frameProps(t.slug, "embed=scroll")}
+            {...(src ? { src } : frameProps(t.slug, "embed=scroll"))}
             title={`${t.name} — live specimen`}
             tabIndex={-1}
             onLoad={onLoad}
@@ -218,23 +216,6 @@ export function Specimen({
             post({ md: "pointer", x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
           }}
         />
-
-        {/* overlay chrome */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] flex items-end justify-between gap-4 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 pt-24 sm:p-6">
-          <div className="pointer-events-auto flex max-w-[78%] items-center gap-3 rounded-full border border-white/12 bg-black/55 py-2 pl-4 pr-5 backdrop-blur-xl">
-            <i className="size-2 shrink-0 rounded-full" style={{ background: t.accent, boxShadow: `0 0 12px ${t.accent}` }} />
-            <div className="min-w-0">
-              <div className="truncate text-[13px] font-semibold">
-                {t.name}
-                <span className="ml-2 font-mono text-[10px] font-normal tracking-[0.16em] text-white/50 uppercase">N°{index + 1} / {total}</span>
-              </div>
-              <div className="hidden truncate text-[11.5px] text-white/55 sm:block">{t.tagline}</div>
-            </div>
-          </div>
-          <div className="pointer-events-auto flex items-center gap-2">
-            <Link href={`/templates/${t.slug}`} className="btn btn-primary btn-sm">Get {t.name} <span aria-hidden>→</span></Link>
-          </div>
-        </div>
 
         {/* scroll progress through this specimen */}
         <div className="pointer-events-none absolute bottom-24 right-4 top-6 z-[3] hidden w-px bg-white/15 sm:block">

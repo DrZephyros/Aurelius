@@ -29,6 +29,7 @@
 .bd-links a { padding: 8px 15px; border-radius: 999px; font-size: 13px; color: var(--b-muted); transition: color .25s, background .25s; white-space: nowrap; }
 .bd-links a:hover { color: var(--b-fg); }
 .bd-links a[aria-current="page"] { color: var(--b-bg); background: var(--b-fg); }
+.bd-embed .bd-bar, .bd-embed .bd-mnav, .bd-embed .bd-curtain { display: none !important; }
 @media (max-width: 860px) { .bd-links { display: none; } .bd-mnav { display: flex !important; } }
 .bd-mnav { display: none; position: fixed; z-index: 59; top: 62px; inset-inline: 0; gap: 6px; padding: 8px 16px; overflow-x: auto; scrollbar-width: none; }
 .bd-mnav a { flex: none; padding: 7px 13px; border-radius: 999px; font-size: 12px; border: 1px solid var(--b-line); background: color-mix(in srgb, var(--b-bg) 70%, transparent); backdrop-filter: blur(10px); color: var(--b-muted); }

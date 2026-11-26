@@ -432,8 +432,8 @@ function landingKit() {
   });
   wrap.querySelector('.lp-up').addEventListener('click', (e) => { e.preventDefault(); scrollTo({ top: 0, behavior: 'smooth' }); });
 
-  // sticky mobile CTA
-  if (cta) {
+  // sticky mobile CTA (not in embeds: the Aurelius showcase frames these and already has its own chrome)
+  if (cta && !EMBED) {
     const bar = document.createElement('a');
     bar.className = 'lp-sticky';
     bar.href = cta.getAttribute('href') || '#';

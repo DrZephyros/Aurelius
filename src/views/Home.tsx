@@ -10,15 +10,19 @@ import { bySlug, TEMPLATES, type Template } from "@/lib/templates";
 import { REG_ITEMS } from "@/lib/registry";
 import { PAGES, ELEMENTS } from "@/lib/collections";
 import { TIERS } from "@/lib/site";
+import { BUNDLES } from "@/bundles/data";
 
-/* The three best, in the order the reader meets them. Folio is the favourite, so it leads. */
-const BEST = ["folio", "nebula", "apex"]
+/* Three complete experiences, presented in one uninterrupted scroll. */
+const SAMPLES = ["folio", "nebula"]
   .map((s) => bySlug(s))
   .filter((t): t is Template => !!t);
-const NOTES: Record<string, string> = {
-  folio: "Your work as a spiral of glowing screens — the portfolio everyone remembers.",
-  nebula: "A galaxy-to-planet descent: one continuous camera, a whole world.",
-  apex: "A hypercar launch with studio light, reflections and a camera that pans like a film.",
+const yoru = BUNDLES.find((b) => b.slug === "yoru")!;
+const YORU = {
+  slug: yoru.slug,
+  name: yoru.name,
+  tagline: yoru.tagline,
+  accent: yoru.theme.accent,
+  bg: yoru.theme.bg,
 };
 
 export default function Home() {
@@ -34,37 +38,33 @@ export default function Home() {
           Websites you<br />can <span className="aurora-text">walk into.</span>
         </h1>
         <p className="rise mt-8 max-w-[600px] text-[18px] leading-relaxed text-fg/70" style={{ ["--d" as string]: "220ms" }}>
-          Scroll-driven, game-grade 3D — free to study and steal, with an agent link that hands the whole library to your AI. Below are three of the best. Scroll them.
+          Scroll-driven, game-grade 3D — free to study and steal, with an agent link that hands the whole library to your AI. Three complete samples are waiting below.
         </p>
         <div className="rise mt-10 flex flex-wrap items-center gap-4" style={{ ["--d" as string]: "340ms" }}>
           <Link href="/library" className="btn btn-primary h-[58px] px-9 text-[16px]">Browse the free library →</Link>
           <Link href="/services" className="aurora-ring aurora-ring-lg">Services <span aria-hidden className="text-[#8fb4ff]">→</span></Link>
         </div>
         <a href="#showcase" className="rise mt-14 inline-flex w-fit items-center gap-3 font-mono text-[11px] tracking-[0.2em] text-dim uppercase transition hover:text-fg" style={{ ["--d" as string]: "460ms" }}>
-          <span className="grid size-8 place-items-center rounded-full border border-line-strong">↓</span> Three live sites below
+          <span className="grid size-8 place-items-center rounded-full border border-line-strong">↓</span> Explore the samples
         </a>
       </section>
 
-      {/* THE THREE BEST — each is the real site, scrolled through the page */}
+      {/* SAMPLES — each is the real site, scrolled through the page */}
       <section id="showcase" className="relative scroll-mt-16 bg-bg/70 backdrop-blur-sm">
         <div className="mx-auto max-w-[1320px] px-5 pb-8 pt-20 sm:px-8">
-          <div className="eyebrow">The three best</div>
-          <h2 className="h-display mt-4 text-[clamp(2rem,4.8vw,4.2rem)]">Scroll them. They're real.</h2>
-          <ol className="mt-8 grid gap-3 md:grid-cols-3">
-            {BEST.map((t, i) => (
-              <li key={t.slug}>
-                <a href={`#specimen-${t.slug}`} className={`block h-full rounded-2xl border p-5 transition hover:-translate-y-0.5 ${i === 0 ? "border-[rgb(92_255_196/0.4)] bg-[rgb(92_255_196/0.06)]" : "border-line"}`}>
-                  <div className="flex items-center justify-between font-mono text-[10.5px] tracking-[0.18em] uppercase"><span style={{ color: t.accent }}>N°0{i + 1}</span>{i === 0 && <span className="text-aurora">★ favourite</span>}</div>
-                  <div className="mt-3 font-display text-[22px] font-semibold tracking-[-0.03em]">{t.name}</div>
-                  <p className="mt-1 text-[13px] leading-snug text-dim">{NOTES[t.slug]}</p>
-                </a>
-              </li>
-            ))}
-          </ol>
+          <div className="eyebrow">Samples · 03 live experiences</div>
+          <h2 className="h-display mt-4 text-[clamp(2rem,4.8vw,4.2rem)]">One page. Three worlds.</h2>
+          <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-dim">Folio, Aphelion, then Yoru. No skipping and nothing to configure — just keep scrolling.</p>
         </div>
-        {BEST.map((t, i) => (
-          <Specimen key={t.slug} t={t} index={TEMPLATES.indexOf(t)} total={TEMPLATES.length} load={i <= ready} onReady={() => setReady((r) => Math.max(r, i + 1))} />
+        {SAMPLES.map((t, i) => (
+          <Specimen key={t.slug} t={t} load={i <= ready} onReady={() => setReady((r) => Math.max(r, i + 1))} />
         ))}
+        <Specimen
+          t={YORU}
+          load={ready >= SAMPLES.length}
+          onReady={() => setReady((r) => Math.max(r, SAMPLES.length + 1))}
+          src="/bundles/yoru?embed=scroll"
+        />
       </section>
 
       {/* THE LIBRARY + AGENT LINK */}

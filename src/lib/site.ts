@@ -19,5 +19,5 @@ export const SKILL = {
 export const TIERS = {
   library: { price: 0, label: "Free" },
   skill: { price: 19, label: "$19" },
-  build: { price: 199, label: "$199", days: 5, revisions: 1 },
+  build: { price: 80, label: "$80", days: 5, revisions: 1 },
 } as const;

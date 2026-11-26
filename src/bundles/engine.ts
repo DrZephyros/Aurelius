@@ -37,6 +37,8 @@ export type World = {
   set(o: { target?: number; dim?: number }): void;
   /** the damped playhead, 0..1 */
   progress(): number;
+  /** Park rendering while an embedded experience is off-screen. */
+  pause(on: boolean): void;
   dispose(): void;
 };
 
@@ -106,11 +108,11 @@ export function mountWorld(host: HTMLElement, build: Builder): World {
   addEventListener("resize", onResize);
 
   const clock = new THREE.Clock();
-  let raf = 0, first = true, running = true;
+  let raf = 0, first = true, running = true, paused = false;
   const frame = () => {
     if (!running) return;
     raf = requestAnimationFrame(frame);
-    if (document.hidden) { clock.getDelta(); return; }
+    if (document.hidden || paused) { clock.getDelta(); return; }
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
 
@@ -157,6 +159,7 @@ export function mountWorld(host: HTMLElement, build: Builder): World {
       if (o.dim !== undefined) S.dimT = o.dim;
     },
     progress: () => S.prog,
+    pause(on) { paused = on; },
     dispose() {
       running = false;
       cancelAnimationFrame(raf);

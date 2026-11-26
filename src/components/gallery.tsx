@@ -105,8 +105,8 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
 
   return (
     <div>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-        <label className="relative block lg:w-72">
+      <div className="flex flex-col gap-4">
+        <label className="relative block w-full md:max-w-md">
           <span className="sr-only">Search templates</span>
           <svg className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-dim" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
           <input
@@ -116,7 +116,7 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
             className="h-11 w-full rounded-full border border-line bg-white/[0.03] pl-11 pr-4 text-sm outline-none transition placeholder:text-dim/70 focus:border-aurora/60"
           />
         </label>
-        <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 lg:mx-0 lg:flex-1 lg:flex-wrap lg:overflow-visible lg:px-0 lg:pb-0" role="tablist" aria-label="Filter templates">
+        <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] lg:mx-0 lg:px-0" role="tablist" aria-label="Filter templates">
           {FILTERS.map((f) => (
             <button
               key={f}

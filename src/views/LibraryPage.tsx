@@ -15,6 +15,8 @@ import { DemoCard } from "@/components/demo-frame";
 import { Reveal } from "@/components/reveal";
 import { AgentLink } from "@/components/agent-link";
 import { TIERS } from "@/lib/site";
+import { FilterPanel } from "@/components/library-filter";
+import { isActive, matchLibrary, useLibFilter } from "@/lib/library-filter";
 
 export type Shelf = "all" | "worlds" | "pages" | "elements";
 
@@ -89,9 +91,9 @@ function DemoShelf({ list, cats, placeholder }: { list: Demo[]; cats: readonly s
   }, [list, cat, q]);
   return (
     <div>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+      <div className="flex flex-col gap-4">
         <Search value={q} onChange={setQ} placeholder={placeholder} />
-        <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 lg:mx-0 lg:flex-1 lg:flex-wrap lg:overflow-visible lg:px-0 lg:pb-0" role="tablist">
+        <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] lg:mx-0 lg:px-0" role="tablist">
           {cats.map((f) => (
             <button key={f} role="tab" aria-selected={cat === f} onClick={() => setCat(f)} className={`shrink-0 rounded-full border px-4 py-2 text-[13px] transition ${cat === f ? "border-aurora bg-aurora text-[#021510]" : "border-line text-dim hover:border-line-strong hover:text-fg"}`}>
               {f}
@@ -113,46 +115,66 @@ function DemoShelf({ list, cats, placeholder }: { list: Demo[]; cats: readonly s
   );
 }
 
-/** "All" shelf: one search box over everything, or — when idle — three tidy sections. */
+function ResultGroup({ title, n, children }: { title: string; n: number; children: ReactNode }) {
+  return (
+    <section>
+      <div className="mb-6 flex items-baseline gap-4">
+        <h2 className="font-display text-[clamp(1.5rem,2.6vw,2.1rem)] font-semibold tracking-[-0.04em]">{title}</h2>
+        <span className="font-mono text-[11px] tracking-[0.14em] text-dim uppercase">{n}</span>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+/** "All" shelf: one filter over everything, or — when idle — three tidy sections. */
 function Overview() {
   const worlds = useMemo(worldItems, []);
-  const [q, setQ] = useState("");
-  const n = q.trim().toLowerCase();
-  const hits = useMemo(() => {
-    if (!n) return null;
-    const hay = (parts: string[]) => parts.join(" ").toLowerCase().includes(n);
-    return {
-      worlds: worlds.filter((t) => hay([t.name, t.tagline, t.blurb, ...t.tags, ...t.bestFor])),
-      pages: PAGES.filter((d) => hay([d.name, d.tagline, d.blurb, d.category, ...d.features])),
-      elements: ELEMENTS.filter((d) => hay([d.name, d.tagline, d.blurb, d.category, ...d.features])),
-    };
-  }, [n, worlds]);
-
+  const f = useLibFilter();
+  const active = isActive(f);
+  const hits = useMemo(() => (active ? matchLibrary(f, worlds) : null), [f, active, worlds]);
   const grid = "grid gap-5 md:grid-cols-2 xl:grid-cols-3";
-  const total = hits ? hits.worlds.length + hits.pages.length + hits.elements.length : 0;
 
   return (
     <div>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-        <Search value={q} onChange={setQ} placeholder="Search landing pages, app pages, elements…" />
-        {!hits && (
-          <div className="flex flex-wrap gap-2">
-            {[["Landing pages", "sec-worlds", TEMPLATES.length], ["App pages", "sec-pages", PAGES.length], ["Elements", "sec-elements", ELEMENTS.length], ["Components", "sec-components", REG_ITEMS.length]].map(([l, id, c]) => (
-              <button key={l as string} onClick={() => document.getElementById(id as string)?.scrollIntoView({ behavior: "smooth" })} className="glass flex items-center gap-2.5 rounded-full px-4 py-2.5 text-[13px] text-dim transition hover:text-fg hover:[border-color:rgb(92_255_196/0.5)]">
-                {l}<span className="font-mono text-[11px] text-aurora">{c}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      <FilterPanel />
 
       {hits ? (
-        <div className="mt-8 space-y-12">
-          <p className="font-mono text-[11px] tracking-[0.14em] text-dim uppercase">{total} results for “{q}”</p>
-          {total === 0 && <div className="panel p-12 text-center text-dim">Nothing matches. Try “dark”, “login” or “menu”.</div>}
-          {hits.worlds.length > 0 && <div className={grid}>{hits.worlds.map((t) => <TemplateCard key={t.slug} t={t} index={worlds.findIndex((x) => x.slug === t.slug)} />)}</div>}
-          {hits.pages.length > 0 && <div className={grid}>{hits.pages.map((d) => <DemoCard key={d.slug} demo={d} index={PAGES.indexOf(d)} />)}</div>}
-          {hits.elements.length > 0 && <div className={grid}>{hits.elements.map((d) => <DemoCard key={d.slug} demo={d} index={ELEMENTS.indexOf(d)} />)}</div>}
+        <div className="mt-10 space-y-16">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <p className="font-mono text-[11px] tracking-[0.14em] text-dim uppercase">
+              {hits.total} {hits.total === 1 ? "result" : "results"}
+              {f.q.trim() && <> for “{f.q.trim()}”</>}
+            </p>
+          </div>
+          {hits.total === 0 && <div className="panel p-12 text-center text-dim">Nothing matches. Try “dark”, “login” or “menu”.</div>}
+          {hits.worlds.length > 0 && (
+            <ResultGroup title="Landing pages" n={hits.worlds.length}>
+              <div className={grid}>{hits.worlds.map((t) => <TemplateCard key={t.slug} t={t} index={worlds.findIndex((x) => x.slug === t.slug)} />)}</div>
+            </ResultGroup>
+          )}
+          {hits.pages.length > 0 && (
+            <ResultGroup title="App pages" n={hits.pages.length}>
+              <div className={grid}>{hits.pages.map((d) => <DemoCard key={d.slug} demo={d} index={PAGES.indexOf(d)} />)}</div>
+            </ResultGroup>
+          )}
+          {hits.elements.length > 0 && (
+            <ResultGroup title="Elements" n={hits.elements.length}>
+              <div className={grid}>{hits.elements.map((d) => <DemoCard key={d.slug} demo={d} index={ELEMENTS.indexOf(d)} />)}</div>
+            </ResultGroup>
+          )}
+          {hits.components.length > 0 && (
+            <ResultGroup title="Components" n={hits.components.length}>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {hits.components.map((c, i) => (
+                  <Link key={c.slug} href={catHref(c.slug)} className="panel group block overflow-hidden !rounded-[22px] transition duration-500 hover:-translate-y-1 hover:border-line-strong">
+                    <div className="pointer-events-none"><DemoStage id={`${c.slug}/${itemsOf(c.slug)[0].slug}`} /></div>
+                    <div className="p-4"><div className="font-display text-[17px] font-semibold tracking-[-0.03em]" style={{ color: CAT_COLORS[i % CAT_COLORS.length] }}>{c.name}</div><div className="mt-1 font-mono text-[10.5px] tracking-[0.14em] text-dim uppercase">{itemsOf(c.slug).length} components</div></div>
+                  </Link>
+                ))}
+              </div>
+            </ResultGroup>
+          )}
         </div>
       ) : (
         <>

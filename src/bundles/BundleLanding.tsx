@@ -19,7 +19,7 @@ function readout(slug: string, p: number): [string, string] {
 }
 const PAGES: PageKey[] = ["pricing", "signin", "reserve", "account"];
 
-export function BundleLanding({ b, world }: { b: Bundle; world: MutableRefObject<World | null> }) {
+export function BundleLanding({ b, world, embedded = false }: { b: Bundle; world: MutableRefObject<World | null>; embedded?: boolean }) {
   const M = b.chapters.length + 1;
   const hero = useRef<HTMLElement>(null);
   const chaps = useRef<(HTMLElement | null)[]>([]);
@@ -31,16 +31,33 @@ export function BundleLanding({ b, world }: { b: Bundle; world: MutableRefObject
 
   useEffect(() => {
     const max = () => Math.max(1, document.documentElement.scrollHeight - innerHeight);
-    const onScroll = () => world.current?.set({ target: scrollY / max(), dim: 0 });
+    let external: number | null = embedded ? 0 : null;
+    const onScroll = () => {
+      if (external === null) world.current?.set({ target: scrollY / max(), dim: 0 });
+    };
+    const onMessage = (e: MessageEvent) => {
+      const d = e.data;
+      if (!d) return;
+      if (d.md === "scrub" && typeof d.p === "number") {
+        external = Math.min(1, Math.max(0, d.p));
+        world.current?.set({ target: external, dim: 0 });
+      } else if (d.md === "pause") {
+        world.current?.pause(!!d.on);
+      } else if (d.md === "pointer") {
+        dispatchEvent(new PointerEvent("pointermove", { clientX: d.x * innerWidth, clientY: d.y * innerHeight, pointerType: "mouse" }));
+      }
+    };
     onScroll();
     addEventListener("scroll", onScroll, { passive: true });
     addEventListener("resize", onScroll);
+    if (embedded) addEventListener("message", onMessage);
+    const announce = embedded ? window.setTimeout(() => parent.postMessage({ md: "ready" }, "*"), 500) : 0;
 
     let raf = 0, lastIdx = -1, lastRead = "";
     const loop = () => {
       raf = requestAnimationFrame(loop);
       const p = world.current ? world.current.progress() : scrollY / max();
-      const raw = scrollY / max();
+      const raw = external ?? scrollY / max();
       if (prog.current) prog.current.style.transform = `scaleX(${raw})`;
 
       const h = hero.current;
@@ -76,8 +93,14 @@ export function BundleLanding({ b, world }: { b: Bundle; world: MutableRefObject
       if (hint.current) hint.current.style.opacity = raw > 0.015 ? "0" : "1";
     };
     loop();
-    return () => { cancelAnimationFrame(raf); removeEventListener("scroll", onScroll); removeEventListener("resize", onScroll); };
-  }, [b, M, world]);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(announce);
+      removeEventListener("scroll", onScroll);
+      removeEventListener("resize", onScroll);
+      removeEventListener("message", onMessage);
+    };
+  }, [b, M, world, embedded]);
 
   const goto = (i: number) => scrollTo({ top: (i / (M - 1)) * (document.documentElement.scrollHeight - innerHeight), behavior: "smooth" });
 
