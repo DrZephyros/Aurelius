@@ -17,10 +17,22 @@ export async function POST(req: Request) {
   const origin = req.headers.get("origin") ?? new URL(req.url).origin;
 
   if (!key) {
-    await db.insert(skillOrders).values({ email, token, status: "preview" });
-    return Response.json({ mode: "preview", url: `/skill/download?token=${token}&mode=preview` });
+    // No payment provider configured: never hand out the skill for free. Say so plainly.
+    return Response.json(
+      { error: "Payments aren't live on this deployment yet. Email me and I'll send the skill with an invoice." },
+      { status: 503 },
+    );
   }
 
+  try {
+    return await startStripe({ key, email, token, origin });
+  } catch (e) {
+    console.error("[api/orders]", e);
+    return Response.json({ error: "Checkout is offline right now — email me and I'll sort it out." }, { status: 503 });
+  }
+}
+
+async function startStripe({ key, email, token, origin }: { key: string; email: string; token: string; origin: string }) {
   const form = new URLSearchParams({
     mode: "payment",
     "line_items[0][quantity]": "1",
