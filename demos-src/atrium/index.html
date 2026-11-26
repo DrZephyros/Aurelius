@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atrium — curved 3D gallery carousel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Atrium</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Hanging the show</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Atrium</a>
+    <ul><li><a href="#">Index</a></li><li><a href="#">Studio</a></li><li><a href="#">Journal</a></li><li><a href="#">Contact</a></li></ul>
+    <a class="cta" href="#">Commission</a>
+  </header>
+
+  <main id="top">
+    <div class="intro" data-reveal>
+      <h1>Your best work, <em>hung like a gallery.</em></h1>
+      <p>A portfolio that people walk through. Drag, scroll or use the arrow keys — every piece gets its own wall.</p>
+      <div class="row"><a class="btn" href="#">Commission a piece</a><a class="btn ghost" href="#">Download the index</a></div>
+    </div>
+    <div class="proof mono"><span>Featured in Eye on Design</span><i></i><span>12 exhibitions</span><i></i><span>Booking 2027</span></div>
+    <div class="meta left"><span class="mono">Selected work</span><span class="mono"><b id="count">01</b> / <span id="total">08</span></span></div>
+    <div class="meta right"><span class="mono">Drag, scroll or use ← →</span></div>
+    <div class="caption">
+      <div class="tag mono" id="tag">Identity · 2026</div>
+      <h1 class="title" id="title">Aurora Study</h1>
+    </div>
+    <div class="arrows"><button id="prev" aria-label="Previous">←</button><button id="next" aria-label="Next">→</button></div>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

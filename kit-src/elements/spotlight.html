@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spotlight cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root { --bg: #07090e; --fg: #eef1f8; --muted: #8a93a8; --line: rgba(255,255,255,.08); --glow: 138, 180, 255; --sans: 'Inter', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--sans); display: grid; place-items: center; padding: 28px; -webkit-font-smoothing: antialiased; }
+  .wrap { width: min(1040px, 100%); }
+  .hd { margin-bottom: 26px; } .hd p { font: 500 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: rgb(var(--glow)); } .hd h1 { font-size: clamp(1.9rem, 4vw, 3rem); letter-spacing: -.045em; line-height: 1.02; margin-top: 10px; max-width: 16ch; } .hd h1 span { color: var(--muted); }
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: 168px; gap: 14px; }
+  .card { position: relative; border-radius: 26px; background: #0d1119; padding: 24px; overflow: hidden; isolation: isolate; transform-style: preserve-3d; transition: transform .5s var(--ease); will-change: transform; }
+  .card::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: radial-gradient(260px circle at var(--x, -999px) var(--y, -999px), rgba(var(--glow), .9), transparent 65%), rgba(255,255,255,.07); -webkit-mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); pointer-events: none; }
+  .card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(380px circle at var(--x, -999px) var(--y, -999px), rgba(var(--glow), .13), transparent 62%); opacity: var(--o, 0); transition: opacity .4s; pointer-events: none; z-index: -1; }
+  .c1 { grid-column: span 3; grid-row: span 2; } .c2 { grid-column: span 3; } .c3 { grid-column: span 3; } .c4 { grid-column: span 2; } .c5 { grid-column: span 2; } .c6 { grid-column: span 2; }
+  .tag { font: 500 10.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); } h3 { font-size: 20px; letter-spacing: -.03em; margin-top: 8px; font-weight: 600; } .sub { color: var(--muted); font-size: 14px; margin-top: 6px; line-height: 1.5; max-width: 30ch; }
+  .big { font-size: clamp(4rem, 9vw, 7rem); font-weight: 700; letter-spacing: -.07em; line-height: .9; background: linear-gradient(180deg, #fff, rgba(var(--glow), .55)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-top: auto; }
+  .c1 { display: flex; flex-direction: column; }
+  .stat { font-size: 44px; font-weight: 700; letter-spacing: -.05em; margin-top: 10px; font-variant-numeric: tabular-nums; } .stat small { font-size: 18px; color: var(--muted); }
+  .chat { margin-top: 14px; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.03); font-size: 14px; color: #c8cee0; min-height: 46px; } .chat i { width: 2px; height: 18px; background: rgb(var(--glow)); animation: bl 1s steps(1) infinite; } @keyframes bl { 50% { opacity: 0; } } .chat span { margin-left: auto; font-size: 11px; font: 500 11px var(--mono); padding: 3px 7px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); }
+  .icons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; } .icons i { aspect-ratio: 1; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid var(--line); display: grid; place-items: center; font-style: normal; font-size: 18px; transition: .4s var(--ease); } .icons i:hover { transform: translateY(-4px) scale(1.08); background: rgba(var(--glow), .15); }
+  svg.spark { width: 100%; height: 70px; margin-top: 12px; overflow: visible; } .spark path { fill: none; stroke: rgb(var(--glow)); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; filter: drop-shadow(0 4px 10px rgba(var(--glow), .5)); } .spark .a { fill: url(#sg); stroke: none; filter: none; }
+  .tg { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; font-size: 14px; border-bottom: 1px solid var(--line); } .tg:last-child { border: 0; } .sw { width: 38px; height: 22px; border-radius: 22px; background: rgba(255,255,255,.14); border: 0; position: relative; cursor: pointer; transition: .4s; } .sw::after { content: ''; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .5s var(--ease); } .sw.on { background: rgb(var(--glow)); } .sw.on::after { transform: translateX(16px); }
+  .orbit { position: absolute; right: -40px; bottom: -40px; width: 300px; height: 300px; pointer-events: none; opacity: .9; } .orbit i { position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(var(--glow), .25); } .orbit i:nth-child(2) { inset: 40px; } .orbit i:nth-child(3) { inset: 80px; border-style: solid; } .orbit b { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: rgb(var(--glow)); box-shadow: 0 0 20px rgb(var(--glow)); left: 50%; top: 0; margin-left: -6px; transform-origin: 6px 150px; animation: or 7s linear infinite; } .orbit b:nth-child(5) { transform-origin: 6px 110px; animation-duration: 4.5s; top: 40px; background: #fff; }  @keyframes or { to { transform: rotate(360deg); } }
+  @media (max-width: 760px) { .bento { grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; } .card { grid-column: span 2 !important; grid-row: auto !important; min-height: 170px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd"><p>Spotlight grid</p><h1>One light. <span>Every card.</span></h1></div>
+  <div class="bento" id="bento">
+    <div class="card c1"><span class="tag">Speed</span><h3>Ship in an afternoon</h3><p class="sub">From blank file to deployed in the time it takes to finish a coffee.</p><div class="big">3.2×</div><div class="orbit"><i></i><i></i><i></i><b></b><b></b></div></div>
+    <div class="card c2"><span class="tag">Uptime</span><div class="stat"><span id="up">99.99</span><small>%</small></div><p class="sub">Measured across 14 regions, last 90 days.</p></div>
+    <div class="card c3"><span class="tag">Assistant</span><div class="chat"><span style="margin:0;color:#c8cee0;font:400 14px var(--sans);border:0;padding:0" id="typed"></span><i></i><span>⌘ ↵</span></div></div>
+    <div class="card c4"><span class="tag">Integrations</span><div class="icons"><i>💬</i><i>📦</i><i>🎨</i><i>📈</i><i>🔔</i><i>🧩</i><i>🔐</i><i>＋</i></div></div>
+    <div class="card c5"><span class="tag">Live traffic</span><svg class="spark" viewBox="0 0 200 70" preserveAspectRatio="none"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgb(138,180,255)" stop-opacity=".35"/><stop offset="1" stop-color="rgb(138,180,255)" stop-opacity="0"/></linearGradient></defs><path class="a" id="sa"/><path id="sl"/></svg></div>
+    <div class="card c6"><span class="tag">Preferences</span><div style="margin-top:6px"><div class="tg">Notifications<button class="sw on" aria-label="Notifications"></button></div><div class="tg">Dark mode<button class="sw on" aria-label="Dark mode"></button></div><div class="tg">Beta features<button class="sw" aria-label="Beta features"></button></div></div></div>
+  </div>
+</div>
+<script>
+(() => {
+  const cards = [...document.querySelectorAll('.card')], reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bento = document.getElementById('bento');
+  bento.addEventListener('pointermove', (e) => {
+    cards.forEach((c) => {
+      const r = c.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      c.style.setProperty('--x', x + 'px'); c.style.setProperty('--y', y + 'px');
+      const near = x > -120 && y > -120 && x < r.width + 120 && y < r.height + 120; c.style.setProperty('--o', near ? 1 : 0);
+      const inside = x >= 0 && y >= 0 && x <= r.width && y <= r.height;
+      c.style.transform = inside && !reduce ? `perspective(900px) rotateX(${((y / r.height) - .5) * -5}deg) rotateY(${((x / r.width) - .5) * 5}deg) translateZ(0)` : '';
+    });
+  });
+  bento.addEventListener('pointerleave', () => cards.forEach((c) => { c.style.setProperty('--o', 0); c.style.transform = ''; c.style.setProperty('--x', '-999px'); }));
+  document.querySelectorAll('.sw').forEach((s) => s.onclick = () => s.classList.toggle('on'));
+  /* typing loop */
+  const T = ['Summarise this week’s launch metrics', 'Draft release notes for v2.4', 'Why did signups dip on Tuesday?'], out = document.getElementById('typed'); let ti = 0, ci = 0, del = false;
+  (function type() { const w = T[ti]; out.textContent = w.slice(0, ci); if (!del && ci < w.length) { ci++; setTimeout(type, 45); } else if (!del) { del = true; setTimeout(type, 1500); } else if (ci > 0) { ci--; setTimeout(type, 18); } else { del = false; ti = (ti + 1) % T.length; setTimeout(type, 400); } })();
+  /* live sparkline */
+  let data = Array.from({ length: 24 }, (_, i) => 40 + Math.sin(i / 3) * 14 + Math.random() * 10);
+  const line = () => { const mn = Math.min(...data), mx = Math.max(...data); const p = data.map((v, i) => [(i / (data.length - 1)) * 200, 62 - ((v - mn) / (mx - mn || 1)) * 54]); const d = p.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' '); document.getElementById('sl').setAttribute('d', d); document.getElementById('sa').setAttribute('d', d + ' L200,70 L0,70 Z'); };
+  line(); setInterval(() => { data.push(Math.max(15, Math.min(95, data.at(-1) + (Math.random() - .5) * 26))); data.shift(); line(); document.getElementById('up').textContent = (99.97 + Math.random() * .03).toFixed(2); }, 1100);
+})();
+</script>
+</body>
+</html>

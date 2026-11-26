@@ -1,0 +1,8 @@
+/* Monolith — theme: cold steel + ice cyan */
+:root {
+  --bg: #04070a;
+  --accent: #7fe3ff;
+  --glass: rgba(8, 14, 18, 0.45);
+}
+.h-xl { max-width: 9ch; }
+#s1 { padding-bottom: 9vh; }

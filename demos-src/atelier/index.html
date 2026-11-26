@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atelier — 3D website for fashion, jewellery &amp; boutiques</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Atelier</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Pressing silk</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Atelier Noor</a>
+    <ul><li><a href="#s2">Collection</a></li><li><a href="#s3">Craft</a></li><li><a href="#s4">Journal</a></li><li><a href="#s5">Visit</a></li></ul>
+    <a class="cta" href="#s2">Shop now</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Spring / Summer 2026</div>
+        <h1 class="h-xl" data-split>Wear the <em>light.</em></h1>
+        <p class="lead" data-reveal style="--d:300ms">Hand-finished silk, cut in Lyon and made to move. A small collection of pieces designed to be worn for decades, not seasons.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s2">Shop the collection</a><a class="btn ghost" href="#s3">Our craft</a></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s2" data-sec>
+      <div class="wide">
+        <div class="eyebrow" data-reveal>01 — The collection</div>
+        <h2 class="h-lg" data-split>Six pieces. <em>Endlessly worn.</em></h2>
+        <div class="grid3" style="margin: 44px auto 0" data-reveal>
+          <div class="panel"><div class="num">N°01 · SLIP DRESS</div><h3>Aurore</h3><p>Bias-cut mulberry silk in champagne. <b>€320</b></p></div>
+          <div class="panel"><div class="num">N°02 · SHIRT</div><h3>Léa</h3><p>Washed silk twill with mother-of-pearl buttons. <b>€240</b></p></div>
+          <div class="panel"><div class="num">N°03 · SCARF</div><h3>Soleil</h3><p>Hand-rolled edges, 90cm square, printed in Lyon. <b>€140</b></p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — The craft</div>
+        <h2 class="h-lg" data-split>Slow by <em>design.</em></h2>
+        <p class="lead" data-reveal>Every piece passes through six pairs of hands and takes forty-eight hours to finish. We would rather make fewer things, properly.</p>
+        <ul class="ticks" data-reveal><li>100% certified mulberry silk</li><li>Made in a family workshop in Lyon</li><li>Free repairs, for life</li></ul>
+      </div>
+    </section>
+
+    <section class="sec" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — In numbers</div>
+        <h2 class="h-lg" data-split>Made to <em>last.</em></h2>
+        <div class="stats" data-reveal><div class="stat"><b>48h</b><span>Per garment</span></div><div class="stat"><b>6</b><span>Pairs of hands</span></div><div class="stat"><b>0</b><span>Seasonal sales</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy wide">
+        <div class="eyebrow" data-reveal>Paris · Lyon · Online</div>
+        <h2 class="h-xl" data-split>Come <em>closer.</em></h2>
+        <div class="row" data-reveal><a class="btn" href="#">Book a fitting</a><a class="btn ghost" href="#">Join the list</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Atelier Noor</span><span>Wear the light</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

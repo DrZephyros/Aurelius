@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Holographic card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root { --bg: #0c0a16; --fg: #f3effc; --sans: 'Syne', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1); --rx: 0deg; --ry: 0deg; --px: 50%; --py: 50%; --o: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--sans); display: grid; place-items: center; overflow: hidden; -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(40% 40% at 25% 30%, rgba(143,107,255,.35), transparent 70%), radial-gradient(40% 40% at 78% 72%, rgba(255,106,213,.28), transparent 70%), radial-gradient(30% 30% at 70% 15%, rgba(74,214,255,.2), transparent 70%); }
+  .bok { position: fixed; border-radius: 50%; background: rgba(255,255,255,.07); filter: blur(2px); animation: fl 12s ease-in-out infinite alternate; } @keyframes fl { to { transform: translate(30px, -60px); } }
+  .scene { perspective: 1100px; padding: 40px; touch-action: none; }
+  .card { position: relative; width: min(340px, 82vw); aspect-ratio: .68; border-radius: 28px; transform-style: preserve-3d; transform: rotateX(var(--rx)) rotateY(var(--ry)); transition: transform .6s var(--ease); will-change: transform; cursor: grab; }
+  .card.live { transition: transform .08s linear; } .card.idle { animation: sway 7s ease-in-out infinite; } @keyframes sway { 0%, 100% { transform: rotateX(4deg) rotateY(-12deg); } 50% { transform: rotateX(-4deg) rotateY(12deg); } }
+  .face { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; background: linear-gradient(160deg, #1b1536, #0d0a1d 60%, #170f2c); box-shadow: 0 50px 80px -30px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.14) inset; }
+  .foil { position: absolute; inset: 0; mix-blend-mode: color-dodge; opacity: calc(.28 + var(--o) * .5); background: repeating-linear-gradient(115deg, #ff74d4 0%, #ffd277 10%, #7dffc0 20%, #6fc7ff 30%, #b58cff 40%, #ff74d4 50%); background-size: 300% 300%; background-position: var(--px) var(--py); filter: saturate(1.4) brightness(.9); }
+  .foil2 { position: absolute; inset: 0; mix-blend-mode: overlay; opacity: .6; background: radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1.4px) 0 0 / 9px 9px; mask-image: radial-gradient(circle at var(--px) var(--py), #000, transparent 70%); -webkit-mask-image: radial-gradient(circle at var(--px) var(--py), #000, transparent 70%); }
+  .glare { position: absolute; inset: 0; background: radial-gradient(circle at var(--px) var(--py), rgba(255,255,255,.55), transparent 45%); mix-blend-mode: overlay; opacity: calc(.3 + var(--o) * .7); }
+  .grain { position: absolute; inset: 0; opacity: .09; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+  .layer { position: absolute; inset: 0; padding: 26px; transform-style: preserve-3d; }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; transform: translateZ(50px); } .mark { font: 800 22px var(--sans); letter-spacing: -.04em; display: flex; align-items: center; gap: 8px; } .mark i { width: 22px; height: 22px; border-radius: 7px; background: conic-gradient(from 90deg, #ff74d4, #ffd277, #7dffc0, #6fc7ff, #b58cff, #ff74d4); } .tier { font: 500 10px var(--mono); letter-spacing: .18em; text-transform: uppercase; padding: 6px 10px; border-radius: 99px; border: 1px solid rgba(255,255,255,.3); }
+  .art { position: absolute; left: 50%; top: 40%; width: 56%; aspect-ratio: 1; transform: translate(-50%, -50%) translateZ(80px); } .art svg { width: 100%; height: 100%; filter: drop-shadow(0 20px 30px rgba(143,107,255,.6)); }
+  .chip { position: absolute; left: 26px; bottom: 112px; width: 46px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #f5e2a0, #b99443); transform: translateZ(40px); } .chip::after { content: ''; position: absolute; inset: 7px 11px; border: 1px solid rgba(0,0,0,.3); border-radius: 3px; }
+  .info { position: absolute; left: 26px; right: 26px; bottom: 24px; transform: translateZ(60px); } .info small { font: 500 9.5px var(--mono); letter-spacing: .18em; text-transform: uppercase; opacity: .6; display: block; margin-bottom: 4px; } .info b { font: 700 24px var(--sans); letter-spacing: -.03em; display: block; } .info .row { display: flex; justify-content: space-between; margin-top: 14px; font: 500 12px var(--mono); letter-spacing: .1em; }
+  .hint { position: fixed; bottom: 26px; left: 0; right: 0; text-align: center; font: 400 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); }
+</style>
+</head>
+<body>
+<i class="bok" style="width:80px;height:80px;left:12%;top:20%"></i><i class="bok" style="width:140px;height:140px;right:10%;top:12%;animation-delay:-4s"></i><i class="bok" style="width:50px;height:50px;left:22%;bottom:18%;animation-delay:-8s"></i>
+<div class="scene" id="scene">
+  <div class="card idle" id="card">
+    <div class="face">
+      <div class="foil"></div><div class="foil2"></div><div class="grain"></div>
+      <div class="layer">
+        <div class="top"><div class="mark"><i></i>AURA</div><span class="tier">Founding</span></div>
+        <div class="art"><svg viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff74d4"/><stop offset=".5" stop-color="#b58cff"/><stop offset="1" stop-color="#6fc7ff"/></linearGradient></defs><polygon points="50,6 90,28 90,72 50,94 10,72 10,28" fill="none" stroke="url(#g)" stroke-width="3" stroke-linejoin="round"/><polygon points="50,24 74,38 74,62 50,76 26,62 26,38" fill="url(#g)" opacity=".85"/><path d="M50 6v18M90 28 74 38M90 72 74 62M50 94V76M10 72l16-10M10 28l16 10" stroke="url(#g)" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+        <div class="chip"></div>
+        <div class="info"><small>Member</small><b>Mira Castellan</b><div class="row"><span>Nº 0042</span><span>Since 2024</span></div></div>
+      </div>
+      <div class="glare"></div>
+    </div>
+  </div>
+</div>
+<div class="hint">Move your cursor over the card · drag on touch</div>
+<script>
+(() => {
+  const card = document.getElementById('card'), scene = document.getElementById('scene'), root = document.documentElement;
+  let tm;
+  const set = (cx, cy) => {
+    const r = card.getBoundingClientRect(), x = (cx - r.left) / r.width, y = (cy - r.top) / r.height;
+    const cl = (v) => Math.max(-.2, Math.min(1.2, v));
+    root.style.setProperty('--ry', (cl(x) - .5) * 34 + 'deg'); root.style.setProperty('--rx', (cl(y) - .5) * -34 + 'deg');
+    root.style.setProperty('--px', cl(x) * 100 + '%'); root.style.setProperty('--py', cl(y) * 100 + '%'); root.style.setProperty('--o', 1);
+  };
+  const enter = () => { clearTimeout(tm); card.classList.remove('idle'); card.classList.add('live'); card.style.animation = 'none'; };
+  const leave = () => { card.classList.remove('live'); root.style.setProperty('--rx', '0deg'); root.style.setProperty('--ry', '0deg'); root.style.setProperty('--px', '50%'); root.style.setProperty('--py', '50%'); root.style.setProperty('--o', 0); tm = setTimeout(() => { card.style.animation = ''; card.classList.add('idle'); }, 1800); };
+  scene.addEventListener('pointerenter', enter); scene.addEventListener('pointermove', (e) => set(e.clientX, e.clientY)); scene.addEventListener('pointerleave', leave);
+  scene.addEventListener('pointerdown', (e) => { enter(); set(e.clientX, e.clientY); card.style.cursor = 'grabbing'; }); addEventListener('pointerup', () => card.style.cursor = '');
+  scene.addEventListener('touchend', leave);
+})();
+</script>
+</body>
+</html>

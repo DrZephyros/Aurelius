@@ -1,0 +1,29 @@
+/* Domus — theme: sunlit cream (light) + terracotta, soft optical serif */
+:root {
+  --bg: #f0e6d8;
+  --fg: #2a1f16;
+  --muted: rgba(42, 31, 22, 0.64);
+  --line: rgba(42, 31, 22, 0.16);
+  --accent: #e2603a;
+  --glass: rgba(255, 250, 242, 0.62);
+  --font-display: 'Fraunces', Georgia, serif;
+}
+.h-xl, .h-lg { font-weight: 500; letter-spacing: -0.035em; line-height: 0.94; }
+.h-xl { font-size: clamp(3.2rem, 9vw, 9rem); max-width: 10ch; }
+.h-lg { font-size: clamp(2.5rem, 5.4vw, 5.2rem); }
+.h-xl em, .h-lg em { font-style: italic; color: var(--accent); font-weight: 500; }
+.nav ul a:hover { background: rgba(0, 0, 0, 0.06); }
+.btn { color: #fff; background: var(--fg); border-color: var(--fg); }
+.btn:hover { box-shadow: 0 12px 44px -10px rgba(226, 96, 58, 0.65); }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
+.hud { --c: rgba(42, 31, 22, 0.3); }
+.dots a.on { box-shadow: none; }
+.wide { width: 100%; max-width: 1100px; margin-inline: auto; text-align: center; }
+.wide .eyebrow { justify-content: center; }
+.label { background: rgba(255, 252, 246, 0.85); border-color: var(--line); color: var(--fg); box-shadow: 0 10px 30px -14px rgba(60, 30, 10, 0.4); }
+.label-layer path { stroke: rgba(42, 31, 22, 0.5); }
+.ticks { list-style: none; margin-top: 30px; display: grid; gap: 12px; }
+.ticks li { display: flex; align-items: center; gap: 14px; font: 500 16px var(--font-body); }
+.ticks li::before { content: ''; width: 22px; height: 22px; border-radius: 50%; background: var(--accent) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 12.5 4 4 8-9'/></svg>") center / 14px no-repeat; flex: none; }
+.stat b { font-family: var(--font-display); font-weight: 500; }
+#loader { color: var(--fg); }

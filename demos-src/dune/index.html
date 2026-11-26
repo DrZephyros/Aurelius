@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dunemark — desert golden-hour 3D landing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Dunemark</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Shaping the sand</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Dunemark</a>
+    <ul><li><a href="#s1">Arrival</a></li><li><a href="#s2">Story</a></li><li><a href="#s3">Craft</a></li><li><a href="#s4">Journey</a></li></ul>
+    <a class="cta" href="#s5">Reserve</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll to wander</div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Expeditions · Est. 2019</div>
+        <h1 class="h-xl" data-split>Into the golden hour.</h1>
+        <p class="lead" data-reveal style="--d:300ms">Slow travel for people who measure distance in horizons. A landing page that feels like the last light of the day.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Plan your journey</a><a class="btn ghost" href="#s2">Our story</a></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Story</div>
+        <h2 class="h-lg" data-split>The land remembers everything.</h2>
+        <p class="lead" data-reveal>Wind draws new maps each night. We simply follow, carrying less and noticing more.</p>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Craft</div>
+        <h2 class="h-lg" data-split>Made slowly, by hand.</h2>
+        <p class="lead" data-reveal>Every itinerary is drawn with local guides and small camps — never more than twelve guests at a time.</p>
+        <div class="stats" data-reveal><div class="stat"><b>12</b><span>Guests max</span></div><div class="stat"><b>19</b><span>Camps</span></div><div class="stat"><b>4.9</b><span>Rated</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Journey</div>
+        <h2 class="h-lg" data-split>Walk through the gate.</h2>
+        <p class="lead" data-reveal>Seven nights, one caravan, a sky that goes on forever. Departures run October through March.</p>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Limited departures</div>
+        <h2 class="h-xl" data-split>Begin at dusk.</h2>
+        <div class="row" data-reveal><a class="btn" href="#">Reserve a place</a><a class="btn ghost" href="#">Download itinerary</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Dunemark Expeditions</span><span>Leave only footprints</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

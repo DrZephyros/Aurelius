@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Invoice builder — Ledgerline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root { --bg: #0d0f12; --panel: #15181d; --fg: #eef0f3; --muted: #8a909c; --line: rgba(255,255,255,.09); --accent: #ff7a59; --accent-ink: #2a0d05; --ok: #52d6a0;
+    --sans: 'Geist', system-ui, sans-serif; --mono: 'Geist Mono', ui-monospace, monospace; --serif: 'Instrument Serif', Georgia, serif; --ease: cubic-bezier(.16,1,.3,1); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; min-height: 100vh;
+    background-image: radial-gradient(40% 40% at 0% 0%, rgba(255,122,89,.14), transparent 70%); }
+  button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 18px 28px; border-bottom: 1px solid var(--line); }
+  .brand { font: 600 15px var(--sans); letter-spacing: -.02em; display: flex; gap: 10px; align-items: center; } .brand i { width: 20px; height: 20px; border-radius: 6px; background: var(--accent); }
+  .acts { display: flex; gap: 10px; }
+  .btn { height: 40px; padding: 0 20px; border-radius: 99px; font-weight: 600; font-size: 13.5px; border: 1px solid var(--line); transition: .4s var(--ease); display: inline-flex; align-items: center; gap: 8px; } .btn:hover { background: rgba(255,255,255,.07); transform: translateY(-1px); }
+  .btn.p { background: var(--accent); color: var(--accent-ink); border-color: transparent; } .btn.p:hover { background: #ff8f72; box-shadow: 0 10px 30px -8px var(--accent); }
+  .wrap { display: grid; grid-template-columns: minmax(340px, 480px) 1fr; gap: 28px; padding: 28px; max-width: 1380px; margin: 0 auto; }
+  .form { display: grid; gap: 18px; align-content: start; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 22px; }
+  .card h2 { font: 500 11px var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; display: flex; justify-content: space-between; }
+  .f { display: grid; gap: 6px; margin-bottom: 12px; } .f span { font-size: 12.5px; color: var(--muted); } .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  input, select, textarea { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--line); color: var(--fg); border-radius: 12px; padding: 11px 13px; font: 400 14.5px var(--sans); outline: none; transition: border-color .25s; resize: none; } input:focus, select:focus, textarea:focus { border-color: var(--accent); } select option { background: #15181d; }
+  .li { display: grid; grid-template-columns: 1fr 56px 78px 28px; gap: 8px; margin-bottom: 8px; align-items: center; animation: in .5s var(--ease); } @keyframes in { from { opacity: 0; transform: translateY(8px); } }
+  .li input { padding: 10px; font-size: 14px; } .li .x { width: 28px; height: 28px; border-radius: 8px; color: var(--muted); transition: .25s; } .li .x:hover { background: rgba(255,90,90,.15); color: #ff8080; }
+  .add { width: 100%; height: 42px; border-radius: 12px; border: 1px dashed rgba(255,255,255,.2); color: var(--muted); font-size: 14px; transition: .3s; margin-top: 4px; } .add:hover { border-color: var(--accent); color: var(--accent); }
+  .range { display: flex; align-items: center; gap: 12px; } .range input[type=range] { padding: 0; accent-color: var(--accent); } .range b { font: 500 13px var(--mono); width: 46px; text-align: right; }
+  .stage { position: relative; display: grid; place-items: start center; }
+  .paper { width: min(680px, 100%); background: #fdfcf9; color: #16181d; border-radius: 6px; padding: clamp(28px, 5vw, 56px); box-shadow: 0 60px 120px -40px rgba(0,0,0,.8); position: relative; font-size: 13.5px; transform-origin: top; }
+  .paper h1 { font: 400 clamp(2.2rem, 5vw, 3.4rem)/1 var(--serif); letter-spacing: -.02em; } .paper .num { font: 500 12px var(--mono); color: #7a7d85; margin-top: 8px; }
+  .ph { display: flex; justify-content: space-between; gap: 20px; } .badge { font: 600 11px var(--mono); letter-spacing: .12em; text-transform: uppercase; padding: 6px 12px; border-radius: 99px; background: #fff0eb; color: #d9482a; height: fit-content; transition: .5s var(--ease); } .paid .badge { background: #e2f7ee; color: #178a5d; }
+  .parties { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 36px 0; } .parties small { display: block; font: 500 10px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: #8a8d95; margin-bottom: 8px; } .parties div { line-height: 1.6; white-space: pre-line; }
+  table { width: 100%; border-collapse: collapse; } th { text-align: left; font: 500 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: #8a8d95; padding: 10px 0; border-bottom: 1.5px solid #16181d; } th:not(:first-child), td:not(:first-child) { text-align: right; }
+  td { padding: 14px 0; border-bottom: 1px solid #e7e4dc; font-variant-numeric: tabular-nums; } td:first-child { font-weight: 500; }
+  .tot { margin: 22px 0 0 auto; width: 260px; } .tot div { display: flex; justify-content: space-between; padding: 6px 0; color: #5b5e66; font-variant-numeric: tabular-nums; } .tot .grand { border-top: 1.5px solid #16181d; margin-top: 8px; padding-top: 14px; font: 400 32px var(--serif); color: #16181d; letter-spacing: -.01em; }
+  .note { margin-top: 34px; padding-top: 20px; border-top: 1px solid #e7e4dc; color: #6a6d75; line-height: 1.6; white-space: pre-line; font-size: 12.5px; }
+  .stamp { position: absolute; right: 8%; top: 38%; font: 400 74px var(--serif); text-transform: uppercase; letter-spacing: .06em; color: #178a5d; border: 5px solid #178a5d; border-radius: 14px; padding: 2px 22px; transform: rotate(-14deg) scale(2.2); opacity: 0; pointer-events: none; mix-blend-mode: multiply; transition: transform .5s cubic-bezier(.3,1.6,.5,1), opacity .25s; }
+  .paid .stamp { transform: rotate(-14deg) scale(1); opacity: .82; }
+  @media (max-width: 980px) { .wrap { grid-template-columns: 1fr; } .parties { grid-template-columns: 1fr; } }
+  @media print { body { background: #fff; } .top, .form { display: none; } .wrap { display: block; padding: 0; } .paper { box-shadow: none; width: 100%; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="brand"><i></i>Ledgerline</div>
+  <div class="acts"><button class="btn" id="paid">Mark as paid</button><button class="btn p" id="print">Download PDF</button></div></header>
+<main class="wrap">
+  <section class="form">
+    <div class="card"><h2>Bill to</h2>
+      <div class="f"><span>Client</span><input id="client" value="Northwind Traders" /></div>
+      <div class="f"><span>Address</span><textarea id="caddr" rows="2">12 Harbour Street
+Rotterdam, NL</textarea></div>
+      <div class="g2"><div class="f"><span>Invoice no.</span><input id="no" value="2043" /></div><div class="f"><span>Currency</span><select id="cur"><option value="USD">USD $</option><option value="EUR">EUR €</option><option value="GBP">GBP £</option></select></div></div>
+      <div class="g2"><div class="f"><span>Issued</span><input id="issued" type="date" /></div><div class="f"><span>Due</span><input id="due" type="date" /></div></div>
+    </div>
+    <div class="card"><h2>Line items<span id="n"></span></h2><div id="lines"></div><button class="add" id="add">+ Add line</button></div>
+    <div class="card"><h2>Adjustments</h2>
+      <div class="f"><span>Tax</span><div class="range"><input id="tax" type="range" min="0" max="30" step="0.5" value="8" /><b id="taxv"></b></div></div>
+      <div class="f"><span>Discount</span><div class="range"><input id="disc" type="range" min="0" max="30" step="1" value="0" /><b id="discv"></b></div></div>
+      <div class="f" style="margin-bottom:0"><span>Notes</span><textarea id="notes" rows="2">Payment due within 14 days. Thank you for your business.</textarea></div>
+    </div>
+  </section>
+  <section class="stage"><article class="paper" id="paper">
+    <div class="ph"><div><h1>Invoice</h1><div class="num" id="pNo"></div></div><span class="badge" id="badge">Due</span></div>
+    <div class="parties"><div><small>From</small>Mira Castellan Studio
+Rua das Flores 41
+Lisbon, PT</div><div><small>Billed to</small><span id="pClient"></span><br/><span id="pAddr"></span></div><div><small>Dates</small><span id="pDates"></span></div></div>
+    <table><thead><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead><tbody id="pRows"></tbody></table>
+    <div class="tot"><div><span>Subtotal</span><span id="sub"></span></div><div id="dRow"><span>Discount</span><span id="dv"></span></div><div><span id="tl">Tax</span><span id="tv"></span></div><div class="grand"><span>Total</span><span id="grand"></span></div></div>
+    <div class="note" id="pNote"></div><div class="stamp">Paid</div>
+  </article></section>
+</main>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  let rows = [{ d: 'Brand identity system', q: 1, r: 3200 }, { d: 'Website design · 6 pages', q: 6, r: 240 }, { d: 'Launch support (hours)', q: 8, r: 95 }];
+  const sym = { USD: '$', EUR: '€', GBP: '£' }; const iso = (d) => d.toISOString().slice(0, 10);
+  const t = new Date(), due = new Date(); due.setDate(due.getDate() + 14); $('issued').value = iso(t); $('due').value = iso(due);
+  const money = (n) => (sym[$('cur').value]) + n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  const fd = (v) => new Date(v + 'T00:00').toLocaleDateString('en', { day: 'numeric', month: 'short', year: 'numeric' });
+  function lines() {
+    $('lines').innerHTML = rows.map((r, i) => `<div class="li"><input data-i="${i}" data-k="d" value="${esc(r.d)}" aria-label="Description" /><input data-i="${i}" data-k="q" type="number" min="0" value="${r.q}" aria-label="Quantity" /><input data-i="${i}" data-k="r" type="number" min="0" value="${r.r}" aria-label="Rate" /><button class="x" data-x="${i}" aria-label="Remove">✕</button></div>`).join('');
+  }
+  function calc() {
+    const sub = rows.reduce((a, r) => a + r.q * r.r, 0), dp = +$('disc').value, tp = +$('tax').value;
+    const dv = sub * dp / 100, tv = (sub - dv) * tp / 100, g = sub - dv + tv;
+    $('n').textContent = rows.length + ' items'; $('taxv').textContent = tp + '%'; $('discv').textContent = dp + '%';
+    $('pNo').textContent = 'No. ' + $('no').value; $('pClient').textContent = $('client').value; $('pAddr').textContent = $('caddr').value;
+    $('pDates').innerHTML = `Issued ${fd($('issued').value)}<br/>Due ${fd($('due').value)}`;
+    $('pRows').innerHTML = rows.map((r) => `<tr><td>${esc(r.d) || '—'}</td><td>${r.q}</td><td>${money(+r.r)}</td><td>${money(r.q * r.r)}</td></tr>`).join('');
+    $('sub').textContent = money(sub); $('dv').textContent = '−' + money(dv); $('dRow').style.display = dp ? '' : 'none'; $('tl').textContent = `Tax (${tp}%)`; $('tv').textContent = money(tv);
+    $('pNote').textContent = $('notes').value; countTo($('grand'), g);
+  }
+  let shown = 0, raf; function countTo(el, to) { cancelAnimationFrame(raf); const from = shown, s = performance.now(); const tick = (n) => { const k = Math.min(1, (n - s) / 450), e = 1 - Math.pow(1 - k, 3); shown = from + (to - from) * e; el.textContent = money(shown); if (k < 1) raf = requestAnimationFrame(tick); }; raf = requestAnimationFrame(tick); }
+  document.addEventListener('input', (e) => { const el = e.target; if (el.dataset.i !== undefined) { const r = rows[+el.dataset.i]; r[el.dataset.k] = el.dataset.k === 'd' ? el.value : Math.max(0, +el.value || 0); } calc(); });
+  $('cur').onchange = calc;
+  $('lines').onclick = (e) => { const x = e.target.closest('[data-x]'); if (x) { rows.splice(+x.dataset.x, 1); lines(); calc(); } };
+  $('add').onclick = () => { rows.push({ d: 'New item', q: 1, r: 100 }); lines(); calc(); const ins = $('lines').querySelectorAll('input[data-k=d]'); const l = ins[ins.length - 1]; l.focus(); l.select(); };
+  $('paid').onclick = () => { const p = $('paper').classList.toggle('paid'); $('badge').textContent = p ? 'Paid' : 'Due'; $('paid').textContent = p ? 'Mark as unpaid' : 'Mark as paid'; };
+  $('print').onclick = () => print();
+  lines(); calc();
+})();
+</script>
+</body>
+</html>

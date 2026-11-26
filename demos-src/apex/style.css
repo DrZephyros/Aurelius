@@ -1,0 +1,20 @@
+/* Apex — theme: carbon black + aurora mint, wide geometric sans */
+:root {
+  --bg: #06070a;
+  --fg: #f3f4f7;
+  --muted: rgba(243, 244, 247, 0.6);
+  --accent: #5cffc4;
+  --glass: rgba(12, 13, 18, 0.5);
+  --font-display: 'Sora', system-ui, sans-serif;
+}
+.h-xl, .h-lg { font-weight: 800; letter-spacing: -0.045em; line-height: 0.92; }
+.h-xl { font-size: clamp(3rem, 7vw, 7.4rem); max-width: 9ch; }
+.h-lg { font-size: clamp(2.2rem, 5vw, 4.8rem); }
+.h-xl em, .h-lg em { font-style: normal; color: var(--accent); }
+.btn { background: var(--accent); border-color: var(--accent); color: #031a14; }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
+.wide { width: 100%; max-width: 1100px; margin-inline: auto; text-align: center; }
+.wide .eyebrow { justify-content: center; }
+.rows { list-style: none; margin-top: 34px; border-top: 1px solid var(--line); }
+.rows li { display: flex; align-items: baseline; gap: 18px; padding: 15px 0; border-bottom: 1px solid var(--line); font: 600 20px var(--font-display); letter-spacing: -0.01em; }
+.rows li em { margin-left: auto; font: 500 13px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-style: normal; }

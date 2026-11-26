@@ -1,0 +1,31 @@
+/* Plinth — theme: warm concrete (light) + blueprint orange, editorial serif */
+:root {
+  --bg: #e8e4dc;
+  --fg: #17150f;
+  --muted: rgba(23, 21, 15, 0.6);
+  --line: rgba(23, 21, 15, 0.18);
+  --accent: #ff5a1f;
+  --glass: rgba(255, 255, 255, 0.55);
+  --font-display: 'Instrument Serif', Georgia, serif;
+}
+.h-xl, .h-lg { font-weight: 400; letter-spacing: -0.03em; line-height: 0.92; }
+.h-xl { max-width: 8ch; font-size: clamp(3.6rem, 11vw, 11rem); }
+.h-lg { font-size: clamp(2.6rem, 6vw, 5.8rem); }
+#s1 { padding-bottom: 9vh; }
+.nav ul a:hover { background: rgba(0, 0, 0, 0.06); }
+.btn { color: var(--bg); }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
+.hud { --c: rgba(23, 21, 15, 0.3); }
+.dots a.on { box-shadow: none; }
+.label { background: rgba(255, 255, 255, 0.78); border-color: var(--line); color: var(--fg); }
+.label-layer path { stroke: rgba(23, 21, 15, 0.5); }
+.rows { list-style: none; margin-top: 34px; border-top: 1px solid var(--line); }
+.rows li { display: flex; align-items: baseline; gap: 18px; padding: 15px 0; border-bottom: 1px solid var(--line); font: 400 26px var(--font-display); letter-spacing: -0.01em; }
+.rows li span { font-size: 11px; letter-spacing: 0.2em; color: var(--accent); }
+.rows li em { margin-left: auto; font: 400 11px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-style: normal; }
+.phase { position: fixed; left: var(--pad); bottom: 30px; z-index: 10; display: flex; align-items: center; gap: 14px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.phase b { color: var(--fg); font-weight: 500; min-width: 90px; }
+.phase i { width: 120px; height: 1px; background: var(--line); position: relative; }
+.phase u { position: absolute; inset: 0; background: var(--accent); transform-origin: left; transform: scaleX(0); }
+@media (max-width: 760px) { .phase { display: none; } }
+#loader { color: var(--fg); }

@@ -1,0 +1,14 @@
+/* Aphelion — theme: deep space violet + amber */
+:root {
+  --bg: #02020a;
+  --accent: #ffa56b;
+  --glass: rgba(10, 8, 24, 0.45);
+  --font-display: 'Syne', system-ui, sans-serif;
+}
+.h-xl, .h-lg { font-weight: 700; letter-spacing: -0.04em; }
+.h-xl { max-width: 8ch; }
+.btn { background: linear-gradient(135deg, #ffd0a8, #ff9a6b); border-color: transparent; color: #1a0a05; }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
+.readout { position: fixed; left: var(--pad); bottom: 30px; z-index: 10; display: flex; gap: 22px; font: 11px var(--font-mono); letter-spacing: 0.18em; color: var(--muted); }
+.readout b { color: var(--accent); font-weight: 500; }
+@media (max-width: 760px) { .readout { display: none; } }

@@ -1,0 +1,15 @@
+/* Pelagic — theme: bioluminescent teal on deep blue */
+:root {
+  --bg: #00080f;
+  --accent: #3df5d0;
+  --glass: rgba(0, 14, 22, 0.5);
+  --line: rgba(120, 255, 235, 0.2);
+  --font-display: 'Sora', system-ui, sans-serif;
+}
+.h-xl, .h-lg { font-weight: 300; letter-spacing: -0.045em; }
+.h-xl { max-width: 8ch; }
+.btn { background: var(--accent); border-color: var(--accent); color: #00241f; }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
+.readout { position: fixed; left: var(--pad); bottom: 30px; z-index: 10; display: flex; gap: 22px; font: 11px var(--font-mono); letter-spacing: 0.18em; color: var(--muted); }
+.readout b { color: var(--accent); font-weight: 500; }
+@media (max-width: 760px) { .readout { display: none; } }

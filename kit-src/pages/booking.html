@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Book a call — Ines Duarte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root { --bg: #0b0b10; --card: #12121a; --fg: #f1eff7; --muted: #8b88a0; --line: rgba(255,255,255,.09); --accent: #b9a4ff; --accent-ink: #1b1233; --ok: #7be3b0;
+    --serif: 'Fraunces', Georgia, serif; --sans: 'Geist', system-ui, sans-serif; --mono: 'Geist Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; display: grid; place-items: center; padding: 28px 16px;
+    background-image: radial-gradient(50% 45% at 15% 0%, rgba(185,164,255,.18), transparent 70%), radial-gradient(40% 40% at 100% 100%, rgba(123,227,176,.08), transparent 70%); }
+  button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+  .shell { width: min(1020px, 100%); display: grid; grid-template-columns: 280px 1fr 240px; border: 1px solid var(--line); border-radius: 30px; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)), var(--card); overflow: hidden; box-shadow: 0 50px 120px -50px #000; transition: grid-template-columns .6s var(--ease); }
+  .shell.confirm { grid-template-columns: 280px 1fr 0px; }
+  .col { padding: 30px; }
+  .who { border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 18px; }
+  .av { width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(from 200deg, #b9a4ff, #ff9ad0, #ffd29a, #b9a4ff); display: grid; place-items: center; font: 500 20px var(--serif); color: #1b1233; }
+  .who h1 { font: 400 28px/1.1 var(--serif); letter-spacing: -.02em; }
+  .who .role { color: var(--muted); font-size: 14px; margin-top: 5px; }
+  .facts { display: grid; gap: 12px; font-size: 14px; color: #c8c5d8; }
+  .facts div { display: flex; gap: 12px; align-items: center; } .facts svg { width: 17px; height: 17px; color: var(--accent); flex: none; }
+  .dur { display: flex; gap: 6px; padding: 4px; border-radius: 99px; border: 1px solid var(--line); background: rgba(255,255,255,.03); position: relative; }
+  .dur button { flex: 1; padding: 8px 0; border-radius: 99px; font: 500 12.5px var(--mono); color: var(--muted); position: relative; z-index: 1; transition: color .3s; }
+  .dur button.on { color: var(--accent-ink); } .dur .th { position: absolute; top: 4px; bottom: 4px; width: calc((100% - 8px) / 3); left: 4px; border-radius: 99px; background: var(--accent); transition: transform .6s var(--ease); }
+  .sum { margin-top: auto; padding: 16px; border-radius: 18px; border: 1px dashed rgba(185,164,255,.35); font-size: 13.5px; color: #cfcbe3; line-height: 1.6; min-height: 78px; }
+  .sum b { color: var(--fg); font-weight: 500; }
+  .cal-h { display: flex; justify-content: space-between; align-items: center; }
+  .cal-h h2 { font: 400 26px var(--serif); letter-spacing: -.02em; } .cal-h h2 span { color: var(--muted); }
+  .nav { display: flex; gap: 6px; } .nav button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; transition: .3s; } .nav button:hover:not(:disabled) { background: rgba(255,255,255,.08); } .nav button:disabled { opacity: .3; cursor: default; }
+  .dow, .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .dow { margin: 26px 0 10px; font: 500 11px var(--mono); letter-spacing: .12em; color: var(--muted); text-align: center; text-transform: uppercase; }
+  .d { aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font-size: 14.5px; font-variant-numeric: tabular-nums; position: relative; transition: background .3s, transform .4s var(--ease), color .3s; color: #5b5870; }
+  .d.av { background: rgba(185,164,255,.1); color: var(--fg); font-weight: 500; } .d.av:hover { background: rgba(185,164,255,.28); transform: scale(1.08); }
+  .d.today::after { content: ''; position: absolute; bottom: 7px; width: 4px; height: 4px; border-radius: 50%; background: var(--ok); }
+  .d.sel { background: var(--accent) !important; color: var(--accent-ink) !important; transform: scale(1.06); box-shadow: 0 10px 30px -8px var(--accent); }
+  .d:focus-visible, .slot:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tz { margin-top: 20px; font: 12px var(--mono); color: var(--muted); display: flex; gap: 8px; align-items: center; } .tz i { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .times { border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; padding: 30px 24px; }
+  .times h3 { font: 500 15px var(--sans); } .times small { color: var(--muted); font-size: 12.5px; }
+  .fmt { display: flex; gap: 4px; margin: 14px 0; } .fmt button { padding: 5px 12px; border-radius: 99px; font: 500 11.5px var(--mono); color: var(--muted); border: 1px solid var(--line); } .fmt button.on { background: rgba(255,255,255,.1); color: var(--fg); }
+  .slots { display: grid; gap: 8px; overflow: auto; max-height: 330px; padding-right: 4px; scrollbar-width: thin; scrollbar-color: #2b2940 transparent; }
+  .slot { padding: 12px; border-radius: 14px; border: 1px solid rgba(185,164,255,.3); text-align: center; font: 500 14px var(--mono); transition: .35s var(--ease); animation: in .6s var(--ease) both; animation-delay: calc(var(--i) * 40ms); }
+  .slot:hover { background: rgba(185,164,255,.14); border-color: var(--accent); transform: translateX(4px); }
+  .slot.busy { opacity: .3; text-decoration: line-through; pointer-events: none; border-color: var(--line); }
+  .slot.sel { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .empty { margin: auto; text-align: center; color: var(--muted); font-size: 14px; line-height: 1.6; }
+  @keyframes in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+  /* confirm */
+  .conf { display: none; padding: 34px 40px; }
+  .shell.confirm .conf { display: block; } .shell.confirm .cal, .shell.confirm .times { display: none; }
+  .conf h2 { font: 400 32px var(--serif); letter-spacing: -.02em; }
+  form { display: grid; gap: 14px; margin-top: 24px; max-width: 460px; }
+  label { display: grid; gap: 7px; font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  input, textarea { background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 14px; padding: 13px 15px; color: var(--fg); font: 400 15px var(--sans); outline: none; transition: border-color .3s; resize: none; text-transform: none; letter-spacing: 0; }
+  input:focus, textarea:focus { border-color: var(--accent); } input.bad { border-color: #ff7a8a; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .btn { padding: 14px 26px; border-radius: 99px; font-weight: 600; font-size: 14.5px; background: var(--accent); color: var(--accent-ink); transition: .5s var(--ease); } .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px -10px var(--accent); }
+  .btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); box-shadow: none; }
+  .done { text-align: center; padding: 30px 0 10px; display: none; max-width: 460px; }
+  .done.on { display: block; } .ring { width: 78px; height: 78px; border-radius: 50%; border: 2px solid var(--ok); display: grid; place-items: center; margin-bottom: 20px; animation: pop .8s var(--ease); } .ring svg { width: 34px; stroke: var(--ok); stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .7s .3s var(--ease) forwards; }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } } @keyframes draw { to { stroke-dashoffset: 0; } }
+  .done p { color: var(--muted); margin-top: 10px; line-height: 1.6; } .done .row { justify-content: flex-start; margin-top: 22px; }
+  @media (max-width: 900px) { .shell, .shell.confirm { grid-template-columns: 1fr; } .who, .times { border: 0; border-bottom: 1px solid var(--line); } .times { border-top: 1px solid var(--line); border-bottom: 0; } .sum { margin-top: 0; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<main class="shell" id="shell">
+  <aside class="col who">
+    <div class="av">ID</div>
+    <div><h1>Ines Duarte</h1><div class="role">Brand strategist · Lisbon</div></div>
+    <div class="facts">
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="durLabel">30 minutes</span></div>
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="m16 10 5-3v10l-5-3"/></svg>Video call · link sent by email</div>
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg>Free · no card needed</div>
+    </div>
+    <div class="dur" role="group" aria-label="Duration"><i class="th" id="th"></i><button data-m="15">15m</button><button data-m="30" class="on">30m</button><button data-m="60">60m</button></div>
+    <div class="sum" id="sum">Pick a day and a time. Your booking appears here.</div>
+  </aside>
+
+  <section class="col cal">
+    <div class="cal-h"><h2 id="month"></h2><div class="nav"><button id="prev" aria-label="Previous month">‹</button><button id="next" aria-label="Next month">›</button></div></div>
+    <div class="dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+    <div class="grid" id="grid" role="grid"></div>
+    <div class="tz"><i></i><span id="tz"></span></div>
+  </section>
+
+  <aside class="times" id="times">
+    <h3 id="tDay">Select a day</h3><small id="tSub">Weekdays are open.</small>
+    <div class="fmt"><button data-f="12" class="on">12h</button><button data-f="24">24h</button></div>
+    <div class="slots" id="slots"><div class="empty">Choose a highlighted date<br/>to see free times.</div></div>
+  </aside>
+
+  <section class="col conf" id="conf">
+    <div id="formWrap">
+      <button class="btn ghost" id="back" style="padding:9px 18px;font-size:13px;font-weight:500">← Change time</button>
+      <h2 style="margin-top:22px">Almost there.</h2>
+      <form id="form" novalidate>
+        <label>Your name<input id="name" autocomplete="name" placeholder="Ada Lovelace" /></label>
+        <label>Email<input id="email" type="email" autocomplete="email" placeholder="ada@analytical.co" /></label>
+        <label>What should we talk about?<textarea id="note" rows="3" placeholder="A sentence is plenty."></textarea></label>
+        <div class="row"><button class="btn" type="submit">Confirm booking</button></div>
+      </form>
+    </div>
+    <div class="done" id="done">
+      <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></div>
+      <h2>You're booked.</h2><p id="doneP"></p>
+      <div class="row"><button class="btn" id="ics">Add to calendar (.ics)</button><button class="btn ghost" id="again">Book another</button></div>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  let view = new Date(today.getFullYear(), today.getMonth(), 1), sel = null, slot = null, mins = 30, f24 = false;
+  $('tz').textContent = (Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local time').replace('_', ' ') + ' · your time zone';
+  const mFmt = new Intl.DateTimeFormat('en', { month: 'long' });
+  const key = (d) => d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  // deterministic "busy" slots so it feels real
+  const busy = (d, h) => ((key(d) * 31 + h * 17) % 7) < 2;
+  const open = (d) => d >= today && d.getDay() !== 0 && d.getDay() !== 6 && d <= new Date(today.getFullYear(), today.getMonth() + 3, 0);
+  const fmtT = (h, m) => f24 ? `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}` : `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
+
+  function renderCal() {
+    $('month').innerHTML = `${mFmt.format(view)} <span>${view.getFullYear()}</span>`;
+    $('prev').disabled = view <= new Date(today.getFullYear(), today.getMonth(), 1);
+    const first = (view.getDay() + 6) % 7, days = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+    let h = '';
+    for (let i = 0; i < first; i++) h += '<span></span>';
+    for (let n = 1; n <= days; n++) {
+      const d = new Date(view.getFullYear(), view.getMonth(), n), ok = open(d);
+      const cls = ['d', ok ? 'av' : '', +d === +today ? 'today' : '', sel && +d === +sel ? 'sel' : ''].join(' ');
+      h += `<button class="${cls}" ${ok ? '' : 'disabled'} data-n="${n}" aria-label="${d.toDateString()}">${n}</button>`;
+    }
+    $('grid').innerHTML = h;
+  }
+  function slotsFor(d) {
+    const out = []; const step = mins === 15 ? 30 : mins;
+    for (let t = 9 * 60; t + mins <= 17.5 * 60; t += step) { const h = Math.floor(t / 60), m = t % 60; out.push({ h, m, busy: busy(d, h + m / 60) }); }
+    return out;
+  }
+  function renderSlots() {
+    if (!sel) return;
+    $('tDay').textContent = sel.toLocaleDateString('en', { weekday: 'long', month: 'short', day: 'numeric' });
+    const list = slotsFor(sel); const free = list.filter((s) => !s.busy).length;
+    $('tSub').textContent = `${free} time${free === 1 ? '' : 's'} available`;
+    $('slots').innerHTML = list.map((s, i) => `<button class="slot ${s.busy ? 'busy' : ''} ${slot && slot.h === s.h && slot.m === s.m ? 'sel' : ''}" style="--i:${i}" data-h="${s.h}" data-m="${s.m}">${fmtT(s.h, s.m)}</button>`).join('');
+  }
+  function summary() {
+    if (!sel) return $('sum').textContent = 'Pick a day and a time. Your booking appears here.';
+    const d = sel.toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric' });
+    $('sum').innerHTML = slot ? `<b>${d}</b><br/>${fmtT(slot.h, slot.m)} – ${fmtT(...end())} · ${mins} min` : `<b>${d}</b><br/>Now choose a time →`;
+  }
+  const end = () => { const t = slot.h * 60 + slot.m + mins; return [Math.floor(t / 60) % 24, t % 60]; };
+
+  $('grid').addEventListener('click', (e) => { const b = e.target.closest('.d.av'); if (!b) return; sel = new Date(view.getFullYear(), view.getMonth(), +b.dataset.n); slot = null; renderCal(); renderSlots(); summary(); });
+  $('slots').addEventListener('click', (e) => {
+    const b = e.target.closest('.slot'); if (!b || b.classList.contains('busy')) return;
+    slot = { h: +b.dataset.h, m: +b.dataset.m }; renderSlots(); summary();
+    setTimeout(() => { $('shell').classList.add('confirm'); $('name').focus(); }, 280);
+  });
+  $('prev').onclick = () => { view = new Date(view.getFullYear(), view.getMonth() - 1, 1); renderCal(); };
+  $('next').onclick = () => { view = new Date(view.getFullYear(), view.getMonth() + 1, 1); renderCal(); };
+  document.querySelectorAll('.dur button').forEach((b, i) => b.onclick = () => {
+    document.querySelectorAll('.dur button').forEach((x) => x.classList.toggle('on', x === b)); mins = +b.dataset.m; slot = null;
+    $('th').style.transform = `translateX(${i * 100}%)`; $('durLabel').textContent = mins + ' minutes'; renderSlots(); summary();
+  });
+  document.querySelectorAll('.fmt button').forEach((b) => b.onclick = () => { f24 = b.dataset.f === '24'; document.querySelectorAll('.fmt button').forEach((x) => x.classList.toggle('on', x === b)); renderSlots(); summary(); });
+  $('back').onclick = () => $('shell').classList.remove('confirm');
+  $('form').addEventListener('submit', (e) => {
+    e.preventDefault(); let ok = true;
+    const nm = $('name'), em = $('email');
+    nm.classList.toggle('bad', !(ok = nm.value.trim().length > 1) ); const eOk = /^\S+@\S+\.\S+$/.test(em.value); em.classList.toggle('bad', !eOk);
+    if (!ok || !eOk) return;
+    $('formWrap').style.display = 'none'; $('done').classList.add('on');
+    $('doneP').textContent = `${sel.toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric' })} at ${fmtT(slot.h, slot.m)}. A calendar invite and video link are on their way to ${em.value}.`;
+  });
+  $('ics').onclick = () => {
+    const z = (n) => String(n).padStart(2, '0'); const [eh, em] = end();
+    const s = `${sel.getFullYear()}${z(sel.getMonth() + 1)}${z(sel.getDate())}T${z(slot.h)}${z(slot.m)}00`, e = `${sel.getFullYear()}${z(sel.getMonth() + 1)}${z(sel.getDate())}T${z(eh)}${z(em)}00`;
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT', `DTSTART:${s}`, `DTEND:${e}`, 'SUMMARY:Call with Ines Duarte', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = 'call-with-ines.ics'; a.click();
+  };
+  $('again').onclick = () => { $('shell').classList.remove('confirm'); $('done').classList.remove('on'); $('formWrap').style.display = ''; $('form').reset(); sel = slot = null; $('tDay').textContent = 'Select a day'; $('tSub').textContent = 'Weekdays are open.'; $('slots').innerHTML = '<div class="empty">Choose a highlighted date<br/>to see free times.</div>'; renderCal(); summary(); };
+  renderCal();
+  // pre-select the first open day so the page reads as alive immediately
+  for (let n = 0; n < 14; n++) { const d = new Date(today); d.setDate(d.getDate() + n); if (open(d) && d.getMonth() === view.getMonth()) { sel = d; break; } }
+  if (!sel) { sel = new Date(view); while (!open(sel)) sel.setDate(sel.getDate() + 1); }
+  renderCal(); renderSlots(); summary();
+})();
+</script>
+</body>
+</html>

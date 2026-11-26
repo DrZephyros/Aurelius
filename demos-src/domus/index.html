@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Domus — 3D website for estate agents &amp; property developers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Domus</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Laying foundations</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Domus</a>
+    <ul><li><a href="#s2">Neighbourhood</a></li><li><a href="#s3">The home</a></li><li><a href="#s4">Viewing</a></li><li><a href="#s5">Contact</a></li></ul>
+    <a class="cta" href="#s4">Book a viewing</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <div class="label" id="l1">4 bedrooms · 3 bathrooms</div>
+  <div class="label" id="l2">South-facing garden</div>
+  <div class="label" id="l3">6 min walk to the station</div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Residential sales &amp; lettings</div>
+        <h1 class="h-xl" data-split>Find the <em>address</em> that fits.</h1>
+        <p class="lead" data-reveal style="--d:300ms">From first-time flats to family homes — see the whole street before you step inside. Honest advice, fixed fees and no pressure.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s4">Book a viewing</a><a class="btn ghost" href="#s2">Explore the area</a></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Neighbourhood</div>
+        <h2 class="h-lg" data-split>A street you’ll <em>want to walk.</em></h2>
+        <p class="lead" data-reveal>Tree-lined, two minutes from the park and close to everything — good schools, great coffee, a train into town in twelve minutes.</p>
+        <ul class="ticks" data-reveal><li>Outstanding-rated primary school</li><li>Farmers’ market every Saturday</li><li>Fast fibre broadband installed</li></ul>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — The home</div>
+        <h2 class="h-lg" data-split>14 Linden <em>Row.</em></h2>
+        <p class="lead" data-reveal>A light-filled four-bedroom Edwardian, extended and re-wired. Original floors, a new kitchen and a garden that catches the sun all afternoon.</p>
+        <div class="stats" data-reveal><div class="stat"><b>£875k</b><span>Guide price</span></div><div class="stat"><b>186m²</b><span>Floor area</span></div><div class="stat"><b>B</b><span>EPC rating</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Viewing</div>
+        <h2 class="h-lg" data-split>See it in the <em>golden hour.</em></h2>
+        <p class="lead" data-reveal>Evening viewings are our favourite — that’s when a house starts to feel like a home. Pick a slot that works for you.</p>
+        <div class="row" data-reveal><a class="btn" href="#">Thu · 6:30pm</a><a class="btn ghost" href="#">Sat · 11:00am</a><a class="btn ghost" href="#">More times</a></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy wide">
+        <div class="eyebrow" data-reveal>Open 7 days · 9am – 7pm</div>
+        <h2 class="h-xl" data-split>Let’s find your <em>front door.</em></h2>
+        <div class="row" data-reveal><a class="btn" href="#">Call 020 7946 0321</a><a class="btn ghost" href="#">Free valuation</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Domus Estates</span><span>Find the address that fits</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

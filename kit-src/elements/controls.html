@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Controls — switches, sliders, segments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root { --bg: #090b10; --card: #10131a; --fg: #eef1f7; --muted: #848b9c; --line: rgba(255,255,255,.09); --accent: #6ee7ff; --accent-2: #a58bff; --ink: #06141a;
+    --sans: 'Geist', system-ui, sans-serif; --mono: 'Geist Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1); --spring: cubic-bezier(.3,1.5,.5,1); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; padding: 44px 20px 70px; background-image: radial-gradient(45% 40% at 85% 0%, rgba(110,231,255,.12), transparent 70%), radial-gradient(40% 40% at 0% 100%, rgba(165,139,255,.1), transparent 70%); }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  header { max-width: 1040px; margin: 0 auto 30px; } header small { font: 500 11px var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--accent); } header h1 { font: 600 clamp(2rem, 5vw, 3.4rem)/1 var(--sans); letter-spacing: -.045em; margin-top: 10px; } header h1 span { color: var(--muted); }
+  .grid { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .c { background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.01)), var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 22px; display: flex; flex-direction: column; gap: 18px; min-height: 210px; }
+  .c.w2 { grid-column: span 2; } .lab { font: 500 10.5px var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; } .lab b { color: var(--accent); font-weight: 500; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  /* switches */
+  .sw { display: flex; justify-content: space-between; align-items: center; font-size: 15px; gap: 12px; }
+  .tg { width: 52px; height: 30px; border-radius: 99px; background: #262b38; position: relative; transition: background .4s var(--ease), box-shadow .4s; flex: none; } .tg::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .5s var(--spring), width .25s; box-shadow: 0 3px 8px rgba(0,0,0,.4); }
+  .tg:active::after { width: 30px; } .tg[aria-checked=true] { background: linear-gradient(110deg, var(--accent), var(--accent-2)); box-shadow: 0 0 22px -4px var(--accent); } .tg[aria-checked=true]::after { transform: translateX(22px); } .tg[aria-checked=true]:active::after { transform: translateX(16px); }
+  /* segmented */
+  .seg { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 4px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+  .seg button { position: relative; z-index: 1; padding: 10px 0; font-size: 13.5px; font-weight: 500; color: var(--muted); transition: color .3s; } .seg button[aria-selected=true] { color: var(--ink); }
+  .seg .th { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / var(--n)); border-radius: 12px; background: var(--accent); transition: transform .6s var(--spring); box-shadow: 0 8px 24px -8px var(--accent); }
+  /* range */
+  .rg { position: relative; height: 30px; display: flex; align-items: center; touch-action: none; cursor: pointer; }
+  .rg .tr { position: absolute; left: 0; right: 0; height: 8px; border-radius: 99px; background: #232837; } .rg .fl { position: absolute; left: 0; height: 8px; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+  .rg .kn { position: absolute; width: 26px; height: 26px; margin-left: -13px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.5); transition: transform .3s var(--spring); } .rg.drag .kn { transform: scale(1.18); }
+  .rg .tp { position: absolute; bottom: 34px; transform: translateX(-50%) scale(.6); opacity: 0; background: #fff; color: #0a0d14; font: 500 12px var(--mono); padding: 5px 10px; border-radius: 9px; transition: .3s var(--spring); pointer-events: none; } .rg.drag .tp, .rg:hover .tp { opacity: 1; transform: translateX(-50%) scale(1); }
+  .big { font: 600 54px/1 var(--sans); letter-spacing: -.05em; font-variant-numeric: tabular-nums; } .big span { font-size: 20px; color: var(--muted); letter-spacing: 0; margin-left: 4px; }
+  /* stepper */
+  .step { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--line); border-radius: 18px; padding: 8px; background: rgba(255,255,255,.03); }
+  .step button { width: 46px; height: 46px; border-radius: 13px; background: rgba(255,255,255,.07); font-size: 22px; transition: .3s var(--spring); } .step button:hover { background: var(--accent); color: var(--ink); } .step button:active { transform: scale(.88); }
+  .num { position: relative; height: 46px; width: 90px; overflow: hidden; font: 600 32px/46px var(--sans); text-align: center; font-variant-numeric: tabular-nums; } .num span { position: absolute; inset: 0; transition: transform .5s var(--ease), opacity .4s; }
+  /* rating */
+  .stars { display: flex; gap: 6px; } .stars button { width: 40px; height: 40px; color: #2d3342; transition: color .2s, transform .4s var(--spring); } .stars button svg { width: 100%; fill: currentColor; } .stars button.on { color: #ffcf5c; filter: drop-shadow(0 0 10px rgba(255,207,92,.45)); } .stars button:hover { transform: scale(1.2) rotate(-8deg); }
+  .rt { font-size: 14px; color: var(--muted); min-height: 21px; }
+  /* checks & radio */
+  .chk { display: flex; align-items: center; gap: 12px; font-size: 15px; cursor: pointer; padding: 6px 0; } .chk .bx { width: 24px; height: 24px; border-radius: 8px; border: 1.5px solid #3a4152; display: grid; place-items: center; transition: .35s var(--spring); } .chk .bx svg { width: 15px; stroke: var(--ink); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 22; stroke-dashoffset: 22; transition: stroke-dashoffset .4s var(--ease) .05s; }
+  .chk[aria-checked=true] .bx { background: var(--accent); border-color: var(--accent); transform: scale(1.06); } .chk[aria-checked=true] .bx svg { stroke-dashoffset: 0; }
+  .plans { display: grid; gap: 8px; } .plan { text-align: left; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; transition: .4s var(--ease); } .plan small { color: var(--muted); display: block; font-size: 12.5px; margin-top: 2px; }
+  .plan .rd { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #3a4152; display: grid; place-items: center; transition: .3s; } .plan .rd::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); transform: scale(0); transition: transform .4s var(--spring); }
+  .plan[aria-checked=true] { border-color: var(--accent); background: rgba(110,231,255,.07); } .plan[aria-checked=true] .rd { border-color: var(--accent); } .plan[aria-checked=true] .rd::after { transform: scale(1); }
+  /* chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; } .chip { padding: 8px 15px; border-radius: 99px; border: 1px solid var(--line); font-size: 13.5px; color: var(--muted); transition: .35s var(--spring); } .chip:hover { color: var(--fg); transform: translateY(-2px); } .chip[aria-pressed=true] { background: var(--fg); color: #090b10; border-color: var(--fg); font-weight: 500; }
+  .out { font: 12.5px var(--mono); color: var(--muted); padding: 12px 14px; border-radius: 14px; background: rgba(0,0,0,.35); border: 1px solid var(--line); word-break: break-all; line-height: 1.6; } .out b { color: var(--accent); font-weight: 500; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } .c.w2 { grid-column: span 2; } } @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } .c.w2 { grid-column: auto; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<header><small>Interactive elements</small><h1>Controls with <span>weight.</span></h1></header>
+<main class="grid">
+  <section class="c"><div class="lab">01 · Switches</div>
+    <div class="sw">Notifications<button class="tg" role="switch" aria-checked="true" aria-label="Notifications"></button></div>
+    <div class="sw">Dark mode<button class="tg" role="switch" aria-checked="true" aria-label="Dark mode"></button></div>
+    <div class="sw">Beta features<button class="tg" role="switch" aria-checked="false" aria-label="Beta features"></button></div>
+  </section>
+  <section class="c"><div class="lab">02 · Segmented</div>
+    <div class="seg" id="seg1" style="--n:3" role="tablist"><i class="th"></i><button role="tab" aria-selected="true">Day</button><button role="tab" aria-selected="false">Week</button><button role="tab" aria-selected="false">Month</button></div>
+    <div class="seg" id="seg2" style="--n:2" role="tablist"><i class="th"></i><button role="tab" aria-selected="true">Monthly</button><button role="tab" aria-selected="false">Yearly</button></div>
+    <div class="out" id="segOut"></div>
+  </section>
+  <section class="c"><div class="lab">03 · Stepper</div>
+    <div class="step"><button id="dec" aria-label="Fewer">−</button><div class="num" id="num" aria-live="polite"></div><button id="inc" aria-label="More">+</button></div>
+    <div class="out">Guests · <b id="gOut">2</b> — holds to repeat</div>
+  </section>
+  <section class="c w2"><div class="lab">04 · Range <b id="rv"></b></div>
+    <div class="big" id="big">64<span>%</span></div>
+    <div class="rg" id="rg" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="64" aria-label="Volume"><div class="tr"></div><div class="fl"></div><div class="tp"></div><div class="kn"></div></div>
+    <div class="rg" id="rg2" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="30" aria-label="Brightness"><div class="tr"></div><div class="fl"></div><div class="tp"></div><div class="kn"></div></div>
+  </section>
+  <section class="c"><div class="lab">05 · Rating</div>
+    <div class="stars" id="stars"></div><div class="rt" id="rt">Tap a star</div>
+  </section>
+  <section class="c"><div class="lab">06 · Checks</div>
+    <div class="chk" role="checkbox" aria-checked="true" tabindex="0"><span class="bx"><svg viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7"/></svg></span>Email me a receipt</div>
+    <div class="chk" role="checkbox" aria-checked="false" tabindex="0"><span class="bx"><svg viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7"/></svg></span>Subscribe to the newsletter</div>
+    <div class="chk" role="checkbox" aria-checked="true" tabindex="0"><span class="bx"><svg viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7"/></svg></span>Remember this device</div>
+  </section>
+  <section class="c"><div class="lab">07 · Radio cards</div>
+    <div class="plans" id="plans" role="radiogroup"><button class="plan" role="radio" aria-checked="false"><span>Starter<small>For side projects</small></span><i class="rd"></i></button><button class="plan" role="radio" aria-checked="true"><span>Pro<small>For growing teams</small></span><i class="rd"></i></button><button class="plan" role="radio" aria-checked="false"><span>Scale<small>Custom limits</small></span><i class="rd"></i></button></div>
+  </section>
+  <section class="c"><div class="lab">08 · Chips</div>
+    <div class="chips" id="chips"><button class="chip" aria-pressed="true">Design</button><button class="chip" aria-pressed="false">Motion</button><button class="chip" aria-pressed="true">3D</button><button class="chip" aria-pressed="false">Type</button><button class="chip" aria-pressed="false">Brand</button><button class="chip" aria-pressed="false">Web</button></div>
+    <div class="out" id="chipOut"></div>
+  </section>
+</main>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  document.querySelectorAll('.tg').forEach((t) => t.onclick = () => t.setAttribute('aria-checked', t.getAttribute('aria-checked') !== 'true'));
+  const seg = (id, cb) => { const el = $(id), bs = [...el.querySelectorAll('button')], th = el.querySelector('.th');
+    const set = (i) => { bs.forEach((b, k) => b.setAttribute('aria-selected', k === i)); th.style.transform = `translateX(${i * 100}%)`; cb(i, bs[i].textContent); }; bs.forEach((b, i) => b.onclick = () => set(i)); return set; };
+  let a = 'Day', b = 'Monthly'; const so = () => $('segOut').innerHTML = `range <b>${a}</b> · billing <b>${b}</b>`;
+  seg('seg1', (i, t) => { a = t; so(); })(0); seg('seg2', (i, t) => { b = t; so(); })(0);
+  // stepper with rolling digits
+  let n = 2, dir = 1; const num = $('num');
+  const show = (v) => { const s = document.createElement('span'); s.textContent = v; s.style.transform = `translateY(${dir * 100}%)`; s.style.opacity = 0; num.appendChild(s); const old = [...num.children].slice(0, -1);
+    requestAnimationFrame(() => { s.style.transform = ''; s.style.opacity = 1; old.forEach((o) => { o.style.transform = `translateY(${-dir * 100}%)`; o.style.opacity = 0; setTimeout(() => o.remove(), 500); }); }); $('gOut').textContent = v; };
+  show(n);
+  const bump = (d) => { const nn = Math.max(1, Math.min(12, n + d)); if (nn === n) return; dir = d; n = nn; show(n); };
+  [['dec', -1], ['inc', 1]].forEach(([id, d]) => { let t, iv; const stop = () => { clearTimeout(t); clearInterval(iv); };
+    $(id).addEventListener('pointerdown', () => { bump(d); t = setTimeout(() => iv = setInterval(() => bump(d), 120), 400); }); ['pointerup', 'pointerleave', 'pointercancel'].forEach((e) => $(id).addEventListener(e, stop)); });
+  // range sliders with smooth, eased follow
+  function range(id, v0, fmt, onv) {
+    const el = $(id), fl = el.querySelector('.fl'), kn = el.querySelector('.kn'), tp = el.querySelector('.tp'); let v = v0, shown = v0, tgt = v0, raf = 0;
+    const paint = () => { fl.style.width = shown + '%'; kn.style.left = shown + '%'; tp.style.left = shown + '%'; tp.textContent = fmt(Math.round(shown)); };
+    const loop = () => { shown += (tgt - shown) * .22; if (Math.abs(tgt - shown) < .02) shown = tgt; paint(); onv && onv(shown); raf = shown === tgt ? 0 : requestAnimationFrame(loop); };
+    const set = (x) => { tgt = Math.max(0, Math.min(100, x)); el.setAttribute('aria-valuenow', Math.round(tgt)); if (!raf) raf = requestAnimationFrame(loop); };
+    const at = (e) => { const r = el.getBoundingClientRect(); set((e.clientX - r.left) / r.width * 100); };
+    el.addEventListener('pointerdown', (e) => { el.setPointerCapture(e.pointerId); el.classList.add('drag'); at(e); });
+    el.addEventListener('pointermove', (e) => { if (el.classList.contains('drag')) at(e); });
+    ['pointerup', 'pointercancel'].forEach((ev) => el.addEventListener(ev, () => el.classList.remove('drag')));
+    el.addEventListener('keydown', (e) => { const d = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key]; if (d) { e.preventDefault(); set(tgt + d); } });
+    paint(); onv && onv(v);
+  }
+  range('rg', 64, (v) => v + '%', (v) => { $('big').innerHTML = Math.round(v) + '<span>%</span>'; });
+  range('rg2', 30, (v) => v + '%', (v) => { $('rv').textContent = 'brightness ' + Math.round(v) + '%'; document.documentElement.style.setProperty('--glow', v); });
+  // rating
+  const words = ['Not for me', 'Could be better', 'Pretty good', 'Really good', 'Absolutely loved it'];
+  const st = $('stars'); st.innerHTML = [1, 2, 3, 4, 5].map((i) => `<button aria-label="${i} star${i > 1 ? 's' : ''}"><svg viewBox="0 0 24 24"><path d="m12 2.5 2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.6 6.1 20.7l1.2-6.6L2.5 9.5l6.6-.9z"/></svg></button>`).join('');
+  let r = 0; const bs = [...st.children]; const paintR = (k) => bs.forEach((b, i) => b.classList.toggle('on', i < k));
+  bs.forEach((b, i) => { b.onclick = () => { r = r === i + 1 ? 0 : i + 1; paintR(r); $('rt').textContent = r ? words[r - 1] : 'Tap a star'; }; b.onmouseenter = () => paintR(i + 1); }); st.onmouseleave = () => paintR(r);
+  document.querySelectorAll('.chk').forEach((c) => { const t = () => c.setAttribute('aria-checked', c.getAttribute('aria-checked') !== 'true'); c.onclick = t; c.onkeydown = (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); t(); } }; });
+  const pl = [...$('plans').children]; pl.forEach((p) => p.onclick = () => pl.forEach((x) => x.setAttribute('aria-checked', x === p)));
+  const co = () => $('chipOut').innerHTML = 'selected · <b>' + ([...$('chips').children].filter((c) => c.getAttribute('aria-pressed') === 'true').map((c) => c.textContent).join(', ') || 'none') + '</b>';
+  [...$('chips').children].forEach((c) => c.onclick = () => { c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true'); co(); }); co();
+})();
+</script>
+</body>
+</html>

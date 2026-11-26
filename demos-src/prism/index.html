@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prismatic — refracting glass crystals 3D hero</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Prismatic</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Cutting crystals</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Prismatic</a>
+    <ul><li><a href="#s1">Overview</a></li><li><a href="#s2">Features</a></li><li><a href="#s3">Platform</a></li><li><a href="#s4">Pricing</a></li></ul>
+    <a class="cta" href="#s5">Start free</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec mid" id="s1" data-sec>
+      <div class="copy wide">
+        <div class="eyebrow" data-reveal>Version 2.0 is here</div>
+        <h1 class="h-xl" data-split>Clarity, refracted.</h1>
+        <p class="lead" data-reveal style="--d:300ms">One platform that turns scattered data into a single, brilliant picture. Made for teams that hate clutter.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Start for free</a><a class="btn ghost" href="#s2">See how it works</a></div>
+      </div>
+    </section>
+
+    <section class="sec" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Features</div>
+        <h2 class="h-lg" data-split>Every angle, at once.</h2>
+        <p class="lead" data-reveal>Dashboards, alerts and reports share one source of truth — each facet shows a different view of the same stone.</p>
+      </div>
+    </section>
+
+    <section class="sec end" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Platform</div>
+        <h2 class="h-lg" data-split>Break it apart. Put it together.</h2>
+        <p class="lead" data-reveal>Compose your own workflow from small, brilliant pieces. Nothing you don’t need, nothing missing.</p>
+        <div class="stats" data-reveal><div class="stat"><b>240+</b><span>Integrations</span></div><div class="stat"><b>12ms</b><span>Query time</span></div><div class="stat"><b>SOC2</b><span>Certified</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Pricing</div>
+        <h2 class="h-lg" data-split>Simple as light.</h2>
+        <p class="lead" data-reveal>Start free. Pay when you grow. No seat counts, no surprises, no sales calls required.</p>
+        <div class="row" data-reveal><a class="btn ghost" href="#s5">View plans</a></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy wide">
+        <div class="eyebrow" data-reveal>Ready when you are</div>
+        <h2 class="h-xl" data-split>See it clearly.</h2>
+        <div class="row" data-reveal><a class="btn" href="#">Create free account</a><a class="btn ghost" href="#">Talk to us</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Prismatic</span><span>Light, organised</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

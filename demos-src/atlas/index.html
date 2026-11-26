@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meridian — 3D globe website for travel &amp; tour companies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Meridian</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Plotting the route</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Meridian</a>
+    <ul><li><a href="#s2">Lisbon</a></li><li><a href="#s3">Kyoto</a></li><li><a href="#s4">Patagonia</a></li><li><a href="#s5">Plan</a></li></ul>
+    <a class="cta" href="#s5">Plan my trip</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <div class="label" id="l1">Lisbon · Portugal</div>
+  <div class="label" id="l2">Kyoto · Japan</div>
+  <div class="label" id="l3">Patagonia · Chile</div>
+  <div class="readout mono"><span>LAT <b id="lat">00.0°</b></span><span>LON <b id="lon">000.0°</b></span></div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Small-group journeys · 48 destinations</div>
+        <h1 class="h-xl" data-split>The world, slowly.</h1>
+        <p class="lead" data-reveal style="--d:300ms">Hand-built itineraries for twelve travellers or fewer — local guides, quiet hotels and enough time to actually arrive.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s2">Start exploring</a><a class="btn ghost" href="#s5">Plan a custom trip</a></div>
+      </div>
+    </section>
+
+    <section class="sec end tall" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Europe</div>
+        <h2 class="h-lg" data-split>Lisbon, in golden light.</h2>
+        <p class="lead" data-reveal>Tiled hillsides, yellow trams and custard tarts at sunrise. Seven slow days between the city, the Sintra palaces and the Atlantic cliffs.</p>
+        <div class="facts" data-reveal><span>7 nights</span><span>Max 12 guests</span><span>From $1,890</span></div>
+        <div class="row" data-reveal><a class="btn" href="#">View itinerary</a></div>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Asia</div>
+        <h2 class="h-lg" data-split>Kyoto, off the map.</h2>
+        <p class="lead" data-reveal>Temple gardens before the crowds, a private tea ceremony and a night in a family-run ryokan. Ten days that follow the seasons.</p>
+        <div class="facts" data-reveal><span>10 nights</span><span>Max 10 guests</span><span>From $3,450</span></div>
+        <div class="row" data-reveal><a class="btn" href="#">View itinerary</a></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — South America</div>
+        <h2 class="h-lg" data-split>Patagonia, at the edge.</h2>
+        <p class="lead" data-reveal>Granite towers, glacial lakes and a sky that goes on forever. Guided trekking days with lodges at the end of every trail.</p>
+        <div class="facts" data-reveal><span>9 nights</span><span>Max 8 guests</span><span>From $4,120</span></div>
+        <div class="row" data-reveal><a class="btn" href="#">View itinerary</a></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Your turn</div>
+        <h2 class="h-xl" data-split>Where to next?</h2>
+        <p class="lead" data-reveal>Tell us when, who and what you love. A real person will draft your itinerary within two days — no obligation.</p>
+        <div class="row" data-reveal><a class="btn" href="#">Plan my trip</a><a class="btn ghost" href="#">Browse all journeys</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Meridian Journeys</span><span>ATOL protected · Carbon-balanced</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

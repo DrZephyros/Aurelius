@@ -1,0 +1,18 @@
+/* Prismatic — theme: indigo night + spectral light */
+:root {
+  --bg: #06051a;
+  --accent: #9d8cff;
+  --glass: rgba(14, 10, 40, 0.5);
+  --line: rgba(190, 170, 255, 0.22);
+  --font-display: 'Unbounded', system-ui, sans-serif;
+}
+.h-xl, .h-lg { font-weight: 400; letter-spacing: -0.05em; text-shadow: 0 2px 40px rgba(6, 5, 26, 0.85), 0 0 2px rgba(6, 5, 26, 0.5); }
+.lead { color: rgba(238, 241, 245, 0.86); text-shadow: 0 1px 24px rgba(6, 5, 26, 0.95); }
+/* a soft indigo pool behind every block of copy keeps text readable over any frame of the scene */
+.copy { position: relative; isolation: isolate; }
+.copy::before { content: ''; position: absolute; inset: -18% -14%; z-index: -1; border-radius: 40px; background: radial-gradient(closest-side, rgba(6, 5, 26, 0.88), rgba(6, 5, 26, 0.62) 60%, transparent 100%); pointer-events: none; }
+.h-xl { font-size: clamp(2.6rem, 7.6vw, 7.4rem); line-height: 0.98; }
+.h-lg { font-size: clamp(2rem, 4.2vw, 4rem); }
+.copy.wide { max-width: 1000px; }
+.btn { background: linear-gradient(120deg, #ffffff, #d6ccff); border-color: transparent; color: #120a3a; }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }

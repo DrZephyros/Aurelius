@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard — Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root {
+    --bg: #0a0e13; --side: #0d1218; --card: #10161e; --fg: #e8edf4; --muted: #7d8898; --line: rgba(255,255,255,.07);
+    --accent: #3dffb5; --accent-ink: #03150e; --blue: #5aa9ff; --warn: #ffb84d; --bad: #ff6b7a;
+    --sans: 'Inter', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace; --ease: cubic-bezier(.16,1,.3,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; font-size: 14px; }
+  .app { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; transition: grid-template-columns .6s var(--ease); } .app.min { grid-template-columns: 76px minmax(0, 1fr); }
+  aside { background: var(--side); border-right: 1px solid var(--line); padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; overflow: hidden; }
+  .logo { display: flex; align-items: center; gap: 12px; padding: 4px 8px 22px; font-weight: 700; font-size: 17px; letter-spacing: -.03em; white-space: nowrap; } .logo i { width: 30px; height: 30px; flex: none; border-radius: 10px; background: var(--accent); display: grid; place-items: center; color: var(--accent-ink); }
+  .nav a { display: flex; align-items: center; gap: 13px; padding: 11px 12px; border-radius: 12px; color: var(--muted); text-decoration: none; font-weight: 500; white-space: nowrap; position: relative; transition: .3s; cursor: pointer; } .nav a svg { width: 19px; height: 19px; flex: none; }
+  .nav a:hover { color: var(--fg); background: rgba(255,255,255,.04); } .nav a.on { color: var(--fg); background: rgba(61,255,181,.09); } .nav a.on::before { content: ''; position: absolute; left: -14px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+  .nav .bd { margin-left: auto; font: 600 10px var(--mono); background: var(--accent); color: var(--accent-ink); padding: 2px 6px; border-radius: 99px; }
+  .min .lbl, .min .logo span, .min .bd, .min .up { opacity: 0; pointer-events: none; } .lbl, .logo span, .bd { transition: opacity .3s; }
+  .up { margin-top: auto; padding: 16px; border-radius: 16px; background: linear-gradient(160deg, rgba(61,255,181,.14), rgba(90,169,255,.08)); border: 1px solid rgba(61,255,181,.2); transition: opacity .3s; } .up b { display: block; font-size: 14px; } .up p { color: var(--muted); font-size: 12.5px; margin: 6px 0 12px; line-height: 1.45; } .up button { width: 100%; height: 36px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink); font: 600 13px var(--sans); cursor: pointer; }
+  .col { border: 0; background: none; color: var(--muted); display: flex; align-items: center; gap: 13px; padding: 11px 12px; border-radius: 12px; cursor: pointer; font: 500 14px var(--sans); margin-top: 6px; } .col:hover { color: var(--fg); background: rgba(255,255,255,.04); } .col svg { width: 19px; height: 19px; transition: transform .6s var(--ease); } .min .col svg { transform: rotate(180deg); }
+  main { padding: 24px clamp(18px, 3vw, 36px) 48px; min-width: 0; }
+  .top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .top h1 { font-size: 24px; letter-spacing: -.035em; } .top h1 span { display: block; font: 400 13px var(--sans); color: var(--muted); letter-spacing: 0; margin-top: 3px; }
+  .search { margin-left: auto; position: relative; } .search input { width: 260px; height: 40px; padding: 0 14px 0 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--fg); font: 14px var(--sans); outline: none; transition: .3s; } .search input:focus { border-color: var(--accent); width: 300px; box-shadow: 0 0 0 4px rgba(61,255,181,.1); } .search svg { position: absolute; left: 13px; top: 11px; width: 18px; height: 18px; color: var(--muted); }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #ffb84d, #ff6b7a); display: grid; place-items: center; font-weight: 700; color: #2a0f00; }
+  .grid { display: grid; gap: 16px; margin-top: 24px; } .kpis { grid-template-columns: repeat(4, 1fr); } .mid { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; transition: border-color .3s, transform .6s var(--ease); } .kpi:hover { border-color: rgba(61,255,181,.35); transform: translateY(-3px); }
+  .kpi .t { color: var(--muted); font-weight: 500; display: flex; justify-content: space-between; } .kpi .v { font-size: 30px; font-weight: 700; letter-spacing: -.04em; margin-top: 12px; font-variant-numeric: tabular-nums; }
+  .delta { display: inline-flex; align-items: center; gap: 4px; font: 600 12px var(--mono); padding: 3px 8px; border-radius: 99px; } .delta.up { background: rgba(61,255,181,.12); color: var(--accent); } .delta.dn { background: rgba(255,107,122,.12); color: var(--bad); }
+  .kpi svg.sp { width: 100%; height: 44px; margin-top: 14px; display: block; overflow: visible; }
+  .ch-h { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; } .ch-h h2 { font-size: 16px; letter-spacing: -.02em; } .ch-h p { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .big { display: flex; align-items: baseline; gap: 12px; margin-top: 18px; } .big b { font-size: 38px; letter-spacing: -.045em; font-variant-numeric: tabular-nums; }
+  .tabs { display: inline-flex; padding: 4px; background: rgba(255,255,255,.04); border-radius: 12px; position: relative; } .tabs button { position: relative; z-index: 1; border: 0; background: none; color: var(--muted); font: 600 12.5px var(--sans); padding: 7px 14px; border-radius: 9px; cursor: pointer; transition: color .3s; } .tabs button.on { color: var(--accent-ink); } .tabs .th { position: absolute; top: 4px; bottom: 4px; background: var(--accent); border-radius: 9px; transition: .5s var(--ease); }
+  .chart { position: relative; height: 270px; margin-top: 10px; cursor: crosshair; touch-action: none; } .chart svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .grid-l { stroke: var(--line); stroke-dasharray: 3 5; vector-effect: non-scaling-stroke; } .line { fill: none; stroke: var(--accent); stroke-width: 2.5; vector-effect: non-scaling-stroke; stroke-linecap: round; filter: drop-shadow(0 4px 12px rgba(61,255,181,.5)); }
+  .cross { position: absolute; top: 0; bottom: 22px; width: 1px; background: linear-gradient(var(--accent), transparent); opacity: 0; transition: opacity .2s; pointer-events: none; } .dot { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--bg); border: 3px solid var(--accent); box-shadow: 0 0 0 6px rgba(61,255,181,.18); opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .chart:hover .cross, .chart:hover .dot, .chart.touch .cross, .chart.touch .dot { opacity: 1; }
+  .tip { position: absolute; top: 0; z-index: 3; transform: translate(-50%, -110%); background: #1a2330; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 9px 13px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .2s; box-shadow: 0 16px 30px -10px #000; } .tip b { font-size: 16px; letter-spacing: -.03em; display: block; font-variant-numeric: tabular-nums; } .tip span { font: 11px var(--mono); color: var(--muted); } .chart:hover .tip, .chart.touch .tip { opacity: 1; }
+  .xl { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; font: 11px var(--mono); color: var(--muted); }
+  .feed { display: grid; gap: 4px; margin-top: 14px; } .ev { display: flex; gap: 12px; padding: 11px 6px; border-radius: 12px; animation: evin .7s var(--ease); } .ev:hover { background: rgba(255,255,255,.03); } @keyframes evin { from { opacity: 0; transform: translateY(-14px); background: rgba(61,255,181,.12); } }
+  .ev i { width: 34px; height: 34px; flex: none; border-radius: 11px; display: grid; place-items: center; font-style: normal; font-size: 16px; } .ev p { font-size: 13.5px; line-height: 1.4; } .ev p b { font-weight: 600; } .ev span { color: var(--muted); font: 11px var(--mono); }
+  .live { display: inline-flex; align-items: center; gap: 7px; font: 600 11px var(--mono); color: var(--accent); letter-spacing: .08em; text-transform: uppercase; } .live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pl 1.5s infinite; } @keyframes pl { 50% { opacity: .3; transform: scale(.7); } }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; } th { text-align: left; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 10px 12px; cursor: pointer; user-select: none; white-space: nowrap; } th:hover { color: var(--fg); } th .ar { display: inline-block; margin-left: 4px; opacity: 0; transition: .3s; } th.s .ar { opacity: 1; color: var(--accent); }
+  td { padding: 14px 12px; border-top: 1px solid var(--line); } tr.r { transition: background .2s; } tr.r:hover { background: rgba(255,255,255,.025); }
+  .who { display: flex; align-items: center; gap: 12px; font-weight: 600; } .who i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 700 12px var(--sans); font-style: normal; color: #0a0e13; } .who span { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+  .tag { font: 600 11px var(--mono); padding: 4px 9px; border-radius: 99px; } .tag.Active { background: rgba(61,255,181,.12); color: var(--accent); } .tag.Trial { background: rgba(255,184,77,.13); color: var(--warn); } .tag.Churned { background: rgba(255,107,122,.13); color: var(--bad); }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; } .empty { text-align: center; padding: 32px; color: var(--muted); }
+  @media (max-width: 1100px) { .kpis { grid-template-columns: repeat(2, 1fr); } .mid { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) { .app, .app.min { grid-template-columns: 1fr; } aside { display: none; } .search { display: none; } .kpis { grid-template-columns: 1fr 1fr; } .card { padding: 16px; } .table-wrap { overflow-x: auto; } }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside>
+    <div class="logo"><i><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></i><span>Pulse</span></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="up"><b>Pro plan · 12 days left</b><p>Unlock exports, alerts and 12 months of history.</p><button>Upgrade</button></div>
+    <button class="col" id="col"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg><span class="lbl">Collapse</span></button>
+  </aside>
+  <main>
+    <div class="top">
+      <h1>Good afternoon, Sam<span id="today"></span></h1>
+      <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.500-3.500"/></svg><input id="q" placeholder="Search customers…" /></label>
+      <div class="avatar">S</div>
+    </div>
+
+    <div class="grid kpis" id="kpis"></div>
+
+    <div class="grid mid">
+      <section class="card">
+        <div class="ch-h"><div><h2>Revenue</h2><p>Gross revenue across all plans</p></div><div class="tabs" id="tabs"><i class="th"></i><button data-r="7">7 days</button><button class="on" data-r="30">30 days</button><button data-r="90">90 days</button></div></div>
+        <div class="big"><b id="total">$0</b><span class="delta up" id="chg">+0%</span></div>
+        <div class="chart" id="chart">
+          <svg viewBox="0 0 800 260" preserveAspectRatio="none"><defs><linearGradient id="gA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3dffb5" stop-opacity=".32"/><stop offset="1" stop-color="#3dffb5" stop-opacity="0"/></linearGradient></defs>
+            <g id="gl"></g><path id="area" fill="url(#gA)"/><path class="line" id="ln"/></svg>
+          <div class="cross" id="cross"></div><div class="dot" id="dot"></div><div class="tip" id="tip"><b>$0</b><span>—</span></div>
+          <div class="xl" id="xl"></div>
+        </div>
+      </section>
+      <section class="card">
+        <div class="ch-h"><h2>Activity</h2><span class="live">Live</span></div>
+        <div class="feed" id="feed"></div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:16px">
+      <div class="ch-h"><div><h2>Customers</h2><p id="cnt"></p></div></div>
+      <div class="table-wrap"><table><thead><tr id="thead"></tr></thead><tbody id="tb"></tbody></table></div>
+    </section>
+  </main>
+</div>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const I = { home: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>', chart: '<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>', users: '<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6"/>', card: '<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/>', bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 0 0 4 0"/>', cog: '<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.300l2-1.500-2-3.400-2.300 1a7 7 0 0 0-2.200-1.300L14 3h-4l-.4 2.500A7 7 0 0 0 7.400 6.800l-2.300-1-2 3.400 2 1.500a7 7 0 0 0 0 2.600l-2 1.500 2 3.400 2.300-1a7 7 0 0 0 2.200 1.300L10 21h4l.4-2.500a7 7 0 0 0 2.200-1.300l2.300 1 2-3.400-2-1.500c.1-.4.100-.9.100-1.300z"/>' };
+  const svg = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`;
+  $('#nav').innerHTML = [['home', 'Overview', 1], ['chart', 'Analytics'], ['users', 'Customers', 'new'], ['card', 'Billing'], ['bell', 'Alerts'], ['cog', 'Settings']].map(([i, l, a]) => `<a class="${a === 1 ? 'on' : ''}">${svg(i)}<span class="lbl">${l}</span>${a === 'new' ? '<span class="bd">3</span>' : ''}</a>`).join('');
+  $$('#nav a').forEach((a) => a.onclick = () => $$('#nav a').forEach((x) => x.classList.toggle('on', x === a)));
+  $('#col').onclick = () => $('#app').classList.toggle('min');
+  $('#today').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) + ' · here\'s what changed';
+
+  /* seeded data */
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const series = (n, base, vol, trend) => { let v = base; return Array.from({ length: n }, (_, i) => (v = Math.max(base * .4, v + (rnd() - .46) * vol + trend))); };
+  const DATA = { 7: series(14, 4200, 700, 30), 30: series(30, 3600, 700, 22), 90: series(45, 3000, 650, 14) };
+  const LBL = { 7: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], 30: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Today'], 90: ['Jan', 'Feb', 'Mar', 'Apr'] };
+  const fm = (n) => '$' + Math.round(n).toLocaleString();
+
+  /* KPIs */
+  const K = [['Revenue', 48290, '$', 12.4, 1], ['Active users', 12840, '', 8.1, 1], ['Conversion', 4.6, '%', 0.6, 1], ['Churn', 1.8, '%', -0.3, 0]];
+  $('#kpis').innerHTML = K.map(([t, v, u, d, up], i) => { const s = series(14, 50, 14, up ? 2 : -1); const mn = Math.min(...s), mx = Math.max(...s); const pts = s.map((y, x) => `${(x / 13) * 100},${40 - ((y - mn) / (mx - mn || 1)) * 36}`).join(' '); const col = up ? '#3dffb5' : '#ff6b7a';
+    return `<div class="card kpi"><div class="t"><span>${t}</span><span class="delta ${up ? 'up' : 'dn'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}%</span></div><div class="v" data-v="${v}" data-u="${u}">0</div><svg class="sp" viewBox="0 0 100 44" preserveAspectRatio="none"><defs><linearGradient id="k${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".3"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><polygon points="0,44 ${pts} 100,44" fill="url(#k${i})"/><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg></div>`; }).join('');
+  $$('.kpi .v').forEach((el) => { const to = +el.dataset.v, u = el.dataset.u, dec = to % 1 ? 1 : 0, t0 = performance.now() + 150; const f = (t) => { const k = Math.max(0, Math.min(1, (t - t0) / 1300)), e = 1 - Math.pow(1 - k, 4), n = to * e; el.textContent = (u === '$' ? '$' : '') + (dec ? n.toFixed(1) : Math.round(n).toLocaleString()) + (u === '%' ? '%' : ''); if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); });
+
+  /* chart */
+  const N = 64, W = 800, H = 260, PAD = 18;
+  const resample = (a) => Array.from({ length: N }, (_, i) => { const p = (i / (N - 1)) * (a.length - 1), lo = Math.floor(p), hi = Math.min(a.length - 1, lo + 1), f = p - lo; const s = f * f * (3 - 2 * f); return a[lo] * (1 - s) + a[hi] * s; });
+  let cur = resample(DATA[30]), range = 30, ptsXY = [];
+  const smooth = (p) => p.reduce((d, [x, y], i, a) => { if (!i) return `M${x},${y}`; const p0 = a[i - 2] || a[i - 1], p1 = a[i - 1], p3 = a[i + 1] || [x, y]; return d + ` C${p1[0] + (x - p0[0]) / 6},${p1[1] + (y - p0[1]) / 6} ${x - (p3[0] - p1[0]) / 6},${y - (p3[1] - p1[1]) / 6} ${x},${y}`; }, '');
+  const draw = (arr) => {
+    const mn = Math.min(...arr) * .9, mx = Math.max(...arr) * 1.05;
+    ptsXY = arr.map((v, i) => [(i / (N - 1)) * W, H - PAD - ((v - mn) / (mx - mn)) * (H - PAD * 2)]);
+    const d = smooth(ptsXY); $('#ln').setAttribute('d', d); $('#area').setAttribute('d', d + ` L${W},${H} L0,${H} Z`);
+    $('#gl').innerHTML = [0, 1, 2, 3].map((i) => `<line class="grid-l" x1="0" x2="${W}" y1="${PAD + i * ((H - PAD * 2) / 3)}" y2="${PAD + i * ((H - PAD * 2) / 3)}"/>`).join('');
+  };
+  const setRange = (r) => {
+    range = r; const to = resample(DATA[r]), from = cur.slice(), t0 = performance.now();
+    const f = (t) => { const k = Math.min(1, (t - t0) / 800), e = 1 - Math.pow(1 - k, 4); cur = from.map((v, i) => v + (to[i] - v) * e); draw(cur); if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f);
+    const sum = (DATA[r].reduce((a, b) => a + b, 0) / DATA[r].length) * r * .45; const t1 = performance.now(), prev = +$('#total').dataset.v || 0; $('#total').dataset.v = sum;
+    const g = (t) => { const k = Math.min(1, (t - t1) / 800); $('#total').textContent = fm(prev + (sum - prev) * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(g); }; requestAnimationFrame(g);
+    const A = DATA[r], k = Math.floor(A.length / 3), av = (a) => a.reduce((x, y) => x + y, 0) / a.length, ch = (av(A.slice(-k)) / av(A.slice(0, k)) - 1) * 100; $('#chg').className = 'delta ' + (ch >= 0 ? 'up' : 'dn'); $('#chg').textContent = (ch >= 0 ? '▲ +' : '▼ ') + ch.toFixed(1) + '%';
+    $('#xl').innerHTML = LBL[r].map((l) => `<span>${l}</span>`).join('');
+  };
+  const tabs = $$('#tabs button'), th = $('#tabs .th');
+  const place = () => { const on = $('#tabs .on'); th.style.left = on.offsetLeft + 'px'; th.style.width = on.offsetWidth + 'px'; };
+  tabs.forEach((b) => b.onclick = () => { tabs.forEach((x) => x.classList.toggle('on', x === b)); place(); setRange(+b.dataset.r); });
+  place(); setRange(30); addEventListener('resize', place);
+  const chart = $('#chart');
+  const move = (cx) => { const r = chart.getBoundingClientRect(), x = Math.max(0, Math.min(1, (cx - r.left) / r.width)), i = Math.round(x * (N - 1)), [px, py] = ptsXY[i]; const L = (px / W) * r.width, T = (py / H) * r.height; $('#cross').style.left = L + 'px'; $('#dot').style.left = L + 'px'; $('#dot').style.top = T + 'px'; const tip = $('#tip'); tip.style.left = Math.max(60, Math.min(r.width - 60, L)) + 'px'; tip.style.top = T + 'px'; const src = DATA[range], si = x * (src.length - 1); const lbl = range === 7 ? 'Day ' + (Math.round(si / 2) + 1) : range === 30 ? 'Day ' + Math.round(x * 29 + 1) : 'Day ' + Math.round(x * 89 + 1); tip.innerHTML = `<b>${fm(cur[i] * .45)}</b><span>${lbl}</span>`; };
+  chart.addEventListener('pointermove', (e) => { chart.classList.toggle('touch', e.pointerType === 'touch'); move(e.clientX); });
+  chart.addEventListener('pointerleave', () => chart.classList.remove('touch'));
+
+  /* feed */
+  const EV = [['💳', 'rgba(61,255,181,.14)', '<b>Northwind</b> upgraded to Team', '+$480/mo'], ['👋', 'rgba(90,169,255,.14)', '<b>Ines Duarte</b> started a trial', 'Pro plan'], ['🎉', 'rgba(255,184,77,.14)', '<b>Fieldnote</b> hit 1M events', 'Milestone'], ['💬', 'rgba(255,107,122,.14)', '<b>Kiln</b> opened a support thread', 'Priority'], ['🚀', 'rgba(61,255,181,.14)', '<b>Tidal</b> connected Slack', 'Integration'], ['💳', 'rgba(61,255,181,.14)', '<b>Parcel</b> renewed annually', '+$2,280']];
+  let ei = 0; const add = (anim) => { const e = EV[ei++ % EV.length], el = document.createElement('div'); el.className = 'ev'; if (!anim) el.style.animation = 'none'; el.innerHTML = `<i style="background:${e[1]}">${e[0]}</i><div><p>${e[2]}</p><span>${anim ? 'just now' : ei * 7 + ' min ago'} · ${e[3]}</span></div>`; $('#feed').prepend(el); while ($('#feed').children.length > 5) $('#feed').lastChild.remove(); };
+  for (let i = 0; i < 5; i++) add(false); setInterval(() => add(true), 5200);
+
+  /* table */
+  const ROWS = [['Northwind Labs', 'ops@northwind.io', 'Team', 4800, 'Active', '#3dffb5'], ['Fieldnote', 'hi@fieldnote.app', 'Pro', 1900, 'Active', '#5aa9ff'], ['Tidal Studio', 'team@tidal.studio', 'Pro', 1900, 'Trial', '#ffb84d'], ['Kiln Ceramics', 'shop@kiln.co', 'Starter', 0, 'Active', '#c78bff'], ['Parcel', 'cto@parcel.dev', 'Team', 9600, 'Active', '#3dffb5'], ['Meridian Co.', 'admin@meridian.co', 'Pro', 1900, 'Churned', '#ff6b7a'], ['Bluebird Foods', 'it@bluebird.food', 'Team', 3600, 'Trial', '#ffb84d'], ['Atlas Freight', 'dev@atlasfreight.com', 'Pro', 1900, 'Active', '#5aa9ff']];
+  const COLS = [['Customer', 0], ['Plan', 2], ['MRR', 3], ['Status', 4]]; let sort = [3, -1], q = '';
+  $('#thead').innerHTML = COLS.map(([l, i]) => `<th data-i="${i}">${l}<span class="ar"></span></th>`).join('');
+  const rows = () => { let r = ROWS.filter((x) => (x[0] + x[1]).toLowerCase().includes(q)); r.sort((a, b) => (a[sort[0]] > b[sort[0]] ? 1 : -1) * sort[1]); $('#tb').innerHTML = r.length ? r.map((x) => `<tr class="r"><td><div class="who"><i style="background:${x[5]}">${x[0].slice(0, 2).toUpperCase()}</i><div>${x[0]}<span>${x[1]}</span></div></div></td><td>${x[2]}</td><td class="mono">${x[3] ? '$' + (x[3] / 10).toLocaleString() : '—'}</td><td><span class="tag ${x[4]}">${x[4]}</span></td></tr>`).join('') : '<tr><td colspan="4" class="empty">No customers match “' + q + '”.</td></tr>'; $$('th').forEach((h) => { h.classList.toggle('s', +h.dataset.i === sort[0]); h.querySelector('.ar').textContent = sort[1] > 0 ? '↑' : '↓'; }); $('#cnt').textContent = r.length + ' of ' + ROWS.length + ' customers'; };
+  $$('th').forEach((h) => h.onclick = () => { const i = +h.dataset.i; sort = sort[0] === i ? [i, -sort[1]] : [i, i === 3 ? -1 : 1]; rows(); });
+  $('#q').addEventListener('input', (e) => { q = e.target.value.toLowerCase(); rows(); }); rows();
+})();
+</script>
+</body>
+</html>

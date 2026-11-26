@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stillwater — 3D website for wellness, yoga &amp; fitness studios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Stillwater</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Taking a breath</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+  <div class="hud"></div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Still</a>
+    <ul><li><a href="#s2">Philosophy</a></li><li><a href="#s3">Classes</a></li><li><a href="#s4">Studio</a></li><li><a href="#s5">Join</a></li></ul>
+    <a class="cta" href="#s5">Try a free class</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec bottom" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>Yoga · Breathwork · Recovery</div>
+        <h1 class="h-xl" data-split>Breathe. Slowly.</h1>
+        <p class="lead" data-reveal style="--d:300ms">A quiet studio for movement, breath and rest — where every class is an invitation to arrive, not a performance to survive.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s5">Try a free class</a><a class="btn ghost" href="#s3">See classes</a></div>
+      </div>
+    </section>
+
+    <section class="sec end tall" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Philosophy</div>
+        <h2 class="h-lg" data-split>Balance is a practice, not a pose.</h2>
+        <p class="lead" data-reveal>Small groups, warm rooms and teachers who actually know your name. We build routines that fit into real lives — and leave you feeling better than when you walked in.</p>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s3" data-sec>
+      <div class="wide">
+        <div class="eyebrow" data-reveal>02 — Classes</div>
+        <h2 class="h-lg" data-split>Find your pace.</h2>
+        <div class="grid3" data-reveal style="margin:48px auto 0;text-align:left">
+          <div class="panel"><span class="num">06:30 · 60 min</span><h3>Morning Vinyasa</h3><p>Flowing, breath-led movement to wake the body and settle the mind before the day begins.</p></div>
+          <div class="panel"><span class="num">12:15 · 45 min</span><h3>Restorative</h3><p>Supported, slow postures held for minutes at a time. The deepest rest you'll get all week.</p></div>
+          <div class="panel"><span class="num">19:00 · 50 min</span><h3>Breathwork &amp; Sound</h3><p>Guided breathing, gentle sound baths and a long, quiet finish. Leave lighter than you came.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — The studio</div>
+        <h2 class="h-lg" data-split>Twelve teachers. One calm room.</h2>
+        <p class="lead" data-reveal>Heated floors, natural light and a tea bar that never closes early. Mats, props and showers are always included.</p>
+        <div class="stats" data-reveal>
+          <div class="stat"><b>24</b><span>Weekly classes</span></div>
+          <div class="stat"><b>12</b><span>Teachers</span></div>
+          <div class="stat"><b>14</b><span>Max per class</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>New here? Your first class is on us</div>
+        <h2 class="h-xl" data-split>Come as you are.</h2>
+        <p class="lead" data-reveal>No experience needed. Book a free first class, bring a water bottle and we'll take care of the rest.</p>
+        <div class="row" data-reveal><a class="btn" href="#">Book a free class</a><a class="btn ghost" href="#">View memberships</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Still Studio</span><span>8 Harbour Lane · Mon–Sun 6:00–21:00</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

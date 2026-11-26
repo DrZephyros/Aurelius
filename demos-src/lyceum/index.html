@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lyceum — 3D website for schools, academies &amp; online courses</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../_shared/base.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    { "imports": { "three": "../_vendor/three.module.min.js", "three/addons/": "../_vendor/addons/", "@core": "../_shared/core.js" } }
+  </script>
+</head>
+<body>
+  <div id="loader"><div class="ld-inner"><div class="ld-brand">Lyceum</div><div class="ld-bar"><i></i></div><div class="ld-pct"><span>Opening the library</span><span><b>000</b>%</span></div></div></div>
+  <canvas id="webgl"></canvas>
+
+  <header class="nav">
+    <a class="brand" href="#top"><i></i>Lyceum</a>
+    <ul><li><a href="#s2">Courses</a></li><li><a href="#s3">Method</a></li><li><a href="#s4">Faculty</a></li><li><a href="#s5">Apply</a></li></ul>
+    <a class="cta" href="#s5">Apply now</a>
+  </header>
+  <nav class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a></nav>
+  <div class="progress"><i></i></div>
+  <div class="scroll-hint">Scroll</div>
+
+  <main id="top">
+    <section class="sec" id="s1" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>An academy for curious minds</div>
+        <h1 class="h-xl" data-split>Learn from the <em>source.</em></h1>
+        <p class="lead" data-reveal style="--d:300ms">Small cohorts, working practitioners and a curriculum rebuilt every year. Lyceum teaches the way the best ideas were always taught — in conversation.</p>
+        <div class="row" data-reveal style="--d:450ms"><a class="btn" href="#s2">Browse courses</a><a class="btn ghost" href="#s3">Our method</a></div>
+      </div>
+    </section>
+
+    <section class="sec end" id="s2" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>01 — Courses</div>
+        <h2 class="h-lg" data-split>Three paths. <em>One standard.</em></h2>
+        <ul class="rows" data-reveal>
+          <li><span>I</span>Data &amp; Computing <em>12 weeks</em></li>
+          <li><span>II</span>Design &amp; Writing <em>10 weeks</em></li>
+          <li><span>III</span>Business &amp; Leadership <em>8 weeks</em></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec" id="s3" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>02 — Method</div>
+        <h2 class="h-lg" data-split>Questions before <em>answers.</em></h2>
+        <p class="lead" data-reveal>Every session starts with a problem, not a lecture. You work in cohorts of twelve, build something real and are mentored by someone who does the job.</p>
+        <ul class="ticks" data-reveal><li>Cohorts capped at twelve</li><li>Weekly 1:1 mentor sessions</li><li>Portfolio-graded, never exam-graded</li></ul>
+      </div>
+    </section>
+
+    <section class="sec end" id="s4" data-sec>
+      <div class="copy">
+        <div class="eyebrow" data-reveal>03 — Faculty &amp; outcomes</div>
+        <h2 class="h-lg" data-split>Taught by people who <em>do it.</em></h2>
+        <div class="stats" data-reveal><div class="stat"><b>94%</b><span>Complete the course</span></div><div class="stat"><b>1:12</b><span>Mentor ratio</span></div><div class="stat"><b>38</b><span>Practitioners</span></div></div>
+      </div>
+    </section>
+
+    <section class="sec mid" id="s5" data-sec>
+      <div class="copy wide">
+        <div class="eyebrow" data-reveal>Next cohort starts 9 September</div>
+        <h2 class="h-xl" data-split>Begin your <em>education.</em></h2>
+        <div class="row" data-reveal><a class="btn" href="#">Apply now</a><a class="btn ghost" href="#">Download the syllabus</a></div>
+      </div>
+    </section>
+    <footer class="foot"><span>© 2026 Lyceum Academy</span><span>Learn from the source</span></footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

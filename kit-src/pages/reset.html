@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reset your password — Halo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ── tweak me ─────────────────────────────── */
+  :root {
+    --bg: #eeeafb; --card: #ffffff; --ink: #1a1633; --muted: #756f95; --line: #e4def7;
+    --accent: #5b3df5; --accent-soft: #ece8ff; --bad: #e5484d; --ok: #1fa971;
+    --font: 'Plus Jakarta Sans', system-ui, sans-serif; --ease: cubic-bezier(.16,1,.3,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; display: grid; place-items: center; padding: 24px; font-family: var(--font); color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; overflow: hidden;
+    background-image: radial-gradient(50% 50% at 15% 10%, #dcd3ff, transparent 70%), radial-gradient(45% 45% at 90% 95%, #ffd9ec, transparent 70%); }
+  .orb { position: fixed; border-radius: 50%; filter: blur(60px); opacity: .55; pointer-events: none; animation: float 14s ease-in-out infinite alternate; }
+  .o1 { width: 340px; height: 340px; background: #b9a6ff; left: -80px; top: 55%; } .o2 { width: 280px; height: 280px; background: #ffc2dd; right: -60px; top: 5%; animation-delay: -6s; }
+  @keyframes float { to { transform: translate(40px, -50px) scale(1.15); } }
+  .card { position: relative; width: min(460px, 100%); background: var(--card); border-radius: 32px; padding: 40px 38px 34px; box-shadow: 0 60px 100px -50px rgba(60,40,160,.5), 0 0 0 1px rgba(255,255,255,.8) inset, 0 0 0 1px var(--line); }
+  .prog { display: flex; gap: 8px; margin-bottom: 34px; } .prog i { flex: 1; height: 5px; border-radius: 5px; background: var(--line); position: relative; overflow: hidden; }
+  .prog i::after { content: ''; position: absolute; inset: 0; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .8s var(--ease); } .prog i.on::after { transform: none; }
+  .badge { width: 60px; height: 60px; border-radius: 20px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; margin-bottom: 22px; font-size: 28px; transition: .5s var(--ease); }
+  .pane { display: none; animation: in .7s var(--ease); } .pane.on { display: block; } @keyframes in { from { opacity: 0; transform: translateY(18px); } }
+  h1 { font-size: 28px; font-weight: 800; letter-spacing: -.035em; line-height: 1.1; } .sub { color: var(--muted); margin-top: 10px; font-size: 15px; line-height: 1.5; } .sub b { color: var(--ink); }
+  .lbl { display: block; margin: 26px 0 8px; font-size: 13px; font-weight: 700; }
+  .in { width: 100%; height: 54px; padding: 0 18px; border-radius: 16px; border: 2px solid var(--line); font: 500 16px var(--font); color: var(--ink); outline: none; background: #fbfaff; transition: .3s; }
+  .in:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 5px rgba(91,61,245,.12); } .in.bad { border-color: var(--bad); }
+  .err { min-height: 20px; margin-top: 8px; font-size: 13px; color: var(--bad); font-weight: 500; }
+  .btn { margin-top: 12px; width: 100%; height: 56px; border: 0; border-radius: 16px; background: var(--accent); color: #fff; font: 700 16px var(--font); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 18px 36px -14px var(--accent); } .btn:disabled { opacity: .6; pointer-events: none; }
+  .btn .spin { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: sp .7s linear infinite; display: none; } .btn.load .spin { display: block; } @keyframes sp { to { transform: rotate(360deg); } }
+  .link { display: block; margin: 20px auto 0; border: 0; background: none; font: 600 14px var(--font); color: var(--muted); cursor: pointer; } .link:hover { color: var(--ink); }
+  .link b { color: var(--accent); }
+  .otp { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 28px 0 6px; }
+  .otp input { width: 100%; aspect-ratio: 1 / 1.2; text-align: center; font: 800 28px var(--font); border-radius: 16px; border: 2px solid var(--line); background: #fbfaff; color: var(--ink); outline: none; transition: .25s var(--ease); caret-color: var(--accent); padding: 0; }
+  .otp input:focus { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 12px 24px -12px var(--accent); background: #fff; }
+  .otp input.f { border-color: var(--accent); background: var(--accent-soft); }
+  .otp.bad input { border-color: var(--bad); background: #fff3f3; } .otp.ok input { border-color: var(--ok); background: #effcf6; }
+  .shake { animation: shake .5s; } @keyframes shake { 20%,60% { transform: translateX(-9px); } 40%,80% { transform: translateX(9px); } }
+  .hint { display: inline-flex; margin-top: 18px; gap: 8px; padding: 8px 12px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); font-size: 12.5px; font-weight: 600; }
+  .meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 12px; } .meter i { height: 5px; border-radius: 5px; background: var(--line); transition: .4s; }
+  .meter[data-s='1'] i:nth-child(-n+1) { background: var(--bad); } .meter[data-s='2'] i:nth-child(-n+2) { background: #f5a524; } .meter[data-s='3'] i:nth-child(-n+3) { background: #7fcf4d; } .meter[data-s='4'] i { background: var(--ok); }
+  .match { font-size: 13px; font-weight: 600; margin-top: 8px; min-height: 20px; color: var(--muted); } .match.y { color: var(--ok); } .match.n { color: var(--bad); }
+  .wrap { position: relative; }
+  .big { width: 96px; height: 96px; margin: 6px auto 24px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; font-size: 46px; animation: pop .9s var(--ease); box-shadow: 0 0 0 14px rgba(31,169,113,.14); } @keyframes pop { from { transform: scale(0); } }
+  .center { text-align: center; }
+  canvas { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+</style>
+</head>
+<body>
+<i class="orb o1"></i><i class="orb o2"></i>
+<div class="card">
+  <div class="prog" id="prog"><i class="on"></i><i></i><i></i></div>
+
+  <section class="pane on" data-p="0">
+    <div class="badge">✉️</div>
+    <h1>Forgot your password?</h1>
+    <p class="sub">No stress. Enter your email and we'll send a 6-digit code to reset it.</p>
+    <form id="f0" novalidate>
+      <label class="lbl" for="em">Email address</label>
+      <input class="in" id="em" type="email" placeholder="you@company.com" autocomplete="email" />
+      <div class="err" id="eEm"></div>
+      <button class="btn" id="b0" type="submit"><span class="spin"></span><span>Send me a code</span></button>
+    </form>
+    <button class="link" type="button">← Back to <b>sign in</b></button>
+  </section>
+
+  <section class="pane" data-p="1">
+    <div class="badge">🔐</div>
+    <h1>Check your inbox</h1>
+    <p class="sub">We sent a code to <b id="sentTo">you@company.com</b>. Type or paste it below.</p>
+    <div class="otp" id="otp"></div>
+    <div class="err" id="eOtp" style="text-align:center"></div>
+    <span class="hint">💡 Demo code: <b>424242</b></span>
+    <button class="link" id="resend" type="button" disabled>Resend code in <b id="cd">30</b>s</button>
+    <button class="link" id="back1" type="button" style="margin-top:6px">← Use a different email</button>
+  </section>
+
+  <section class="pane" data-p="2">
+    <div class="badge">🔑</div>
+    <h1>Choose a new password</h1>
+    <p class="sub">Make it something you haven't used before.</p>
+    <form id="f2" novalidate>
+      <label class="lbl" for="p1">New password</label>
+      <input class="in" id="p1" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
+      <div class="meter" id="meter" data-s="0"><i></i><i></i><i></i><i></i></div>
+      <label class="lbl" for="p2" style="margin-top:20px">Confirm password</label>
+      <input class="in" id="p2" type="password" placeholder="Type it again" autocomplete="new-password" />
+      <div class="match" id="match"></div>
+      <button class="btn" id="b2" type="submit"><span class="spin"></span><span>Update password</span></button>
+    </form>
+  </section>
+
+  <section class="pane center" data-p="3">
+    <div class="big">✓</div>
+    <h1>Password updated</h1>
+    <p class="sub">You're all set. Sign in with your new password — we've signed you out everywhere else, just in case.</p>
+    <button class="btn" id="done" type="button" style="margin-top:28px">Back to sign in</button>
+    <button class="link" id="again" type="button">Run the demo again</button>
+  </section>
+</div>
+<canvas id="confetti"></canvas>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const panes = $$('.pane'), bars = $$('#prog i');
+  const go = (n) => { panes.forEach((p, i) => p.classList.toggle('on', i === n)); bars.forEach((b, i) => b.classList.toggle('on', i <= Math.min(n, 2))); $('#prog').style.opacity = n === 3 ? 0 : 1; if (n === 1) { startTimer(); setTimeout(() => boxes[0].focus(), 80); } if (n === 2) setTimeout(() => $('#p1').focus(), 80); if (n === 3) burst(); };
+  const busy = (btn, on) => { btn.classList.toggle('load', on); btn.disabled = on; };
+
+  $('#f0').addEventListener('submit', (e) => {
+    e.preventDefault(); const em = $('#em');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em.value)) { em.classList.add('bad'); $('#eEm').textContent = 'Please enter a valid email address.'; em.focus(); return; }
+    em.classList.remove('bad'); $('#eEm').textContent = '';
+    busy($('#b0'), true);
+    setTimeout(() => { busy($('#b0'), false); $('#sentTo').textContent = em.value; go(1); }, 1000);
+  });
+  $('#em').addEventListener('input', () => { $('#em').classList.remove('bad'); $('#eEm').textContent = ''; });
+
+  /* OTP */
+  const otp = $('#otp'), boxes = [];
+  for (let i = 0; i < 6; i++) { const b = document.createElement('input'); b.inputMode = 'numeric'; b.maxLength = 1; b.autocomplete = i ? 'off' : 'one-time-code'; b.setAttribute('aria-label', 'Digit ' + (i + 1)); otp.appendChild(b); boxes.push(b); }
+  const val = () => boxes.map((b) => b.value).join('');
+  const verify = () => {
+    if (val().length < 6) return;
+    boxes.forEach((b) => b.blur());
+    if (val() === '424242') { otp.className = 'otp ok'; $('#eOtp').textContent = ''; setTimeout(() => { otp.className = 'otp'; go(2); }, 650); }
+    else { otp.className = 'otp bad'; otp.classList.remove('shake'); void otp.offsetWidth; otp.classList.add('shake'); $('#eOtp').textContent = 'That code isn’t right. Try again.'; setTimeout(() => { boxes.forEach((b) => { b.value = ''; b.classList.remove('f'); }); otp.className = 'otp'; boxes[0].focus(); }, 800); }
+  };
+  boxes.forEach((b, i) => {
+    b.addEventListener('input', () => { b.value = b.value.replace(/\D/g, '').slice(-1); b.classList.toggle('f', !!b.value); $('#eOtp').textContent = ''; if (b.value && i < 5) boxes[i + 1].focus(); verify(); });
+    b.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !b.value && i > 0) { boxes[i - 1].value = ''; boxes[i - 1].classList.remove('f'); boxes[i - 1].focus(); }
+      if (e.key === 'ArrowLeft' && i > 0) boxes[i - 1].focus(); if (e.key === 'ArrowRight' && i < 5) boxes[i + 1].focus();
+    });
+    b.addEventListener('focus', () => b.select());
+    b.addEventListener('paste', (e) => { e.preventDefault(); const t = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6); [...t].forEach((c, k) => { boxes[k].value = c; boxes[k].classList.add('f'); }); boxes[Math.min(t.length, 5)].focus(); verify(); });
+  });
+  let tm, left;
+  const startTimer = () => { clearInterval(tm); left = 30; $('#resend').disabled = true; $('#resend').innerHTML = 'Resend code in <b id="cd">30</b>s'; tm = setInterval(() => { left--; if (left <= 0) { clearInterval(tm); $('#resend').disabled = false; $('#resend').innerHTML = 'Didn’t get it? <b>Resend code</b>'; } else $('#cd').textContent = left; }, 1000); };
+  $('#resend').onclick = () => { boxes.forEach((b) => { b.value = ''; b.classList.remove('f'); }); startTimer(); boxes[0].focus(); $('#eOtp').textContent = 'A new code is on its way.'; };
+  $('#back1').onclick = () => go(0);
+
+  /* new password */
+  const p1 = $('#p1'), p2 = $('#p2');
+  const score = (v) => { let s = 0; if (v.length >= 8) s++; if (/[a-z]/.test(v) && /[A-Z]/.test(v)) s++; if (/\d/.test(v)) s++; if (/[^A-Za-z0-9]/.test(v)) s++; return v.length < 6 ? Math.min(s, 1) : s; };
+  const upd = () => { $('#meter').dataset.s = p1.value ? score(p1.value) : 0; const m = $('#match'); if (!p2.value) { m.textContent = ''; m.className = 'match'; } else if (p1.value === p2.value) { m.textContent = '✓ Passwords match'; m.className = 'match y'; } else { m.textContent = 'Passwords don’t match yet'; m.className = 'match n'; } };
+  p1.oninput = p2.oninput = upd;
+  $('#f2').addEventListener('submit', (e) => { e.preventDefault(); if (score(p1.value) < 3 || p1.value.length < 8) { p1.classList.add('bad'); p1.focus(); $('#match').textContent = 'Use 8+ characters with a mix of letters, numbers or symbols.'; $('#match').className = 'match n'; return; } if (p1.value !== p2.value) { p2.classList.add('bad'); p2.focus(); upd(); return; } busy($('#b2'), true); setTimeout(() => { busy($('#b2'), false); go(3); }, 900); });
+  [p1, p2].forEach((i) => i.addEventListener('input', () => i.classList.remove('bad')));
+  $('#done').onclick = () => { $('#done').textContent = 'Signing you in… ✓'; };
+  $('#again').onclick = () => { $$('input').forEach((i) => { i.value = ''; i.classList.remove('f'); }); $('#done').textContent = 'Back to sign in'; upd(); go(0); };
+
+  /* confetti */
+  const cv = $('#confetti'), ctx = cv.getContext('2d'); let parts = [], raf;
+  const fit = () => { cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio; }; fit(); addEventListener('resize', fit);
+  function burst() {
+    const cols = ['#5b3df5', '#ff6aa8', '#ffc247', '#1fa971', '#3db8ff'];
+    parts = Array.from({ length: 150 }, () => ({ x: innerWidth / 2, y: innerHeight * .45, vx: (Math.random() - .5) * 18, vy: -Math.random() * 18 - 4, r: Math.random() * 6 + 4, a: Math.random() * 6, va: (Math.random() - .5) * .4, c: cols[Math.random() * cols.length | 0], l: 1 }));
+    cancelAnimationFrame(raf); const dpr = devicePixelRatio;
+    const tick = () => { ctx.clearRect(0, 0, cv.width, cv.height); parts.forEach((p) => { p.vy += .5; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.a += p.va; p.l -= .0065; ctx.save(); ctx.globalAlpha = Math.max(0, p.l); ctx.translate(p.x * dpr, p.y * dpr); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.r * dpr / 2, -p.r * dpr / 4, p.r * dpr, p.r * dpr / 2); ctx.restore(); }); parts = parts.filter((p) => p.l > 0 && p.y < innerHeight + 40); if (parts.length) raf = requestAnimationFrame(tick); else ctx.clearRect(0, 0, cv.width, cv.height); };
+    tick();
+  }
+})();
+</script>
+</body>
+</html>

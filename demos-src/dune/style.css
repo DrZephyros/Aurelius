@@ -1,0 +1,12 @@
+/* Dunemark — theme: ember + sand, serif display */
+:root {
+  --bg: #140905;
+  --accent: #ffa05a;
+  --glass: rgba(24, 10, 4, 0.42);
+  --line: rgba(255, 200, 150, 0.22);
+  --font-display: 'Fraunces', Georgia, serif;
+}
+.h-xl, .h-lg { font-weight: 300; letter-spacing: -0.035em; font-variation-settings: 'opsz' 144; }
+.h-xl { max-width: 9ch; text-shadow: 0 4px 60px rgba(40, 10, 0, 0.5); }
+.btn { background: #ffe3c4; border-color: #ffe3c4; color: #2a1004; }
+.btn.ghost { background: var(--glass); color: var(--fg); border-color: var(--line); }
