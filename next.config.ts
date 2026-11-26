@@ -4,6 +4,8 @@ import { generateRaw } from "./scripts/gen-raw";
 // snapshot templates / registry / bundles / skill sources as raw text for in-browser zips + code viewers
 generateRaw();
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  experimental: { agentUpgrade: "security" },
+};
 
 export default nextConfig;
