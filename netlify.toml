@@ -1,0 +1,26 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  AGENT_BASE_URL = "https://project-aurelius.netlify.app"
+
+# The app is a client-side SPA with real URLs (History API router), so unknown paths render
+# index.html. Real files (llms.txt, library/*.md, assets) are served first, untouched.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    content-type = "text/markdown; charset=utf-8"
+    cache-control = "public, max-age=300"
+
+[[headers]]
+  for = "/library/*"
+  [headers.values]
+    content-type = "text/markdown; charset=utf-8"
+    cache-control = "public, max-age=300"

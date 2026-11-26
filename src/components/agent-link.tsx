@@ -9,8 +9,8 @@ type Issued = { url: string; prompt: string; pub?: boolean };
 function publicLink(): Issued {
   const origin = typeof location !== "undefined" ? location.origin : "https://projectaurelius.dev";
   return {
-    url: `${origin}/library`,
-    prompt: `I'm giving you access to the Aurelius library, a free collection of 3D landing pages, React components, app pages and prompts.\n\nRead this first: ${origin}/library\n\nThen, for the site I'm building, fetch only the items from that index that fit (each link returns full source plus usage notes), adapt them to my brand and brief, and tell me which ones you used.`,
+    url: `${origin}/llms.txt`,
+    prompt: `I'm giving you access to the Aurelius library, a free collection of 3D landing pages, React components, app pages and prompts.\n\nRead this first: ${origin}/llms.txt\n\nThen, for the site I'm building, fetch only the items from that index that fit (each link returns full source plus usage notes), adapt them to my brand and brief, and tell me which ones you used.`,
     pub: true,
   };
 }
