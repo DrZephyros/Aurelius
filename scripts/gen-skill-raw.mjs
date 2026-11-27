@@ -29,6 +29,9 @@ const walk = (dir) =>
     return statSync(p).isDirectory() ? walk(p) : TEXT.test(n) ? [p] : [];
   });
 
+// v19: templates/TASTE.template.md is the source; the starter ships an identical copy (audit.mjs reads it from next to itself)
+writeFileSync(join(ROOT, "starter/TASTE.template.md"), readFileSync(join(ROOT, "templates/TASTE.template.md")));
+
 // v18: skill.json is the manifest of the single source of truth (version + sha256 of every file)
 {
   const list = walk(ROOT).map((p) => relative(ROOT, p).split("\\").join("/")).filter((f) => f !== "skill.json").sort();

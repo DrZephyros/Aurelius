@@ -17,6 +17,20 @@ If the visitor does not feel something in the first three seconds and again at t
 
 ---
 
+## 00 · The 60-second path (do this; read the rest as you need it)
+
+```bash
+cp -r starter/. <your-project>/ && cd <your-project>     # the starter IS the project: engine + 5 finished worlds + audit + lockfile
+npm ci && npm run setup                                    # pinned install · Chromium + system-library check (prints the ONE fix if something is missing)
+npm run dev                                                # ?world=… to see the five references (default = Obsidian Gate, v19)
+# … build your world (Phases 1–5) …
+npm run build && npm run audit:fast                        # 3 viewports · 8 stops · writes shots/REPORT.md  ← start at "Fix these first"
+cp templates/TASTE.template.md shots/TASTE.md  # (the audit already does this) → score it, honestly, ship at ≥ 85
+```
+* `REPORT.md` opens with **"Fix these first"**: ordered, one concrete move per line (a stated `--aura-plate-a` value, "swap `.aura-left` → `.aura-right`", or "move the subject out of this text band"). `shots/fixes.json` is the same list for a loop. Apply the top item, re-run `audit:fast`, repeat.
+* `templates/TASTE.template.md` **ships** (and `starter/TASTE.template.md` is its copy): open it before you start so you know what the human half of the score asks.
+* Slow machine (2 cores, software GL)? `node scripts/audit.mjs --serve dist --only desktop,landscape --stops 6 --no-resilience` is the fast inner loop; run the full gate once at the end.
+
 ## 0 · How to use this skill (read this first)
 
 1. Read this file fully. It is the operating system.
@@ -48,6 +62,17 @@ If the visitor does not feel something in the first three seconds and again at t
    the closest to your brief. The original two: to study: *Obsidian Gate* (an object / product — `scene.example.ts`) and *Umbra* (an event: terrain + eclipse sky + light shafts + a monolith — `scene.umbra.ts`, built only from the helpers, ~190 lines). Run either with `npm run dev` (`?world=umbra`). **Copy it. Do not rewrite it.** It already implements the damped scroll playhead, a **deterministic `window.__aura.seek(p)` / `?p=` QA hook, procedural sky + eclipse, light shafts, haze, glow, dunes (`atmosphere.ts`, `terrain.ts`), measured fit-to-viewport giant type (`fitType`), the shot-list camera, post stack, adaptive quality, DOM choreography, particles, reflective floor, depth-displaced images and a React shell. Your job is the *world*, the *camera moves* and the *story* — that is where the value is.
 
 ---
+
+## 0a · What v19 changed (answers the v18 audit of this skill)
+
+* **Every audit finding now says what to DO.** v18 told builders to "raise the scrim by ≈1133 %". v19 decides text polarity from the glyph colour, measures in sRGB, and answers with a stated `--aura-plate-a` value, a measured "swap left↔right", or "move the subject" — never a percentage above 100.
+* **The local scrim ("plate") ships.** Every `.aura-copy` carries a soft radial plate (`--aura-plate-a`, default 0.55; 0.62 on phones); giant words carry `--aura-giant-plate-a`. Copy no longer depends on the one bottom gradient.
+* **The no-WebGL page is designed and has an action.** `AuraExperience` lifts the first `a[href]`/`button` and the first heading into an above-the-fold `.aura-static-head`; body copy inherits a font stack that ends in a generic family (no more serif body under a sans head). The audit fails both (`fallback-no-action`, `fallback-font`).
+* **Landscape no longer collides.** Giant title in the top band (≤ 40 % of the height), side copy anchored to the bottom band.
+* **Chapters change mood.** `mood.ts` (`createMood`) keys a palette to the playhead; `scene.example.ts` now moves from ink-blue → glacier → ember → violet → dawn, with the grade's split-toning following (the engine re-reads `scene.grade` every frame).
+* **The example got a craft pass.** A creased, sculpted hero (not an orb); a *gate* of leaning slabs (foreground occluders, 5-plane depth); iridescent chips that dissolve before the lens (the black flat triangle is gone); a phone rail that parks the hero **below** the title.
+* **Reproducible.** `starter/package-lock.json` is committed and `npm ci` works. `npm run setup` proves Chromium + WebGL launch.
+* **`TASTE.md` ships** as `templates/TASTE.template.md` with scoring anchors (what a 3, 7 and 10 look like) — fill it in from the contact sheets.
 
 ## 0b · What v18 changed (read before trusting an old habit)
 
@@ -118,7 +143,7 @@ Copy `starter/src/aura/*` into the project (Vite + React is the default; for Nex
 Pass A *Motion:* timing of every entrance, hold lengths, easing, velocity feel. Pass B *Image:* color grade, contrast, highlights, depth separation, kill any flat frame. Pass C *Details:* micro-typography, cursor, loader, hover states, 404, favicon, OG image, scroll-snap-free ending.
 
 ### Phase 7 — QA gate
-Run `node scripts/audit.mjs <url>` (from `starter/`) (see `references/08-qa-and-polish.md`): it seeks the playhead deterministically, captures 14 stops on desktop / wide / **390×844 touch** and 7 on **360×640** and **844×390**, measures every frame, lints the shot list and DOM chapters, **measures min font size, WCAG contrast against the copy-free frame, 44 px tap targets, CTA wrapping, horizontal overflow, the phone draw-call budget and the portrait rail, proves a real scroll drives the playhead**, and tests no-WebGL + reduced-motion. Then **open the contact sheets and critique them**. Also check FPS (`--gpu`), reduced motion, mobile touch scroll, resize, tab-hidden. Score. **If < 85, fix the lowest-scoring category and re-score.** Ship the score in your final message.
+Run `node scripts/audit.mjs <url>` (from `starter/`) (see `references/08-qa-and-polish.md`): it seeks the playhead deterministically, captures 14 stops on desktop / wide / **390×844 touch** and 7 on **360×640** and **844×390**, measures every frame, lints the shot list and DOM chapters, **measures min font size, WCAG contrast against the copy-free frame, 44 px tap targets, CTA wrapping, horizontal overflow, the phone draw-call budget and the portrait rail, proves a real scroll drives the playhead**, and tests no-WebGL + reduced-motion. Then **open the contact sheets and critique them**. Also check FPS (`--gpu`), reduced motion, mobile touch scroll, resize, tab-hidden. Score. **Read `REPORT.md` from "Fix these first" down — each line is one concrete move; apply the first, re-run, repeat.** If the human total is < 85, fix the lowest-scoring TASTE row and re-score. Ship the score in your final message.
 
 ---
 
@@ -183,7 +208,8 @@ You may not say "done" until ALL of these are true — paste the evidence in you
 3. Frame one has type on screen; the last frame is a composed image with ONE live CTA (the engine hides neither if you start chapter 1 at `data-a="0"` and end the last at `data-b="1"`).
 4. Giant type uses `data-fit` — never guessed vw. Nothing is cropped or collides at 390 px, 360 px or in landscape. Your scene returns `shotsMobile`, and `contact-mobile.png` shows the subject high, the copy low and the CTA on ONE line.
 5. `__aura.info().drawCalls` ≤ 160 and the no-WebGL fallback is a designed poster, not a blank page.
-6. Your score table includes the audit's automated points (atmosphere 20 · unbroken 15 · rhythm 15 · craft 15 · **mobile & legibility 15**) **and** your own judged Authorship points (20) and judged taste, honestly. An automated 80/80 is never a pass on its own: you still read the contact sheets.
+6. You opened `TASTE.md` (template: `templates/TASTE.template.md`), scored all ten rows with one sentence of evidence each, and pasted the honesty line (`automated N/80 · taste N/100 · lowest rows …`) into your final message. A scene that ships with blockers is not "passing with notes" — fix or say plainly what you could not fix.
+7. Your score table includes the audit's automated points (atmosphere 20 · unbroken 15 · rhythm 15 · craft 15 · **mobile & legibility 15**) **and** your own judged Authorship points (20) and judged taste, honestly. An automated 80/80 is never a pass on its own: you still read the contact sheets.
 
 ## 9 · The $10,000 bar
 A paid-for site is the film **plus** an end-state, routes, metadata, a designed loader, a mobile edit, a reduced-motion edit, a fallback poster, a hand-off README and one `config.ts` for every knob — see `references/14-premium-delivery.md`. If you only built the hero, you built a demo. Say so, or finish the job.

@@ -15,6 +15,7 @@ export { earbuds, dial, bottle, type ExplodePart } from "./objects";
 export { measureDevice, BUDGETS } from "./device";
 export { DepthPrepass, createAoPass, createDofPass } from "./post";
 export { LOOKS, applyLookCss, type Look } from "./looks";
+export { createMood, moodScalar, type MoodStop } from "./mood";
 export { createMinimalHost, adaptLegacy, railSampler, type LegacyBuilt } from "./portable";
 export { createLiquidMetal, type LiquidMetalOptions } from "./frontier/sdf";
 export { createGpuParticles, particleSide, type GpuParticlesOptions } from "./frontier/gpgpu";

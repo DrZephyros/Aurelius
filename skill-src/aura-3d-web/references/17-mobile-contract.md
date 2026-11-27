@@ -21,7 +21,9 @@ More than half of the people who open an immersive site open it on a phone, held
 | Stage height | `100svh` (stable) with `100vh` fallback | `aura.css` |
 | Context loss | `webglcontextlost` → `preventDefault`, static edition at once, engine re-mounts on `webglcontextrestored` (iOS Safari does this under memory pressure) | `engine.ts`, `AuraExperience.tsx` |
 | Static edition | No WebGL, **Data Saver / 2G**, or a lost context → `.is-static`: same copy, normal flow, designed gradient — a complete page, not a blank | `AuraExperience.tsx`, `aura.css` |
-| Legibility | `.aura-stage::before` scrim under the copy zone (0.62 desktop · 0.74 phone), copy text-shadow, fonts ≥ 11–12 px | `aura.css` |
+| Legibility | `.aura-stage::before` scrim under the copy zone (0.62 desktop · 0.84 phone) **plus a local plate under every copy block** (`--aura-plate-a`, 0.55 · 0.62 phone), copy text-shadow; phone type is 14 px labels / 17 px body / 2.1–3 rem headings | `aura.css` |
+| Landscape phone (≤ 480 px tall) | giant title in the TOP band (centred at 22 %, ≤ 34 vh), side copy anchored to the BOTTOM band — they cannot share a row (v18 collided by 180×16 px) | `aura.css` |
+| Phone composition | `shotsMobile[0].look.y` ABOVE the hero's y parks the hero lower in frame, under the title; macro shots keep the subject in the upper half | `scene.example.ts` |
 | Touch targets | `.aura-cta` is ≥ 52 px tall, `white-space: nowrap`, `touch-action: manipulation`; hover styles only under `@media (hover: hover)`, with `:active` / `:focus-visible` for touch + keyboard | `aura.css` |
 | Safe areas | `viewport-fit=cover`; copy / HUD offset by `env(safe-area-inset-bottom)` | `aura.css`, `index.html` |
 | Landscape phone | `max-height: 480px` edit: paragraph dropped, headline + CTA stay on screen | `aura.css` |

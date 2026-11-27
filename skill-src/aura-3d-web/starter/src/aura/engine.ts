@@ -136,16 +136,20 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
   composer.addPass(new OutputPass());
   const fx = new ShaderPass(FX);
   composer.addPass(fx);
-  const g = built.grade ?? {};
   const U = fx.uniforms as typeof FX.uniforms;
-  if (g.vignette !== undefined) U.uVignette.value = g.vignette;
-  if (g.grain !== undefined) U.uGrain.value = g.grain;
-  if (g.aberration !== undefined) U.uAberr.value = g.aberration;
-  if (g.contrast !== undefined) U.uContrast.value = g.contrast;
-  if (g.saturation !== undefined) U.uSat.value = g.saturation;
-  if (g.shadows) U.uShadows.value.set(...g.shadows);
-  if (g.highlights) U.uHighlights.value.set(...g.highlights);
-  if (reduced) { U.uGrain.value *= 0.5; U.uAberr.value = 0; }
+  /** v19: the grade is LIVE. `built.grade` may be mutated from update() (e.g. a per-chapter mood, mood.ts) and is re-applied every frame. */
+  const applyGrade = () => {
+    const g = built.grade ?? {};
+    if (g.vignette !== undefined) U.uVignette.value = g.vignette;
+    if (g.grain !== undefined) U.uGrain.value = g.grain;
+    if (g.aberration !== undefined) U.uAberr.value = g.aberration;
+    if (g.contrast !== undefined) U.uContrast.value = g.contrast;
+    if (g.saturation !== undefined) U.uSat.value = g.saturation;
+    if (g.shadows) U.uShadows.value.set(...g.shadows);
+    if (g.highlights) U.uHighlights.value.set(...g.highlights);
+    if (reduced) { U.uGrain.value *= 0.5; U.uAberr.value = 0; }
+  };
+  applyGrade();
 
   const S = { locked: false, target: 0, prog: 0, dim: 0, dimT: 0, fade: 0, speed: 0, bank: 0, ptrX: 0, ptrY: 0, tx: 0, ty: 0 };
   const onMove = (e: PointerEvent) => { if (e.pointerType === "touch" || reduced) return; /* a finger drives the scroll, not the parallax */ S.tx = (e.clientX / innerWidth) * 2 - 1; S.ty = (e.clientY / innerHeight) * 2 - 1; };
@@ -280,6 +284,7 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
 
     const fr: Frame = { time: t, dt, p: S.prog, velocity: S.speed, pointer: { x: S.ptrX, y: S.ptrY }, camera, quality, reduced };
     built.update(fr);
+    applyGrade();
 
     // post uniforms (depth-aware effects follow the live camera + the scene's mutable `post` spec)
     if (depth && depth.enabled) {

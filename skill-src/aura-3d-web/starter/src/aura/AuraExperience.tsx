@@ -81,8 +81,20 @@ export function AuraExperience({ build, children, scrollVh = 700, scrollVhMobile
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [sound, setSound] = useState(false);
+  /** static edition: lede + first action lifted out of the chapters so the no-WebGL page opens with a headline AND something to press */
+  const [head, setHead] = useState<{ lede: string; label: string; href: string | null } | null>(null);
   const rootRef = useRef<HTMLElement | null>(null);
   useEffect(() => { if (look && rootRef.current) applyLookCss(rootRef.current, look); }, [look]);
+
+  useEffect(() => {
+    if (!failed) { setHead(null); return; }
+    const ov = overlay.current; if (!ov) return;
+    const act = ov.querySelector<HTMLElement>("a[href], button");
+    const chap = [...ov.querySelectorAll<HTMLElement>("[data-a]")].find((e) => !e.matches(".aura-giant"));
+    let lede = "";
+    if (chap && !chap.querySelector(".aura-p, a[href], button")) { const h = chap.querySelector<HTMLElement>(".aura-h, h1, h2"); lede = (h ? h.innerText || h.textContent || "" : "").replace(/\s+/g, " ").trim(); /* innerText keeps the <br /> as a space (textContent glued "placesyou") */ if (lede) chap.setAttribute("data-static-lede", ""); }
+    setHead(act ? { lede, label: (act.textContent || act.getAttribute("aria-label") || "Continue").trim(), href: act.getAttribute("href") } : lede ? { lede, label: "", href: null } : null);
+  }, [failed]);
 
   useEffect(() => {
     if (!hasWebGL() || saveData() || forceStatic()) { setFailed(true); return; }
@@ -121,6 +133,15 @@ export function AuraExperience({ build, children, scrollVh = 700, scrollVhMobile
       <div className="aura-stage">
         <div ref={host} className="aura-canvas" aria-hidden />
         {failed && (poster ? <img src={poster} alt="" className="aura-poster" /> : <div className="aura-poster-auto" aria-hidden />)}
+        {failed && (
+          <header className="aura-static-head">
+            <h1 className="aura-static-title">{title || "Welcome"}</h1>
+            {head?.lede && <p className="aura-static-lede">{head.lede}</p>}
+            {head?.label && (head.href
+              ? <a className="aura-cta" href={head.href}>{head.label}</a>
+              : <button type="button" className="aura-cta" onClick={() => overlay.current?.querySelector<HTMLElement>("a[href], button")?.click()}>{head.label}</button>)}
+          </header>
+        )}
         <div ref={overlay} className="aura-overlay">{children}</div>
         {hud && (
           <div className="aura-hud" aria-hidden>

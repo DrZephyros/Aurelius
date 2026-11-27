@@ -40,7 +40,7 @@ Then let it work: brief → storyboard → assets → build → screenshots → 
 
 ## Run the starter
 ```bash
-cd starter && npm i && npm run dev
+cd starter && npm ci && npm run setup && npm run dev    # lockfile committed — builds are pinned; `setup` proves Chromium + WebGL for the audit
 ```
 You'll see **Obsidian Gate** (a product world); open `/?world=umbra` for **Umbra** (an event world: dunes, eclipse sky, light shafts). Both are zero-asset. Read them as patterns, then replace the scene.
 
@@ -66,3 +66,13 @@ npm i -D playwright pngjs && npx playwright install chromium
 - Audit v3: class-agnostic, glyph-pixel contrast that sees the scrim, mode-aware, verified fallbacks, asset-404 / SPA-fallback detection, `--tsc`, `--compare`, look fingerprint, `TASTE.md`.
 - Hygiene: `three` pinned (0.187.0), strict `tsconfig`, `VERSION` + `skill.json`.
 - Honest limits: WebGPU track not executed in CI (no adapter); real-device FPS is yours to measure (`?aura-debug=1`); SSR is intentionally not faked.
+
+---
+
+## v19 — measured fixes, a designed fallback, a better reference
+- **Audit v4 says what to DO**: stated `--aura-plate-a` values, measured left↔right swaps, "move the subject" with the band in %. No more impossible percentages. `REPORT.md` opens with *Fix these first*; `fixes.json` for loops.
+- **Local scrim ("plate")** under every copy block + faint plate under giant words; the global bottom scrim is no longer the only protection.
+- **The no-WebGL edition has an action** (`.aura-static-head`: title · lede · first CTA, above the fold) and a font stack that ends in a generic family. Both are audited.
+- **Landscape collision fixed** (title top band / copy bottom band), phone type enlarged, ghosted CTA fixed (chapters stay hidden until the first frame binds).
+- **`mood.ts`**: per-chapter palette keyed to the playhead; the engine re-reads `scene.grade` every frame. **Obsidian Gate** was rebuilt around it: creased hero, a gate of slabs, chips that dissolve before the lens, five moods.
+- **Reproducible**: `starter/package-lock.json` + `npm ci`; `npm run setup`; `templates/TASTE.template.md` (also copied into every audit's output).

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ─────────────────────────────────────────────────────────────────────────────
-   AURA · audit.mjs v3 — the QA gate an agent can actually run. HYGIENE, not taste.
+   AURA · audit.mjs v4 — the QA gate an agent can actually run. HYGIENE, not taste. Every finding now says what to DO.
 
    npm i -D playwright pngjs && npx playwright install chromium
    node scripts/audit.mjs <url | --serve dist> [--out shots] [--stops 14] [--only desktop,mobile] [--quick] [--scale 0.5]
@@ -32,8 +32,10 @@ import { mkdirSync, writeFileSync, readFileSync, existsSync, statSync } from "no
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
 import { execSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+const HERE = fileURLToPath(new URL(".", import.meta.url));
 
-export const AUDIT_VERSION = "3.0";
+export const AUDIT_VERSION = "4.0";
 const argv = process.argv.slice(2);
 const flag = (n, d) => { const i = argv.indexOf(`--${n}`); return i < 0 ? d : argv[i + 1] && !argv[i + 1].startsWith("--") ? argv[i + 1] : true; };
 const out = flag("out", "shots");
@@ -72,7 +74,7 @@ const VIEWPORTS = ALL_VP.filter((v) => (onlySet ? onlySet.includes(v.n) : !quick
 const mkStops = (n) => Array.from({ length: n }, (_, i) => +(i / (n - 1)).toFixed(4));
 
 const issues = [];
-const add = (level, vp, p, code, msg) => issues.push({ level, vp, p, code, msg });
+const add = (level, vp, p, code, msg, extra = {}) => issues.push({ level, vp, p, code, msg, ...extra });
 
 /* ── pixel maths ── */
 function metrics(png) {
@@ -100,6 +102,7 @@ function sheet(pngs, cols, tw, file) {
 
 /** Glyph-pixel contrast. back = frame with glyphs transparent (scrim, overlays, button fills KEPT). mask = glyphs alone on a transparent page. */
 function glyphContrast(back, mask, r) {
+  const [cr, cg, cb] = parseRgba(r.color), Lg = relLum(cr, cg, cb);
   const { width: W, height: H } = back, x0 = Math.max(0, Math.floor(r.x - 2)), y0 = Math.max(0, Math.floor(r.y - 2)), x1 = Math.min(W, Math.ceil(r.r + 2)), y1 = Math.min(H, Math.ceil(r.b + 2));
   let amax = 0; for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) amax = Math.max(amax, mask.data[(y * W + x) * 4 + 3]);
   if (amax < 40) return null; // nothing drawn (fully faded) — not a legibility problem
@@ -115,12 +118,37 @@ function glyphContrast(back, mask, r) {
   const f = (th) => ratios.filter((q) => q < th).length / ratios.length;
   const med = (v) => v.slice().sort((a, b) => a - b)[Math.floor(v.length / 2)];
   const Lt = med(lt), Lb90 = lb.slice().sort((a, b) => a - b)[Math.floor(lb.length * 0.9)], Lb10 = lb.slice().sort((a, b) => a - b)[Math.floor(lb.length * 0.1)];
-  return { f45: f(4.5), f3: f(3), f2: f(2), worst: ratios.slice().sort((a, b) => a - b)[Math.floor(ratios.length * 0.1)], Lt, Lb90, Lb10, n: ratios.length };
+  return { f45: f(4.5), f3: f(3), f2: f(2), worst: ratios.slice().sort((a, b) => a - b)[Math.floor(ratios.length * 0.1)], Lt, Lg, Lb90, Lb10, n: ratios.length };
 }
-/** the extra scrim alpha (toward black for light glyphs, toward white for dark glyphs) that lifts the worst glyph pixels to `th`:1 */
-function scrimFix(c, th) {
-  if (c.Lt >= c.Lb90) { const need = (c.Lt + 0.05) / th - 0.05; return c.Lb90 <= 0 ? 0 : Math.max(0, 1 - need / c.Lb90); } // light text: darken the bright pixels
-  const need = th * (c.Lt + 0.05) - 0.05; return c.Lb10 >= 1 ? 0 : Math.max(0, (need - c.Lb10) / (1 - c.Lb10)); // dark text: lighten the dark pixels
+const toS = (L) => (L <= 0.0031308 ? 12.92 * L : 1.055 * Math.pow(Math.max(L, 0), 1 / 2.4) - 0.055); // linear luminance → sRGB value (CSS composites in sRGB)
+/** backdrop luminance percentiles inside a rect of the copy-free frame (every 2nd pixel) */
+function backdrop(back, x0, y0, x1, y1) {
+  const { width: W, height: H } = back, v = [];
+  for (let y = Math.max(0, Math.floor(y0)); y < Math.min(H, Math.ceil(y1)); y += 2) for (let x = Math.max(0, Math.floor(x0)); x < Math.min(W, Math.ceil(x1)); x += 2) { const i = (y * W + x) * 4; v.push(relLum(back.data[i], back.data[i + 1], back.data[i + 2])); }
+  v.sort((a, b) => a - b); return v.length ? { Lb10: v[Math.floor(v.length * 0.1)], Lb90: v[Math.floor(v.length * 0.9)] } : { Lb10: 0, Lb90: 0 };
+}
+/** EXTRA scrim alpha (0 … ∞) of colour luminance `Ls` that lifts the worst backdrop pixels to th:1 for glyph luminance Lg.
+ *  Light text → darken the BRIGHT pixels (Lb90); dark text → lighten the DARK pixels (Lb10). Infinity = no scrim can do it. */
+function extraAlpha(Lg, Lb90, Lb10, Ls, th) {
+  if (Lg >= 0.4) { const need = (Lg + 0.05) / th - 0.05; if (Lb90 <= need) return 0; if (need <= Ls) return Infinity; return (toS(Lb90) - toS(need)) / Math.max(1e-3, toS(Lb90) - toS(Ls)); }
+  const need = th * (Lg + 0.05) - 0.05; if (Lb10 >= need) return 0; if (need >= Ls || need > 1) return Infinity; return (toS(need) - toS(Lb10)) / Math.max(1e-3, toS(Ls) - toS(Lb10));
+}
+const scrimLum = (s) => { const n = String(s || "3 5 11").trim().split(/[ ,]+/).map(Number); return n.length >= 3 && n.every((q) => !Number.isNaN(q)) ? relLum(n[0], n[1], n[2]) : 0.002; };
+/** ONE concrete move for a failing run: {kind:"plate"|"mirror"|"subject"|"text", do:string, plate?:number}. `th` = the contrast to reach. */
+function advise(c, r, back, th) {
+  const Ls = scrimLum(r.chap?.scrim), cur = Number.isFinite(r.chap?.plate) ? r.chap.plate : 0.55, sel = r.chap?.sel ?? "the chapter", giant = !!r.chap?.giant;
+  const x = extraAlpha(c.Lg, c.Lb90, c.Lb10, Ls, th);
+  const band = `${Math.round((r.y / back.height) * 100)}–${Math.round((r.b / back.height) * 100)}%`;
+  if (x === Infinity && (c.Lg >= 0.4) === (Ls >= 0.4)) return { kind: "scrim-colour", do: `the scrim colour (--aura-scrim: ${r.chap?.scrim || "3 5 11"}) is the SAME tone as the text, so it cannot help — set --aura-scrim to the page background colour as "r g b" (the opposite tone of the type)` };
+  // (2) the other side of the frame, measured with the same rect mirrored
+  if (!giant && (r.chap?.anchor === "aura-left" || r.chap?.anchor === "aura-right") && back.width > 0) {
+    const m = backdrop(back, back.width - r.r, r.y, back.width - r.x, r.b), xm = extraAlpha(c.Lg, m.Lb90, m.Lb10, Ls, th);
+    if (xm <= 0.06 && x > 0.12) return { kind: "mirror", do: `swap ${sel} from .${r.chap.anchor} to .${r.chap.anchor === "aura-left" ? "aura-right" : "aura-left"} — measured: the mirrored side is already dark/light enough (0 extra scrim needed)` };
+  }
+  const total = 1 - (1 - cur) * (1 - Math.min(x, 1));
+  const plate = Math.min(0.92, Math.round(Math.min(total * 1.12 + 0.02, 1) * 100) / 100);
+  if (x === Infinity || x > 0.8 || total > 0.9) return { kind: "subject", do: giant ? `no title plate fixes this without erasing the hero: move the SUBJECT out of the title band (${band} of the frame at this size) — shift shots[].look so the hero sits lower / off-axis for p≈this frame, or on phones use shotsMobile (look.y above the hero.y puts it lower in frame)` : `no scrim ≤ 0.92 fixes ${sel} without erasing the picture: move the SUBJECT out of this text band (${band} of the frame) — shift shots[].look / shotsMobile — or window the chapter into a darker stretch of the rail` };
+  return { kind: "plate", plate, do: giant ? `set --aura-giant-plate-a: ${Math.min(0.85, plate).toFixed(2)} on ${sel} (now ${Number.isFinite(r.chap?.giantPlate) ? r.chap.giantPlate : 0.34}) — or move the hero out of the title band` : `set --aura-plate-a: ${plate.toFixed(2)} on ${sel} (now ${cur.toFixed(2)}) — style={{ "--aura-plate-a": ${plate.toFixed(2)} }}; or swap its anchor / move the subject` };
 }
 
 const ARGS = gpu ? ["--ignore-gpu-blocklist", "--enable-webgl"] : ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--enable-webgl"];
@@ -136,6 +164,12 @@ const COLLECT = ({ chapters, ignore, hud }) => {
   const vw = innerWidth, vh = innerHeight, runs = [], taps = [];
   const chainOpacity = (el) => { let o = 1; for (let e = el; e && e !== document.documentElement; e = e.parentElement) { const cs = getComputedStyle(e); if (cs.visibility === "hidden" || cs.display === "none") return 0; o *= +cs.opacity; } return o; };
   const owners = new Map(); const ownerId = (el) => { const c = el.closest(chapters) || el.closest("a,button,[role=button],h1,h2,h3,h4,p,li,label,span,div") || el; if (!owners.has(c)) owners.set(c, owners.size); return owners.get(c); };
+  const desc = (e) => e.tagName.toLowerCase() + [...e.classList].slice(0, 2).map((c) => "." + c).join("");
+  const chapInfo = (el) => {
+    const c = el.closest(chapters) || el.closest(".aura-copy,.aura-giant"); if (!c) return null;
+    const cs = getComputedStyle(c), giant = c.classList.contains("aura-giant"), num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : null; };
+    return { sel: desc(c) + (c.dataset.a !== undefined ? `[data-a=${c.dataset.a}…${c.dataset.b ?? 1}]` : ""), a: num(c.dataset.a), b: num(c.dataset.b), giant, anchor: ["aura-left", "aura-right", "aura-center", "aura-final"].find((k) => c.classList.contains(k)) ?? (giant ? "aura-giant" : null), plate: num(cs.getPropertyValue("--aura-plate-a")), giantPlate: num(cs.getPropertyValue("--aura-giant-plate-a")), scrim: cs.getPropertyValue("--aura-scrim").trim() };
+  };
   const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let n; (n = w.nextNode());) {
     const t = n.textContent.trim(); if (!t) continue;
@@ -144,7 +178,7 @@ const COLLECT = ({ chapters, ignore, hud }) => {
     const rg = document.createRange(); rg.selectNodeContents(n); const rs = [...rg.getClientRects()].filter((q) => q.width > 1 && q.height > 1); if (!rs.length) continue;
     const r = rg.getBoundingClientRect(); if (r.right < 0 || r.bottom < 0 || r.left > vw || r.top > vh) continue;
     const cs = getComputedStyle(el), px = parseFloat(cs.fontSize), cta = el.closest("a[href],button,[role=button]");
-    runs.push({ t: t.slice(0, 28), px, color: cs.color, x: r.left, y: r.top, r: r.right, b: r.bottom, lines: new Set(rs.map((q) => Math.round(q.top / 4))).size, hud: !!el.closest(hud), giant: px >= 64 || !!el.closest("[data-fit],.aura-giant"), cta: !!cta, owner: ownerId(el), op });
+    runs.push({ t: t.slice(0, 28), px, color: cs.color, x: r.left, y: r.top, r: r.right, b: r.bottom, lines: new Set(rs.map((q) => Math.round(q.top / 4))).size, hud: !!el.closest(hud), giant: px >= 64 || !!el.closest("[data-fit],.aura-giant"), cta: !!cta, owner: ownerId(el), op, chap: chapInfo(el), ff: cs.fontFamily });
   }
   for (const e of document.querySelectorAll("a[href],button,[role=button],input,select,textarea,summary")) {
     if (ignore && e.closest(ignore)) continue;
@@ -179,7 +213,16 @@ for (const vp of VIEWPORTS) {
   meta[vp.n] = { shots: info.shots, size: info.size, tier: info.tier, device: info.device, mode: info.mode, rail: info.rail };
   const chapters = await page.evaluate((sel) => [...document.querySelectorAll(sel)].map((e) => ({ a: +(e.dataset.a ?? e.dataset.auraA ?? 0), b: +(e.dataset.b ?? e.dataset.auraB ?? 1), text: (e.textContent || "").trim().replace(/\s+/g, " "), words: (e.querySelector("h1,h2,h3")?.textContent || e.textContent || "").trim().split(/\s+/).filter(Boolean).length, giant: !!e.matches("[data-fit],.aura-giant") })), CFG.chapters);
   const light = info.mode === "light";
-  const rows = [], stops = mkStops(vp.N);
+  /* v4: SETTLED STOPS. Evenly spaced stops often land inside a chapter's fade (opacity 0.4, blurred) and fail contrast for a frame no visitor lingers on.
+     Every chapter is also sampled at the middle of its window: the nearest even stop is snapped there if within 0.07, otherwise one is added. */
+  const stops = mkStops(vp.N);
+  for (const c of chapters.filter((q) => !q.giant)) {
+    const mid = +((c.a + c.b) / 2).toFixed(4); if (mid <= 0 || mid >= 1) continue;
+    let k = 0; stops.forEach((q, i) => { if (Math.abs(q - mid) < Math.abs(stops[k] - mid)) k = i; });
+    if (Math.abs(stops[k] - mid) < 0.07 && k > 0 && k < stops.length - 1) stops[k] = mid; else if (!stops.includes(mid)) stops.push(mid);
+  }
+  stops.sort((a, b) => a - b);
+  const rows = [];
   for (const p of stops) {
     await page.evaluate((q) => window.__aura.seek(q), p);
     await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
@@ -188,7 +231,7 @@ for (const vp of VIEWPORTS) {
     const png = PNG.sync.read(await page.screenshot({ path: `${out}/${vp.n}-${String(Math.round(p * 100)).padStart(3, "0")}.png` }));
     const m = metrics(png);
     dom.contrast = [];
-    const body = dom.runs.filter((r) => !r.hud);
+    const body = dom.runs.filter((r) => !r.hud && r.op >= 0.85); // mid-fade text (opacity < .85) is not what a visitor reads — the settled stops judge it
     if (body.length || (flag("poster", false) && p === 0)) {
       const h1 = await page.addStyleTag({ content: TEXT_OFF }); await page.waitForTimeout(60);
       const back = PNG.sync.read(await page.screenshot()); await h1.evaluate((e) => e.remove());
@@ -196,7 +239,7 @@ for (const vp of VIEWPORTS) {
       if (body.length) {
         const h2 = await page.addStyleTag({ content: GLYPHS_ONLY }); await page.waitForTimeout(60);
         const mask = PNG.sync.read(await page.screenshot({ omitBackground: true })); await h2.evaluate((e) => e.remove());
-        for (const r of body) { const c = glyphContrast(back, mask, r); if (c) dom.contrast.push({ t: r.t, px: r.px, large: r.px >= 24 || r.giant, giant: r.giant, cta: r.cta, ...c }); }
+        for (const r of body) { const c = glyphContrast(back, mask, r); if (c) { const large = r.px >= 24 || r.giant; dom.contrast.push({ t: r.t, px: r.px, large, giant: r.giant, cta: r.cta, ...c, fixFail: advise(c, r, back, large ? 2.5 : 3.5), fixWarn: advise(c, r, back, large ? 3.2 : 4.8) }); } }
       }
     }
     rows.push({ p, ...m, dom, png });
@@ -217,7 +260,7 @@ for (const vp of VIEWPORTS) {
     for (let a = 0; a < runs.length; a++) for (let b = a + 1; b < runs.length; b++) {
       const A = runs[a], B = runs[b]; if (A.owner === B.owner || A.hud || B.hud) continue;
       const ox = Math.min(A.r, B.r) - Math.max(A.x, B.x), oy = Math.min(A.b, B.b) - Math.max(A.y, B.y);
-      if (ox > 6 && oy > 6) add("BLOCKER", vp.n, r.p, "collision", `“${A.t}” overlaps “${B.t}” by ${Math.round(ox)}×${Math.round(oy)}px — re-position or re-window the chapters`);
+      if (ox > 6 && oy > 6) { const ca = A.chap, cb = B.chap, win = (c) => (c && c.a !== null ? `${c.sel.split("[")[0]} window ${c.a}–${c.b ?? 1}` : "a chapter"); add("BLOCKER", vp.n, r.p, "collision", `“${A.t}” (${win(ca)}, ${ca?.anchor ?? "?"}) overlaps “${B.t}” (${win(cb)}, ${cb?.anchor ?? "?"}) by ${Math.round(ox)}×${Math.round(oy)}px at ${vw}×${vh} → DO: ${vh < 500 ? "in landscape put the giant word in the top band and side copy in the bottom band (aura.css ≥ v19 does; check you did not override .aura-left/.aura-right top/bottom)" : "give one of them another anchor (aura-left / aura-right / aura-center)"}, or end the giant's data-b before the other's data-a (${ca?.a ?? "?"}–${ca?.b ?? "?"} vs ${cb?.a ?? "?"}–${cb?.b ?? "?"})`, { t: A.t + "×" + B.t }); }
     }
     runs.forEach((q) => {
       if (q.px < T.tinyPx) add(q.hud ? "WARN" : "BLOCKER", vp.n, r.p, "tiny-text", `“${q.t}” is ${q.px.toFixed(1)}px — nothing a person must read may be under ${T.tinyPx}px`);
@@ -226,9 +269,9 @@ for (const vp of VIEWPORTS) {
       if (q.cta && vp.touch && q.px < T.ctaTouchPx) add("WARN", vp.n, r.p, "cta-font", `CTA “${q.t}” is ${q.px.toFixed(1)}px on a phone — use ≥${T.ctaTouchPx}px`);
     });
     r.dom.contrast.forEach((c) => {
-      const fixFor = (th) => `measured fix: raise the scrim under it by ≈${Math.ceil(scrimFix(c, th) * 100)}% (--aura-scrim-a / the overlay gradient — they now count), or move the subject out from behind it`;
-      if (c.large ? c.f2 > T.largeFail2 : c.f3 > T.bodyFail3) add("BLOCKER", vp.n, r.p, "contrast-fail", `“${c.t}” — ${Math.round((c.large ? c.f2 : c.f3) * 100)}% of its GLYPH pixels are under ${c.large ? 2 : 3}:1 (worst 10% ≈ ${c.worst.toFixed(1)}:1). ${fixFor(c.large ? 2.5 : 3.5)}`);
-      else if (c.large ? c.f3 > T.largeWarn3 : c.f45 > T.bodyWarn45) add("WARN", vp.n, r.p, "contrast", `“${c.t}” is borderline (${Math.round((c.large ? c.f3 : c.f45) * 100)}% of glyph pixels under ${c.large ? 3 : 4.5}:1). ${fixFor(c.large ? 3.2 : 4.8)}`);
+      const fixOf = (f) => `→ DO: ${f.do}`;
+      if (c.large ? c.f2 > T.largeFail2 : c.f3 > T.bodyFail3) add("BLOCKER", vp.n, r.p, "contrast-fail", `“${c.t}” — ${Math.round((c.large ? c.f2 : c.f3) * 100)}% of its GLYPH pixels are under ${c.large ? 2 : 3}:1 (worst 10% ≈ ${c.worst.toFixed(1)}:1). ${fixOf(c.fixFail)}`, { t: c.t, fix: c.fixFail });
+      else if (c.large ? c.f3 > T.largeWarn3 : c.f45 > T.bodyWarn45) add("WARN", vp.n, r.p, "contrast", `“${c.t}” is borderline (${Math.round((c.large ? c.f3 : c.f45) * 100)}% of glyph pixels under ${c.large ? 3 : 4.5}:1). ${fixOf(c.fixWarn)}`, { t: c.t, fix: c.fixWarn });
     });
     if (vp.touch) taps.forEach((t) => !t.inline && Math.min(t.w, t.h) < T.tap && add("BLOCKER", vp.n, r.p, "tap-target", `“${t.t}” is ${Math.round(t.w)}×${Math.round(t.h)}px — touch targets must be ≥${T.tap}×${T.tap}`));
     if (r.dom.sw > r.dom.vw + 1) add("BLOCKER", vp.n, r.p, "h-scroll", `page is ${r.dom.sw}px wide in a ${r.dom.vw}px viewport — horizontal scroll on a phone`);
@@ -288,7 +331,7 @@ for (const vp of VIEWPORTS) {
 [...new Set(assets)].forEach((a) => add("BLOCKER", "all", null, "asset-404", `${a} — a missing asset (or an SPA fallback answering 200 with HTML for a file that does not exist)`));
 
 /* ── 5 · resilience: no WebGL, reduced motion (VERIFIED, not just "no crash") ── */
-{
+if (!flag("no-resilience", false)) {
   browser = await launch();
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   await ctx.addInitScript(() => { const g = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (t, ...a) { return /webgl/i.test(t) ? null : g.call(this, t, ...a); }; });
@@ -300,9 +343,15 @@ for (const vp of VIEWPORTS) {
   if (errs.length) add("BLOCKER", "no-webgl", null, "fallback-crash", "page throws without WebGL: " + errs[0].slice(0, 160));
   else if (loader) add("BLOCKER", "no-webgl", null, "fallback-stuck", "without WebGL the loader never clears — the visitor sees a permanent loading screen");
   else if (nw.text < 120 || !nw.runs.length) add("BLOCKER", "no-webgl", null, "fallback-empty", `without WebGL the visitor sees ${nw.text} characters of copy — the static edition must carry the whole story (headline, support, action)`);
-  else if (!nw.taps.length) add("BLOCKER", "no-webgl", null, "fallback-no-action", "without WebGL there is no link or button on screen");
+  else if (!nw.taps.length) {
+    const any = await pg.evaluate(() => document.querySelectorAll("a[href],button").length);
+    add("BLOCKER", "no-webgl", null, "fallback-no-action", any ? `without WebGL there are ${any} link(s)/button(s) but none ABOVE THE FOLD at 1280×800 → DO: use AuraExperience ≥ v19 (it lifts the first a[href]/button into the static header), or add \`.aura-static-head\` yourself — the first screen of the fallback must carry the action` : "without WebGL there is no link or button anywhere on the page → DO: put one real <a href> in the last chapter (class name does not matter); AuraExperience ≥ v19 repeats it in the static header, above the fold");
+  }
+  { const generic = /^(sans-serif|serif|system-ui|ui-sans-serif|ui-serif|ui-monospace|monospace|cursive|fantasy|ui-rounded)$/i, bad = nw.runs.filter((q) => !generic.test(String(q.ff).split(",").pop().trim().replace(/["']/g, "")));
+    if (bad.length) add("BLOCKER", "no-webgl", null, "fallback-font", `“${bad[0].t}” is set in \`${String(bad[0].ff).slice(0, 60)}\` — no generic family at the end of the stack, so the browser falls back to Times while headings stay sans (${bad.length} text run(s)) → DO: give the root a stack that ends in sans-serif / system-ui (aura.css ≥ v19: \`.aura-root { font-family: var(--aura-body) }\`), and make sure custom body elements inherit it`); }
   await ctx.close();
 
+  if (!flag("skip-motion", false)) {
   const rm = await browser.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" });
   const pr = await rm.newPage(); const e2 = []; pr.on("pageerror", (e) => e2.push(e.message));
   await pr.goto(withQ(url, `tier=${flag("tier-desktop", "high")}`), { waitUntil: "networkidle" });
@@ -328,6 +377,7 @@ for (const vp of VIEWPORTS) {
     if (delta(metrics(A).small.lum, metrics(B).small.lum) < 0.01) add("WARN", "motion", null, "dead-scene", "nothing moves for 1.2 s at a fixed playhead — add ambient life (drift, shimmer, orbit) driven by Frame.time");
   }
   await nm.close();
+  }
 }
 await browser?.close();
 server?.close();
@@ -353,7 +403,7 @@ const frac = (bad) => Math.max(0, 1 - bad / Math.max(1, rowsD.length));
 const atmosphere = Math.round(20 * (frac(cnt("flat", vpm) + cnt("empty", vpm)) * 0.4 + frac(cnt("blown", vpm) + cnt("bright", vpm)) * 0.2 + frac(cnt("dark", vpm)) * 0.4));
 const unbroken = Math.max(0, Math.round(15 - pen("jump-cut", 3, 9) - pen("console", 4, 8) - pen("rail-range", 10, 10) - pen("rail-order", 5, 10) - pen("teleport", 3, 6) - pen("no-engine", 20, 20) - pen("asset-404", 5, 10) - pen("tsc", 8, 8) - pen("dead-scene", 3, 3)));
 const rhythm = Math.max(0, Math.round(15 - pen("no-hold", 6, 6) - pen("no-alternation", 4, 4) - pen("few-shots", 3, 3) - pen("silence", 2, 6) - pen("dead-zone", 1.2, 5, vpm) - pen("wordy", 1.5, 4.5) - pen("empty-open", 6, 6) - pen("empty-close", 6, 6) - pen("no-cta", 4, 4) - pen("late-open", 2, 2) - pen("early-close", 2, 2)));
-const craft = Math.max(0, Math.round(15 - pen("collision", 3, 9) - pen("clipped-copy", 2, 8) - pen("fallback-crash", 8, 8) - pen("fallback-stuck", 8, 8) - pen("fallback-empty", 6, 6) - pen("fallback-no-action", 3, 3) - pen("draw-calls", 3, 3) - pen("triangles", 3, 3) - pen("rm-moving", 5, 5) - pen("rm-not-frozen", 4, 4) - pen("rm-ignored", 4, 4) - pen("rm-crash", 6, 6)));
+const craft = Math.max(0, Math.round(15 - pen("collision", 3, 9) - pen("clipped-copy", 2, 8) - pen("fallback-crash", 8, 8) - pen("fallback-stuck", 8, 8) - pen("fallback-empty", 6, 6) - pen("fallback-no-action", 3, 3) - pen("fallback-font", 3, 3) - pen("draw-calls", 3, 3) - pen("triangles", 3, 3) - pen("rm-moving", 5, 5) - pen("rm-not-frozen", 4, 4) - pen("rm-ignored", 4, 4) - pen("rm-crash", 6, 6)));
 const mobilePts = Math.max(0, Math.round(15 - pen("tiny-text", 1.5, 5) - pen("small-text", 0.4, 2) - pen("cta-wrap", 4, 4) - pen("cta-font", 0.5, 1.5) - pen("tap-target", 4, 6) - pen("h-scroll", 6, 6) - pen("contrast", 0.5, 2) - pen("contrast-fail", 1.5, 6) - pen("mobile-draw-calls", 2, 2) - pen("mobile-triangles", 2, 2) - pen("no-mobile-rail", 3, 3) - pen("scroll-not-driving", 8, 8) - pen("touch-emulation", 2, 2)));
 const auto = atmosphere + unbroken + rhythm + craft + mobilePts;
 
@@ -372,15 +422,35 @@ if (typeof cmpPath === "string" && existsSync(cmpPath)) {
 }
 
 const grouped = {};
-issues.forEach((i) => { const k = `${i.level}|${i.code}|${i.vp}`; (grouped[k] = grouped[k] ?? { ...i, ps: [] }).ps.push(i.p); });
-const lines = Object.values(grouped).sort((a, b) => (a.level === b.level ? 0 : a.level === "BLOCKER" ? -1 : 1)).map((g) => `- **${g.level}** \`${g.code}\` · ${g.vp}${g.ps.some((p) => p !== null) ? ` · p=${g.ps.filter((p) => p !== null).join(", ")}` : ""} — ${g.msg}`);
+issues.forEach((i) => {
+  const k = `${i.level}|${i.code}|${i.vp}|${i.t ?? ""}`, g = grouped[k];
+  if (!g) { grouped[k] = { ...i, ps: [i.p] }; return; }
+  g.ps.push(i.p);
+  if (i.fix && (!g.fix || (i.fix.plate ?? 0) > (g.fix.plate ?? 0) || (i.fix.kind === "subject" && g.fix.kind !== "subject"))) { g.fix = i.fix; g.msg = i.msg; } // report the WORST frame's number — fixing it fixes the others
+});
+const lines = Object.values(grouped).sort((a, b) => (a.level === b.level ? 0 : a.level === "BLOCKER" ? -1 : 1)).map((g) => `- **${g.level}** \`${g.code}\` · ${g.vp}${g.ps.some((p) => p !== null) ? ` · p=${[...new Set(g.ps.filter((p) => p !== null))].join(", ")}` : ""} — ${g.msg}`);
+/* ordered, deduplicated "do this" list: blockers first; within a level the most frequent finding first */
+const doList = (() => {
+  const seen = new Map();
+  for (const g of Object.values(grouped)) {
+    const m = /→ DO: (.*)$/s.exec(g.msg), todo = g.fix?.do ?? (m ? m[1] : null) ?? g.msg, key = g.code + "|" + todo.replace(/\d+(\.\d+)?/g, "#");
+    const e = seen.get(key) ?? { level: g.level, code: g.code, vps: new Set(), todo, n: 0 }; e.vps.add(g.vp); e.n += g.ps.length; if (g.level === "BLOCKER") e.level = "BLOCKER"; seen.set(key, e);
+  }
+  return [...seen.values()].sort((a, b) => (a.level === b.level ? b.n - a.n : a.level === "BLOCKER" ? -1 : 1)).map((e) => ({ level: e.level, code: e.code, where: [...e.vps].join(", "), frames: e.n, todo: e.todo }));
+})();
 const md = `# AURA audit v${AUDIT_VERSION} (${PROFILE}) — ${url}\n\n**Hygiene score: ${auto}/80** (atmosphere ${atmosphere}/20 · unbroken ${unbroken}/15 · rhythm ${rhythm}/15 · craft ${craft}/15 · mobile & legibility ${mobilePts}/15) · blockers: ${blockers}\n\n` +
   `> This number says nothing is BROKEN. It does not say the work is GOOD — a 6.5/10 and a 7.5/10 site have both scored 80/80 and 65/80. Fill in \`${out}/TASTE.md\` from the contact sheets; ship on the human total.\n${cmp}\n` +
-  `## Issues\n${lines.join("\n") || "_none_"}\n\n## Device\n${Object.entries(meta).filter(([, v]) => v?.device).map(([k, v]) => `- ${k}: tier **${v.tier}** · ${v.device.renderer.slice(0, 60)} · ${v.device.source}${v.device.gpuMsPerMP ? ` ${v.device.gpuMsPerMP.toFixed(2)} ms/MP` : ""} · ${v.mode} mode · rail ${v.rail}${v.chaptersSkipped ? " · no chapters found (rhythm checks skipped)" : ""}`).join("\n")}\n\n` +
+  `## Fix these first (ordered — each line is one concrete move)\n${doList.slice(0, 12).map((d, i) => `${i + 1}. **${d.level}** \`${d.code}\` (${d.where}, ${d.frames} frame${d.frames === 1 ? "" : "s"}) — ${d.todo}`).join("\n") || "_nothing to fix — now fill in TASTE.md_"}\n\n## Every finding\n${lines.join("\n") || "_none_"}\n\n## Device\n${Object.entries(meta).filter(([, v]) => v?.device).map(([k, v]) => `- ${k}: tier **${v.tier}** · ${v.device.renderer.slice(0, 60)} · ${v.device.source}${v.device.gpuMsPerMP ? ` ${v.device.gpuMsPerMP.toFixed(2)} ms/MP` : ""} · ${v.mode} mode · rail ${v.rail}${v.chaptersSkipped ? " · no chapters found (rhythm checks skipped)" : ""}`).join("\n")}\n\n` +
   `## Per-frame (${vpm})\n| p | luma | σ | blown | edge | Δ prev |\n|---|---|---|---|---|---|\n${rowsD.map((r) => `| ${r.p} | ${r.mean} | ${r.sd} | ${r.blown} | ${r.edge} | ${r.delta ?? "—"} |`).join("\n")}\n`;
 writeFileSync(`${out}/REPORT.md`, md);
-writeFileSync(`${out}/TASTE.md`, `# TASTE — human rubric (the half no script can score)\n\nOpen \`contact-desktop.png\`, \`contact-mobile.png\`, \`fallback-nowebgl.png\`. Score each 0–10, be harsh, write one sentence of evidence.\n\n| # | Question | /10 | Evidence |\n|---|---|---|---|\n| 1 | Hero: would you screenshot it? Is it unlike a default primitive? | | |\n| 2 | Is there a frame in the middle you could print as a poster? | | |\n| 3 | Does each chapter change the PICTURE, not just the text? | | |\n| 4 | Type: does the world interact with it (depth, occlusion, light)? | | |\n| 5 | Palette: one dominant hue, one accent, discipline? | | |\n| 6 | Does it look like the last world you shipped? (fingerprint: ${JSON.stringify(fingerprint.palette.slice(0, 2).map((c) => c.rgb))}, luma ${fingerprint.luma}) | | |\n| 7 | Pacing: crescendo, hold, release — felt, not just linted? | | |\n| 8 | Phone: is it a re-composed edit or the desktop shrunk? | | |\n| 9 | Final frame: poster-grade, one obvious action? | | |\n| 10 | Authorship: could this ship on another brand unchanged? (it must not) | | |\n\n**Total /100:** ____  ·  ship at ≥ 85 · below 70, redo the hero before anything else.\n`);
+{
+  const fpTxt = `${JSON.stringify(fingerprint.palette.slice(0, 2).map((c) => c.rgb))}, luma ${fingerprint.luma}`;
+  const tpl = ["TASTE.template.md", "../TASTE.template.md", "../../templates/TASTE.template.md"].map((q) => join(HERE, q)).find((q) => existsSync(q));
+  const body = tpl ? readFileSync(tpl, "utf8") : "# TASTE — human rubric\n\nScore the 10 questions in SKILL.md §8 from the contact sheets. Total /100, ship at ≥ 85.\n\nFingerprint: {{FINGERPRINT}}\n";
+  writeFileSync(`${out}/TASTE.md`, body.replaceAll("{{FINGERPRINT}}", fpTxt).replaceAll("{{OUT}}", out).replaceAll("{{AUDIT}}", `${auto}/80 · ${blockers} blockers`));
+}
+writeFileSync(`${out}/fixes.json`, JSON.stringify({ auditVersion: AUDIT_VERSION, blockers, fixes: doList }, null, 2));
 writeFileSync(`${out}/report.json`, JSON.stringify({ auditVersion: AUDIT_VERSION, profile: PROFILE, thresholds: T, url, auto: { total: auto, atmosphere, unbroken, rhythm, craft, mobile: mobilePts }, blockers, issues, fingerprint, meta: Object.fromEntries(Object.entries(meta).map(([k, v]) => [k, { ...v, shots: undefined }])) }, null, 2));
 console.log(md);
-console.log(`\n→ ${out}/REPORT.md · ${out}/TASTE.md · ${out}/contact-*.png   (now LOOK at the contact sheets)`);
+console.log(`\n→ ${out}/REPORT.md (start at “Fix these first”) · ${out}/fixes.json · ${out}/TASTE.md · ${out}/contact-*.png   (now LOOK at the contact sheets)`);
 process.exit(blockers ? 1 : 0);

@@ -8,14 +8,21 @@
   --aura-fg: #eef3f7;
   --aura-dim: rgb(238 243 247 / 0.76);
   --aura-accent: #7fd6ff;
-  --aura-display: "Space Grotesk Variable", "Inter Variable", system-ui, sans-serif;
-  --aura-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* EVERY face ends in a generic family. v18 shipped body copy with no font-family → the no-WebGL page rendered it in Times while the headings were sans. */
+  --aura-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --aura-display: "Space Grotesk Variable", "Space Grotesk", "Inter Variable", var(--aura-sans);
+  --aura-body: var(--aura-display);
+  --aura-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* local scrim ("plate") under every copy block — see .aura-copy::before. 0 = none, ~0.55 default, the audit tells you a measured value when it fails */
+  --aura-plate-a: 0.55;
   --aura-pad: clamp(20px, 4vw, 64px);
   --aura-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-.aura-root { position: relative; background: var(--aura-bg); color: var(--aura-fg); }
+.aura-root { position: relative; background: var(--aura-bg); color: var(--aura-fg); font-family: var(--aura-body); }
+/* a chapter is invisible until the first frame has written its --vis (no ghosted CTA / label flashing in before the choreography binds) */
+.aura-overlay [data-a]:not([style*="--vis"]) { visibility: hidden; }
 .aura-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .aura-canvas { position: absolute; inset: 0; z-index: 0; }
 .aura-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
@@ -34,6 +41,11 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   will-change: opacity, transform, filter;
 }
 .aura-copy { text-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 2px 28px rgb(var(--aura-scrim, 3 5 11) / 0.7); }
+/* THE PLATE: a soft local scrim that travels with the copy. The global bottom scrim only covers the lower third; copy that sits higher (right, centre, landscape)
+   used to land on bright bokeh / the hero's highlights and fail contrast. Tune per chapter: style={{ "--aura-plate-a": 0.8 }}. The audit prints the number. */
+.aura-copy { isolation: isolate; }
+.aura-copy::before { content: ""; position: absolute; z-index: -1; inset: -44px -56px -40px -56px; pointer-events: none; border-radius: 50%; background: radial-gradient(closest-side, rgb(var(--aura-scrim, 3 5 11) / var(--aura-plate-a)) 0%, rgb(var(--aura-scrim, 3 5 11) / calc(var(--aura-plate-a) * 0.7)) 55%, transparent 100%); }
+.aura-final::before { border-radius: 40%; }
 .aura-left { left: var(--aura-pad); bottom: max(11vh, calc(env(safe-area-inset-bottom) + 68px)); }
 .aura-right { right: var(--aura-pad); bottom: max(11vh, calc(env(safe-area-inset-bottom) + 68px)); text-align: right; }
 /* the closing card: one headline, one action, inside the thumb zone and clear of the home indicator */
@@ -42,10 +54,10 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @media (max-width: 760px) { .aura-left, .aura-right { left: var(--aura-pad); right: var(--aura-pad); bottom: max(12vh, calc(env(safe-area-inset-bottom) + 68px)); text-align: left; max-width: none; } }
 
 .aura-hint-m { display: none; }
-.aura-eyebrow { white-space: nowrap; font: 500 12px/1 var(--aura-mono); letter-spacing: 0.28em; text-transform: uppercase; color: var(--aura-accent); display: inline-flex; gap: 12px; align-items: center; }
+.aura-eyebrow { white-space: nowrap; font: 500 13px/1 var(--aura-mono); letter-spacing: 0.26em; text-transform: uppercase; color: var(--aura-accent); display: inline-flex; gap: 12px; align-items: center; }
 .aura-eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
 .aura-h { font: 600 clamp(2rem, 5vw, 4.4rem)/0.96 var(--aura-display); letter-spacing: -0.045em; margin: 18px 0 0; }
-.aura-p { font-size: clamp(15px, 1.2vw, 17px); line-height: 1.6; color: var(--aura-dim); margin: 18px 0 0; }
+.aura-p { font-family: var(--aura-body); font-size: clamp(16px, 1.25vw, 18px); line-height: 1.6; color: var(--aura-dim); margin: 18px 0 0; }
 
 /* ── GIANT TYPE. The signature of the genre: letters bigger than the viewport, scrubbed by scroll.
    Letter-spacing tightens and the word scales as --local runs 0→1; it also dissolves via --vis. */
@@ -63,7 +75,10 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   mix-blend-mode: normal;
   user-select: none;
   white-space: nowrap;
+  isolation: isolate;
 }
+/* a faint plate keeps the word legible where the hero's highlights cross it; raise --aura-giant-plate-a if the audit asks, or (better) move the subject out of the title band */
+.aura-giant::before { content: ""; position: absolute; z-index: -1; inset: -12% -4%; pointer-events: none; background: radial-gradient(closest-side, rgb(var(--aura-scrim, 3 5 11) / var(--aura-giant-plate-a, 0.34)), transparent 100%); }
 /* ── THE END CARD. One obvious action, set in the final image. Give the wrapper class "aura-hit" so it is clickable. */
 .aura-cta { position: relative; display: inline-flex; align-items: center; gap: 14px; margin-top: 30px; padding: 18px 32px; min-height: 56px; min-width: 56px; justify-content: center; white-space: nowrap; touch-action: manipulation; -webkit-tap-highlight-color: transparent; border-radius: 999px; color: var(--aura-cta-fg, var(--aura-fg)); text-decoration: none; font: 600 16px/1.1 var(--aura-mono); letter-spacing: 0.16em; text-transform: uppercase; border: 1px solid var(--aura-cta-border, rgb(255 255 255 / 0.28)); background: var(--aura-cta-bg, rgb(255 255 255 / 0.06)); backdrop-filter: blur(14px); transition: transform 0.5s var(--aura-ease), background 0.3s, border-color 0.3s, box-shadow 0.4s; }
 .aura-cta::after { content: "→"; transition: transform 0.4s var(--aura-ease); }
@@ -118,12 +133,14 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
 /* ── PHONE EDIT: portrait ≤760px. Smaller giant type zone, lighter eyebrow tracking, hint reads "Swipe". */
 @media (max-width: 760px) {
-  :root { --aura-giant-top: 22%; }
+  :root { --aura-giant-top: 15%; --aura-plate-a: 0.62; } /* title in the top band; the portrait rails park the hero BELOW it */
   /* a centred chapter would sit ON the hero in portrait → park it in the copy zone with the others */
   .aura-center:not(.aura-giant):not(.aura-final) { top: auto; left: var(--aura-pad); right: var(--aura-pad); translate: none; text-align: left; max-width: none; bottom: max(12vh, calc(env(safe-area-inset-bottom) + 68px)); }
-  .aura-eyebrow { letter-spacing: 0.2em; }
-  .aura-h { font-size: clamp(2rem, 9.4vw, 2.9rem); }
-  .aura-hud { gap: 12px; letter-spacing: 0.2em; }
+  .aura-eyebrow { letter-spacing: 0.2em; font-size: 14px; }
+  .aura-h { font-size: clamp(2.1rem, 9.8vw, 3rem); }
+  .aura-p { font-size: 17px; line-height: 1.55; color: var(--aura-fg); }
+  .aura-copy::before { inset: -36px -28px -32px -28px; border-radius: 28px; }
+  .aura-hud { gap: 12px; letter-spacing: 0.2em; font-size: 13px; }
   .aura-hint-d { display: none; }
   .aura-hint-m { display: inline; }
   .aura-stage::before { --aura-scrim-a: 0.84; background: linear-gradient(to top, rgb(var(--aura-scrim, 3 5 11) / var(--aura-scrim-a)) 0%, rgb(var(--aura-scrim, 3 5 11) / calc(var(--aura-scrim-a) * 0.6)) 34%, transparent 62%); }
@@ -131,26 +148,39 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 /* ── LANDSCAPE PHONE (short viewport, ≤480px tall): the copy goes to a narrow column, the paragraph and HUD go, giant type is capped by HEIGHT,
       so nothing is clipped and the hero keeps the other 55% of the screen. */
 @media (max-height: 480px) and (orientation: landscape) {
-  .aura-copy { max-width: min(42vw, 400px); }
+  .aura-copy { max-width: min(40vw, 400px); }
   .aura-h { font-size: clamp(1.4rem, 7vh, 2.2rem); margin-top: 8px; line-height: 1; }
   .aura-p, .aura-hud, .aura-eyebrow::before { display: none; }
-  .aura-left, .aura-right { top: 50%; bottom: auto; translate: 0 -50%; }
-  .aura-right { right: max(var(--aura-pad), env(safe-area-inset-right)); } .aura-left { left: max(var(--aura-pad), env(safe-area-inset-left)); }
-  .aura-giant { font-size: min(var(--aura-giant-fs, 40vh), 40vh) !important; top: 30%; }
-  .aura-final, .aura-center:not(.aura-giant) { top: 50%; bottom: auto; translate: -50% -50%; max-width: min(70vw, 560px); }
+  /* v18 centred the side columns at 50% and the giant title spanned 14–46%: 180×16px collision in six frames. Now: giant title in the TOP band
+     (≤ 40% of the height, centred at 22%), side copy anchored to the BOTTOM band (from 58%) — the two can never share a pixel row. */
+  .aura-giant { font-size: min(var(--aura-giant-fs, 34vh), 34vh) !important; top: 22%; }
+  .aura-left, .aura-right { top: auto; bottom: max(14vh, calc(env(safe-area-inset-bottom) + 28px)); translate: none; }
+  .aura-right { right: max(var(--aura-pad), env(safe-area-inset-right)); text-align: right; } .aura-left { left: max(var(--aura-pad), env(safe-area-inset-left)); }
+  .aura-final, .aura-center:not(.aura-giant) { top: auto; bottom: max(12vh, 36px); left: 50%; translate: -50% 0; max-width: min(70vw, 560px); text-align: center; }
   .aura-cta { margin-top: 10px; padding: 12px 24px; min-height: 48px; }
   .aura-sound { min-height: 44px; top: 8px; }
+  .aura-copy::before { inset: -24px -32px -20px -32px; }
+  :root { --aura-plate-a: 0.68; } /* short viewport = copy sits on the picture, not under the bottom gradient */
 }
 
-/* ── STATIC EDITION: no WebGL / Data Saver / context lost. Same copy, normal flow, still designed. */
+/* ── STATIC EDITION: no WebGL / Data Saver / context lost. Same copy, normal flow, still designed — and it ALWAYS opens with an action.
+   v18's fallback was a gradient with stacked chapters and the only link far below the fold. Now AuraExperience renders .aura-static-head (title ·
+   the first heading as a lede · the first action found in your chapters) ABOVE the stacked chapters; the audit checks it is on screen. */
+.aura-static-head { display: none; }
 .aura-root.is-static { height: auto !important; }
 .aura-root.is-static .aura-stage { position: relative; height: auto; min-height: 100svh; overflow: visible; background: radial-gradient(120% 70% at 50% 8%, color-mix(in srgb, var(--aura-accent) 22%, transparent), transparent 62%), var(--aura-bg); }
 .aura-poster-auto { position: absolute; inset: 0; background: radial-gradient(90% 60% at 70% 20%, color-mix(in srgb, var(--aura-accent) 30%, transparent), transparent 70%), radial-gradient(70% 50% at 20% 85%, color-mix(in srgb, var(--aura-fg) 14%, transparent), transparent 70%); }
 .aura-root.is-static .aura-canvas, .aura-root.is-static .aura-hud, .aura-root.is-static .aura-stage::before, .aura-root.is-static .aura-sound { display: none; }
+.aura-root.is-static .aura-static-head { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; position: relative; z-index: 3; padding: calc(var(--aura-pad) * 1.6) var(--aura-pad) 0; max-width: 760px; }
+.aura-static-title { font: 700 clamp(2.6rem, 11vw, 6rem)/0.92 var(--aura-display); letter-spacing: -0.04em; margin: 10px 0 0; }
+.aura-static-lede { font: 400 clamp(17px, 2.4vw, 21px)/1.5 var(--aura-body); color: var(--aura-dim); margin: 16px 0 0; max-width: 34em; }
 .aura-root.is-static .aura-overlay { position: relative; inset: auto; display: flex; flex-direction: column; gap: clamp(36px, 8vh, 72px); padding: calc(var(--aura-pad) * 1.5) var(--aura-pad) calc(var(--aura-pad) * 2); }
 .aura-root.is-static [data-a] { position: relative !important; inset: auto !important; left: auto !important; right: auto !important; top: auto !important; bottom: auto !important; translate: none !important; transform: none !important; filter: none !important; opacity: 1 !important; visibility: visible !important; text-align: left; max-width: 640px; }
-.aura-root.is-static .aura-giant { font-size: clamp(3rem, 15vw, 9rem) !important; letter-spacing: -0.03em; scale: none; text-align: left; white-space: normal; }
+.aura-root.is-static .aura-copy::before, .aura-root.is-static .aura-giant::before { display: none; }
+.aura-root.is-static .aura-giant { display: none; } /* the giant word is the static title now (no duplicate, no clipped 9rem line) */
+.aura-root.is-static [data-static-lede] { display: none !important; }
 .aura-root.is-static .aura-final { text-align: left; }
+.aura-root.is-static .aura-final .aura-cta { margin-top: 22px; }
 
 @media (prefers-reduced-motion: reduce) {
   .aura-copy { filter: none; transform: none; }
