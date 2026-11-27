@@ -76,7 +76,7 @@ function Poster({ slug }: { slug: string }) {
 function Card({ b, i }: { b: Bundle; i: number }) {
   return (
     <Reveal>
-      <article className="panel spot group grid overflow-hidden !rounded-[30px] lg:grid-cols-[1.15fr_1fr]" style={{ "--c": b.theme.accent } as CSSProperties}>
+      <article className="panel spot group grid grid-cols-[minmax(0,1fr)] overflow-hidden !rounded-[30px] lg:grid-cols-[1.15fr_1fr]" style={{ "--c": b.theme.accent } as CSSProperties}>
         <Link href={`/bundles/${b.slug}`} className={`relative block min-h-[300px] overflow-hidden ${i % 2 ? "lg:order-2" : ""}`} aria-label={`Enter ${b.name}`}>
           <div className="absolute inset-0 transition duration-[1200ms] ease-out group-hover:scale-[1.06]"><Poster slug={b.slug} /></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
@@ -92,7 +92,7 @@ function Card({ b, i }: { b: Bundle; i: number }) {
           </div>
           <h2 className="mt-5 font-display text-[clamp(1.6rem,3vw,2.3rem)] font-semibold leading-[1.05] tracking-[-0.04em]">{b.tagline}</h2>
           <p className="mt-4 text-[14.5px] leading-relaxed text-dim">{b.blurb}</p>
-          <div className="mt-6 grid gap-1.5 text-[13px] text-fg/75 sm:grid-cols-2">
+          <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-1.5 text-[13px] text-fg/75 sm:grid-cols-2">
             {b.techniques.slice(0, 4).map((t) => <div key={t} className="flex gap-2"><span style={{ color: b.theme.accent }}>◆</span>{t}</div>)}
           </div>
           <div className="mt-6">
@@ -121,7 +121,7 @@ export default function BundlesIndex() {
           A bundle is a complete site in a single visual language: a scroll-driven WebGL landing page where the camera flies like a game cut-scene — and the pricing, sign-in, reservation and account pages that match it, down to the colour of the focus ring. Open one and scroll.
         </p>
       </div>
-      <ol className="mt-12 grid gap-4 md:grid-cols-3">
+      <ol className="mt-12 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">
         {([["01", "Scroll flies the camera", "A spline rail, a damped playhead, FOV kick and horizon banking. Scroll is the director."], ["02", "Pages that keep the theme", "Pricing, sign-in, reserve and account share palette, type and the same world behind them."], ["03", "Real, working flows", "Validation, a booking that lands in your account, a cancel button. State lives in your browser."]] as const).map(([n, t, d]) => (
           <li key={n} className="panel flex gap-4 p-5">
             <span className="grid size-10 shrink-0 place-items-center rounded-full border border-line-strong font-mono text-xs text-aurora">{n}</span>

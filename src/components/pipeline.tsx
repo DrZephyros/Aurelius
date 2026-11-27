@@ -40,11 +40,28 @@ export function Pipeline({ heading = true }: { heading?: boolean } = {}) {
       const p = Math.min(1, Math.max(0, -r.top / Math.max(1, range)));
       setActive(Math.min(N - 1, Math.floor(p * N * 0.999)));
     };
-    const on = () => { if (!raf) raf = requestAnimationFrame(read); };
+    // once scrolling settles inside the pipeline, land on the nearest card
+    let settle = 0;
+    const snap = () => {
+      const el = wrap.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const range = r.height - innerHeight;
+      if (-r.top < 0 || -r.top > range) return;
+      const p = -r.top / Math.max(1, range);
+      const k = Math.min(N - 1, Math.floor(p * N * 0.999));
+      const target = r.top + scrollY + ((k + 0.5) / N) * range;
+      if (Math.abs(scrollY - target) > 4) scrollTo({ top: target, behavior: "smooth" });
+    };
+    const on = () => {
+      if (!raf) raf = requestAnimationFrame(read);
+      clearTimeout(settle);
+      settle = window.setTimeout(snap, 220);
+    };
     read();
     addEventListener("scroll", on, { passive: true });
     addEventListener("resize", on);
-    return () => { removeEventListener("scroll", on); removeEventListener("resize", on); if (raf) cancelAnimationFrame(raf); };
+    return () => { removeEventListener("scroll", on); removeEventListener("resize", on); clearTimeout(settle); if (raf) cancelAnimationFrame(raf); };
   }, [pinned]);
 
   const go = useCallback((i: number) => {
@@ -82,7 +99,7 @@ export function Pipeline({ heading = true }: { heading?: boolean } = {}) {
       <div ref={wrap} style={pinned ? { height: `calc(100vh + ${N * SEG_VH}vh)` } : undefined}>
         <div className={pinned ? "sticky top-0 flex min-h-screen items-center" : ""}>
           <div className="mx-auto w-full max-w-[1320px] px-5 py-6 sm:px-8">
-            <div className="grid gap-6 lg:grid-cols-[300px_1fr] lg:gap-10" style={{ "--c": c } as CSSProperties}>
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[300px_1fr] lg:gap-10" style={{ "--c": c } as CSSProperties}>
               {/* rail */}
               <div className="relative lg:pt-1">
                 <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] lg:hidden" role="tablist" aria-label="Pipeline phases">
@@ -113,7 +130,7 @@ export function Pipeline({ heading = true }: { heading?: boolean } = {}) {
               <div className="min-w-0">
                 <div ref={card} className="pipe-card transition-transform duration-300 ease-out" onPointerMove={move} onPointerLeave={leave} style={{ "--c": c } as CSSProperties}>
                   <div className="ghost-num" key={`g${active}`} style={{ animation: "phase-in .9s var(--ease-out-expo) both" }} aria-hidden>{p.n}</div>
-                  <div className="relative grid gap-6 p-6 sm:p-9 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:p-11">
+                  <div className="relative grid grid-cols-[minmax(0,1fr)] gap-6 p-6 sm:p-9 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:p-11">
                     <div key={active} className="phase-in flex flex-col">
                       <div className="flex items-center gap-3 font-mono text-[11px] tracking-[0.2em] uppercase" style={{ "--i": 0 } as CSSProperties}>
                         <span className="rounded-full border px-3 py-1" style={{ color: c, borderColor: `${c}66`, background: `${c}14` }}>Gate {p.n}</span>

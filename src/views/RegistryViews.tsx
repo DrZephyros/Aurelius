@@ -35,7 +35,7 @@ export function ComponentsHub() {
         </div>
       </div>
 
-      <ol className="mt-14 grid gap-4 md:grid-cols-3">
+      <ol className="mt-14 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">
         {([["01", "Pick a piece", "Every card is the real component, running. Hover and click it."], ["02", "Download the folder", "A .tsx file plus README.md — install steps, props and gotchas for the agent."], ["03", "Tell your agent", "“Add the spotlight card to the pricing page.” Copy-agent-prompt does the rest."]] as const).map(([n, t, d]) => (
           <li key={n} className="panel flex gap-4 p-5">
             <span className="grid size-10 shrink-0 place-items-center rounded-full border border-line-strong font-mono text-xs text-aurora">{n}</span>
@@ -44,7 +44,7 @@ export function ComponentsHub() {
         ))}
       </ol>
 
-      <div className="mt-16 grid gap-6 md:grid-cols-2">
+      <div className="mt-16 grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-2">
         {cats.map((c, i) => {
           const list = itemsOf(c.slug);
           const accent = accentOf(c.slug);
@@ -139,7 +139,7 @@ export function CategoryView({ category }: { category: string }) {
       {shown.items.length + shown.demos.length === 0 ? (
         <div className="panel mt-8 p-12 text-center text-dim">Nothing matches “{q}”. <button className="text-aurora underline" onClick={() => setQ("")}>Reset</button></div>
       ) : (
-        <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-2 xl:grid-cols-3">
           {shown.items.map((it, i) => <Reveal key={it.slug} delay={(i % 3) * 70}><RegistryCard item={it} index={list.indexOf(it)} accent={accent} /></Reveal>)}
           {shown.demos.map((d, i) => <Reveal key={d.slug} delay={((shown.items.length + i) % 3) * 70}><DemoCard demo={d} index={ELEMENTS.indexOf(d)} /></Reveal>)}
         </div>
@@ -194,7 +194,7 @@ export function ItemView({ item, code, readme, body }: { item: RegItem; code: st
         <DemoStage id={`${item.category}/${item.slug}`} mode="full" replay={replay} className="rounded-[18px]" />
       </div>
 
-      <div className="mt-14 grid gap-10 lg:grid-cols-[1fr_340px]">
+      <div className="mt-14 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div>
           <div className="flex gap-1 border-b border-line" role="tablist">
             {([["readme", "README (for your agent)"], ["source", `Source · ${item.file}`]] as const).map(([k, l]) => (
@@ -236,7 +236,7 @@ export function ItemView({ item, code, readme, body }: { item: RegItem; code: st
         </aside>
       </div>
 
-      <div className="mt-16 grid gap-4 sm:grid-cols-2">
+      <div className="mt-16 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
         {[["← Previous", prev], ["Next →", next]].map(([l, t], k) => {
           const x = t as RegItem;
           return (

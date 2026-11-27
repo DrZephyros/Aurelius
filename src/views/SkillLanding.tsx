@@ -23,7 +23,7 @@ function Faq() {
         const on = open === i;
         return (
           <Reveal key={q} delay={(i % 4) * 60}>
-            <div className="relative border-b border-line transition-colors duration-500 hover:bg-white/[0.02]">
+            <div className="relative border-b border-line transition-colors duration-500 hover:bg-white/[0.02]" onMouseEnter={() => setOpen(i)}>
               <span className="absolute top-0 left-0 h-full w-[2px] origin-top bg-aurora shadow-[0_0_12px_#5cffc4] transition-transform duration-700 ease-out" style={{ transform: on ? "scaleY(1)" : "scaleY(0)" }} aria-hidden />
               <button type="button" aria-expanded={on} onClick={() => setOpen(on ? null : i)} className="group flex w-full items-center gap-5 py-6 pr-2 pl-5 text-left">
                 <span className="font-mono text-[12px] tracking-[0.18em] text-dim tabular-nums transition-colors duration-500 group-hover:text-aurora">{String(i + 1).padStart(2, "0")}</span>
@@ -57,7 +57,7 @@ export default function SkillLanding() {
       <section className="mx-auto max-w-[1320px] px-5 py-24 sm:px-8">
         <Reveal><div className="eyebrow">After you download</div><h2 className="h-display mt-4 text-[clamp(1.8rem,3.6vw,3rem)]">Install it. <span className="aurora-text">Paste one prompt.</span></h2></Reveal>
         <Reveal delay={100}>
-          <ol className="mt-10 grid gap-4 md:grid-cols-3">
+          <ol className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">
             {STEPS.map(([t, d], i) => (
               <li key={t} className="rounded-[24px] border border-line bg-white/[0.02] p-6">
                 <span className="font-mono text-[11px] tracking-[0.2em] text-aurora">0{i + 1}</span>

@@ -53,6 +53,8 @@ requestAnimationFrame(loop);
 /* tell the host whether this page actually scrolls — the host only shows its scrub slider when it does */
 var sent=null;function report(){var s=root.scrollHeight-innerHeight>60;if(s!==sent){sent=s;try{parent.postMessage({md:'metrics',scrollable:s},'*')}catch(_){}}}
 report();setInterval(report,900);addEventListener('load',report);addEventListener('resize',report);
+var lastP=-1;function prog(){var p=Math.min(1,Math.max(0,scrollY/max()));if(Math.abs(p-lastP)<.002)return;lastP=p;try{parent.postMessage({md:'progress',p:p},'*')}catch(_){}}
+addEventListener('scroll',prog,{passive:true});
 function fire(x,y){var X=x*innerWidth,Y=y*innerHeight,el=document.elementFromPoint(X,Y)||document.body;
 ['pointermove','mousemove'].forEach(function(n){var C=n==='pointermove'&&window.PointerEvent?PointerEvent:MouseEvent;
 try{el.dispatchEvent(new C(n,{bubbles:true,clientX:X,clientY:Y,pointerType:'mouse',view:window}))}catch(_){}})}

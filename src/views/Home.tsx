@@ -75,7 +75,7 @@ export default function Home() {
             <h2 className="h-display mt-4 text-[clamp(2rem,4.8vw,4.2rem)]">All of it is yours to study.</h2>
             <p className="mt-4 max-w-[560px] text-dim">{TEMPLATES.length} landing pages, {REG_ITEMS.length} components, {PAGES.length} app pages, {ELEMENTS.length} elements and a prompt library — live, readable, downloadable, and free.</p>
           </Reveal>
-          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {SHELVES.map((s, i) => (
               <Reveal key={s.href} delay={(i % 3) * 60}>
                 <Link href={s.href} className="panel spot group flex h-full items-center justify-between gap-4 !rounded-[20px] p-5 transition hover:-translate-y-1">
@@ -90,14 +90,14 @@ export default function Home() {
           </div>
 
           {/* SERVICES */}
-          <div className="mt-24 grid gap-5 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+          <div className="mt-24 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.1fr_1fr] lg:items-center">
             <Reveal>
               <div className="eyebrow">Want the real thing?</div>
               <h2 className="h-display mt-4 text-[clamp(2rem,4.4vw,3.8rem)]">Build it yourself — or have it built.</h2>
               <p className="mt-4 max-w-[520px] text-dim">The skill ({TIERS.skill.label}) teaches your agent to art-direct a $10,000-grade 3D site. Or pick a template and I'll customise it for you in five days ({TIERS.build.label}).</p>
               <Link href="/services" className="aurora-ring aurora-ring-lg mt-8">See services &amp; pricing <span aria-hidden className="text-[#8fb4ff]">→</span></Link>
             </Reveal>
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-3 lg:grid-cols-1">
               {[["Library", "Free", "Study, steal, agent link", "/library"], ["The skill", TIERS.skill.label, "AURA · one-time", "/services#skill-pricing"], ["Built for you", TIERS.build.label, "Customised template · 5 days", "/services#build"]].map(([n, p, d, h]) => (
                 <Link key={n} href={h} className="panel flex items-center justify-between gap-4 !rounded-[18px] px-5 py-4 transition hover:-translate-y-0.5">
                   <span><span className="block font-display text-[17px] font-semibold">{n}</span><span className="block text-[12.5px] text-dim">{d}</span></span>

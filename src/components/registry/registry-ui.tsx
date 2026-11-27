@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentType, type CSSProperties, type ReactNode } from "react";
 import { Link } from "@/lib/router";
 import { DEMOS } from "@/registry/demos";
 import { downloadClick, itemHref, type RegItem } from "@/lib/registry";
@@ -14,6 +14,33 @@ const STAGE_BG = "radial-gradient(90% 80% at 50% 0%, rgb(92 255 196 / 0.07), tra
 const GRID = "linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px)";
 
 /** Renders a component's real demo. "card" mode scales a 900×560 canvas to fit; "full" mode is 1:1 and scrollable. */
+/** Full-size demo that shrinks (CSS zoom) only when it is wider than the box, so it fits a phone without clipping. */
+function FitDemo({ Demo, replay }: { Demo?: ComponentType; replay: number }) {
+  const outer = useRef<HTMLDivElement>(null);
+  const inner = useRef<HTMLDivElement>(null);
+  const ready = Boolean(Demo);
+  useEffect(() => {
+    const o = outer.current, i = inner.current;
+    if (!o || !i || !ready) return;
+    const fit = () => {
+      i.style.zoom = "1";
+      const cs = getComputedStyle(o);
+      const avail = o.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const need = i.scrollWidth;
+      i.style.zoom = need > avail + 1 ? String(avail / need) : "1";
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(o);
+    return () => ro.disconnect();
+  }, [ready, replay]);
+  return (
+    <div ref={outer} className="absolute inset-0 grid grid-cols-[minmax(0,1fr)] place-items-center overflow-auto p-6 sm:p-10">
+      <div ref={inner} className="min-w-0">{Demo ? <Demo key={replay} /> : null}</div>
+    </div>
+  );
+}
+
 export function DemoStage({ id, mode = "card", replay = 0, className = "" }: { id: string; mode?: "card" | "full"; replay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [vis, setVis] = useState(false);
@@ -37,7 +64,7 @@ export function DemoStage({ id, mode = "card", replay = 0, className = "" }: { i
   if (mode === "full") {
     return (
       <div ref={ref} className={`relative h-[min(66vh,560px)] min-h-[380px] overflow-hidden ${className}`} style={bg}>
-        <div className="absolute inset-0 grid place-items-center overflow-auto p-6 sm:p-10">{vis && Demo ? <Demo key={replay} /> : null}</div>
+        <FitDemo Demo={vis ? Demo : undefined} replay={replay} />
       </div>
     );
   }

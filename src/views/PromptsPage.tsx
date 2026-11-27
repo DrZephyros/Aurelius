@@ -87,7 +87,7 @@ function PromptCard({
       {!open ? (
         <p className="mt-4 line-clamp-3 flex-1 font-mono text-[12px] leading-relaxed text-white/45">{p.body}</p>
       ) : (
-        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+        <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
           {fields.length > 0 ? (
             <div className="space-y-3">
               <div className="font-mono text-[10.5px] tracking-[0.16em] text-dim uppercase">Fill in {fields.length} field{fields.length > 1 ? "s" : ""}</div>
@@ -175,7 +175,7 @@ export default function PromptsPage() {
         Hit <b className="text-fg">Customise</b>, fill the highlighted <span className="font-mono text-fg">[fields]</span>, copy.
       </p>
 
-      <div className="mt-8 grid gap-3 md:grid-cols-3">
+      <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-3">
         {[
           ["1", "Pick a prompt", "Search or filter by what you're stuck on."],
           ["2", "Fill the blanks", "Highlighted fields turn into inputs. Your answers are remembered."],
@@ -226,7 +226,7 @@ export default function PromptsPage() {
           {cat === "Favourites" && !q ? "No favourites yet — tap the ★ on any prompt to save it here." : <>No prompt matches. <button className="text-aurora underline" onClick={() => { setQ(""); setCat("All"); }}>Reset</button></>}
         </div>
       ) : (
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2 xl:grid-cols-3">
           {shown.map((p) => (
             <PromptCard
               key={p.id}

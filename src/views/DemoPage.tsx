@@ -79,11 +79,11 @@ export default function DemoPage({ kind, slug }: { kind: Kind; slug: string }) {
           </div>
         </div>
 
-        <section className="mt-16 grid gap-5 lg:grid-cols-[1.3fr_1fr]">
+        <section className="mt-16 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.3fr_1fr]">
           <Reveal>
             <div className="panel spot h-full p-8">
               <div className="eyebrow">What&apos;s inside</div>
-              <ul className="mt-8 grid gap-x-10 gap-y-3.5 text-[15px] sm:grid-cols-2">
+              <ul className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-x-10 gap-y-3.5 text-[15px] sm:grid-cols-2">
                 {d.features.map((x) => (
                   <li key={x} className="flex gap-3"><i className="mt-2 size-1.5 shrink-0 rotate-45" style={{ background: d.accent }} />{x}</li>
                 ))}
@@ -114,7 +114,7 @@ export default function DemoPage({ kind, slug }: { kind: Kind; slug: string }) {
           <div className="mt-10"><CodeViewer files={[{ name: `${d.slug}.html`, code: src }]} /></div>
         </section>
 
-        <nav className="mt-24 grid gap-4 sm:grid-cols-2">
+        <nav className="mt-24 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
           {[{ x: prev, dir: "← Previous" }, { x: next, dir: "Next →" }].map(({ x, dir }) => (
             <Link key={x.slug} href={`${root}/${x.slug}`} className="panel spot group p-7 transition hover:border-line-strong">
               <div className="font-mono text-[11px] tracking-[0.18em] text-dim uppercase">{dir}</div>

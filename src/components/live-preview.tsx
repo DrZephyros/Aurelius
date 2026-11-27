@@ -3,6 +3,36 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { frameProps } from "@/lib/demo";
 
+/* Live scenes are WebGL-heavy, so only a few run at once (fewer on touch devices). Cards past the cap keep their poster
+   and take a slot as soon as one frees up. */
+const MAX_LIVE = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches ? 2 : 4;
+let liveCount = 0;
+const waiting = new Set<() => void>();
+const pump = () => { for (const w of [...waiting]) { if (liveCount >= MAX_LIVE) break; w(); } };
+
+/** Grants a live-scene slot while `want` holds; queues up when every slot is busy. */
+function useLiveSlot(want: boolean): boolean {
+  const [granted, setGranted] = useState(false);
+  useEffect(() => {
+    if (!want) { setGranted(false); return; }
+    let held = false;
+    const acquire = () => {
+      if (held || liveCount >= MAX_LIVE) return false;
+      liveCount++;
+      held = true;
+      setGranted(true);
+      return true;
+    };
+    const waiter = () => { if (acquire()) waiting.delete(waiter); };
+    if (!acquire()) waiting.add(waiter);
+    return () => {
+      waiting.delete(waiter);
+      if (held) { held = false; liveCount--; setGranted(false); pump(); }
+    };
+  }, [want]);
+  return granted;
+}
+
 const W = 1120; // virtual viewport the thumbnail renders at
 const H = 700;
 
@@ -27,14 +57,14 @@ export function LivePreview({
   const ownFrame = useRef<HTMLIFrameElement>(null);
   const frame = frameRef ?? ownFrame;
   const [vis, setVis] = useState(false);
-  const [hot, setHot] = useState(false);
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
   const [poster, setPoster] = useState(true);
   const [scale, setScale] = useState(0.34);
-  // A real WebGL scene per card does not scale: cards show a rendered poster instantly, and the LIVE scene boots only
-  // for the card you hover / focus (one at a time), with a timeout back to the poster if the machine can't keep up.
-  const live = vis && hot && !failed;
+  // Cards show a rendered poster instantly; the LIVE scene boots as soon as the card is on screen (no hover needed),
+  // within the slot cap, with a timeout back to the poster if the machine can't keep up.
+  const granted = useLiveSlot(vis);
+  const live = granted && !failed;
 
   useEffect(() => {
     if (!live) return;
@@ -45,17 +75,10 @@ export function LivePreview({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const card = (el.closest("article") as HTMLElement | null) ?? el;
-    const on = () => setHot(true);
-    const off = () => { setHot(false); setReady(false); setFailed(false); };
-    card.addEventListener("pointerenter", on);
-    card.addEventListener("pointerleave", off);
-    card.addEventListener("focusin", on);
-    card.addEventListener("focusout", off);
     const io = new IntersectionObserver(
       ([e]) => {
         setVis(e.isIntersecting);
-        if (!e.isIntersecting) setReady(false);
+        if (!e.isIntersecting) { setReady(false); setFailed(false); }
       },
       { rootMargin: "80px", threshold: 0.15 }
     );
@@ -66,10 +89,6 @@ export function LivePreview({
     return () => {
       io.disconnect();
       ro.disconnect();
-      card.removeEventListener("pointerenter", on);
-      card.removeEventListener("pointerleave", off);
-      card.removeEventListener("focusin", on);
-      card.removeEventListener("focusout", off);
     };
   }, []);
 

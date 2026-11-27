@@ -8,6 +8,12 @@
 
 # The app is a client-side SPA with real URLs (History API router), so unknown paths render
 # index.html. Real files (llms.txt, library/*.md, assets) are served first, untouched.
+# Missing library items get a real 404 (plain markdown), not the SPA shell, so agents can tell a miss from a hit.
+[[redirects]]
+  from = "/library/*"
+  to = "/library/not-found.md"
+  status = 404
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

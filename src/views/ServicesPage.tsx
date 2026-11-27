@@ -82,7 +82,7 @@ export default function ServicesPage() {
 
       {/* PRICING */}
       <section id="pricing" className="mx-auto max-w-[1320px] scroll-mt-24 px-5 pb-24 sm:px-8">
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-3">
           <Reveal className="h-full">
             <Tier id="tier-library" tag="Library" name="Study & steal" price="Free" unit="forever"
               blurb="Everything we've built, running live and open to read."

@@ -23,7 +23,7 @@ export function CheckoutPage() {
     }
   };
   return (
-    <main className="mx-auto grid max-w-[1100px] gap-10 px-5 pb-28 pt-36 sm:px-8 lg:grid-cols-[1.1fr_1fr]">
+    <main className="mx-auto grid grid-cols-[minmax(0,1fr)] max-w-[1100px] gap-10 px-5 pb-28 pt-36 sm:px-8 lg:grid-cols-[1.1fr_1fr]">
       <div>
         <Link href="/services#skill" className="text-[13px] text-dim hover:text-fg">← Back to the skill</Link>
         <div className="eyebrow mt-6">Checkout</div>
@@ -74,7 +74,7 @@ export function DownloadPage() {
           <div className="eyebrow">Order confirmed</div>
           <h1 className="h-display mt-4 text-[clamp(2.4rem,5.4vw,4.6rem)]">You have AURA.</h1>
           {preview && <p className="mt-4 rounded-2xl border border-[rgb(255_210_138/0.4)] bg-[rgb(255_210_138/0.08)] p-4 text-[13px] text-[#ffd28a]">Test mode — no payment provider is connected to this deployment yet, so the order was recorded without charging. Set <code className="font-mono">STRIPE_SECRET_KEY</code> to take real {SKILL.priceLabel} payments.</p>}
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-3">
             {[["skill", "Skill folder", "Install into Claude / Codex / Cursor", true], ["single", "Single-file edition", "One .md for any chat", false], ["starter", "Starter engine", "Vite + React + three.js project", false]].map(([k, t, d, p]) => (
               <a key={k as string} href={dl(k as string)} className={`panel block !rounded-[20px] p-5 transition hover:-translate-y-1 ${p ? "!border-[rgb(92_255_196/0.5)]" : ""}`}><div className="text-aurora">↓</div><b className="mt-3 block font-display text-[18px]">{t}</b><p className="mt-1 text-[13px] text-dim">{d}</p></a>
             ))}

@@ -142,7 +142,7 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
           <button className="text-aurora underline" onClick={() => { setQ(""); setFilter("All"); }}>Reset filters</button>
         </div>
       ) : (
-        <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-2 xl:grid-cols-3">
           {shown.map((t) => (
             <TemplateCard key={t.slug} t={t} index={items.findIndex((x) => x.slug === t.slug)} />
           ))}

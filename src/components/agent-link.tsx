@@ -60,7 +60,7 @@ export function AgentLink({ counts }: { counts?: { label: string; n: number }[] 
   return (
     <div id="agent" className="relative scroll-mt-28 overflow-hidden rounded-[28px] border border-[rgb(92_255_196/0.28)] bg-[linear-gradient(135deg,rgb(8_18_28/0.9),rgb(5_8_16/0.92))] p-6 backdrop-blur-xl sm:p-9">
       <div className="pointer-events-none absolute -right-24 -top-24 size-[340px] rounded-full bg-[radial-gradient(closest-side,rgb(92_255_196/0.18),transparent)]" />
-      <div className="relative grid gap-8 lg:grid-cols-[1fr_1.15fr] lg:items-center">
+      <div className="relative grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[1fr_1.15fr] lg:items-center">
         <div>
           <div className="eyebrow">Agent link · free</div>
           <h2 className="h-display mt-4 text-[clamp(1.9rem,3.6vw,3rem)]">One link.<br />Your agent gets the <span className="aurora-text">whole library.</span></h2>

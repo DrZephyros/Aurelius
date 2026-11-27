@@ -111,6 +111,10 @@ for (const dir of ["pages", "elements"]) {
 write("library/prompts.md", lib.promptsMarkdown());
 files++;
 
+/* Target of the 404 rule in netlify.toml: any missing /library/* path lands here with status 404. */
+write("library/not-found.md", `# Not found\n\nNo such library item. Start from the index: ${SITE}/llms.txt\n`);
+files++;
+
 for (const which of ["doctrine", "prompt-pack", "example"]) {
   const md = lib.skillSampleMarkdown(which);
   if (md) {

@@ -31,21 +31,21 @@ export function RequestForm({ onDone, plan, template }: { onDone?: () => void; p
   };
   return (
     <form onSubmit={submit} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
         <F label="Your name"><input required className={inp} value={v.name} onChange={set("name")} autoComplete="name" /></F>
         <F label="Email"><input required type="email" className={inp} value={v.email} onChange={set("email")} autoComplete="email" /></F>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
         <F label="Company / project"><input className={inp} value={v.company} onChange={set("company")} /></F>
         <F label="Type of site"><select className={inp} value={v.kind} onChange={set("kind")}>{KINDS.map((k) => <option key={k} className="bg-[#0a0f18]">{k}</option>)}</select></F>
       </div>
       {plan === "build" ? (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
           <F label="Start from which template?"><select className={inp} value={v.base} onChange={set("base")}><option className="bg-[#0a0f18]">Not sure — recommend one</option>{TEMPLATES.map((t) => <option key={t.slug} value={t.name} className="bg-[#0a0f18]">{t.name} — {t.tagline}</option>)}</select></F>
           <F label="Deadline (optional)"><input className={inp} value={v.timeline} onChange={set("timeline")} placeholder="e.g. needed by the 14th" /></F>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
           <F label="Budget"><select className={inp} value={v.budget} onChange={set("budget")}>{BUDGETS.map((k) => <option key={k} className="bg-[#0a0f18]">{k}</option>)}</select></F>
           <F label="Timeline"><input className={inp} value={v.timeline} onChange={set("timeline")} placeholder="e.g. launch in 6 weeks" /></F>
         </div>

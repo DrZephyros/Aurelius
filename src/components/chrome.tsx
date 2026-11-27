@@ -139,9 +139,16 @@ export function SiteNav() {
                         <div className="mt-0.5 pl-3.5 text-[12px] text-dim">{s.hint}</div>
                       </Link>
                     ))}
+                    <Link href="/bundles" role="menuitem" tabIndex={menu ? 0 : -1} onClick={() => setMenu(false)} className={`group/item rounded-2xl px-3.5 py-3 transition duration-300 hover:bg-white/[0.06] ${path.startsWith("/bundles") ? "bg-white/[0.05]" : ""}`}>
+                      <div className="flex items-center gap-2 text-[13.5px] font-medium text-fg">
+                        <i aria-hidden className="size-1.5 rounded-full" style={{ background: "#ffd28a", boxShadow: "0 0 10px #ffd28a" }} />
+                        Bundles
+                        <span aria-hidden className="ml-auto text-dim opacity-0 transition duration-300 group-hover/item:translate-x-0.5 group-hover/item:opacity-100">→</span>
+                      </div>
+                      <div className="mt-0.5 pl-3.5 text-[12px] text-dim">Ready-made packs, one download</div>
+                    </Link>
                   </div>
-                  <div className="mt-1 grid grid-cols-2 gap-1 border-t border-line pt-1">
-                    <Link href="/bundles" role="menuitem" tabIndex={menu ? 0 : -1} onClick={() => setMenu(false)} className="rounded-2xl px-3.5 py-2.5 text-[13px] text-dim transition duration-300 hover:bg-white/[0.06] hover:text-fg">Bundles <span aria-hidden className="text-gold">✦</span></Link>
+                  <div className="mt-1 grid grid-cols-1 gap-1 border-t border-line pt-1">
                     <Link href="/library" role="menuitem" tabIndex={menu ? 0 : -1} onClick={() => setMenu(false)} className="rounded-2xl px-3.5 py-2.5 text-right text-[13px] text-aurora transition duration-300 hover:bg-white/[0.06]">Everything in one place →</Link>
                   </div>
                 </div>
@@ -196,7 +203,7 @@ export function SiteNav() {
 export function SiteFooter() {
   return (
     <footer className="relative z-10 border-t border-line bg-bg/80 backdrop-blur-xl">
-      <div className="mx-auto grid max-w-[1320px] gap-10 px-5 py-16 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr]">
+      <div className="mx-auto grid grid-cols-[minmax(0,1fr)] max-w-[1320px] gap-10 px-5 py-16 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr]">
         <div>
           <div className="flex items-center gap-3 font-display text-lg font-semibold tracking-[0.02em]">
             <Logo size={26} /> {SITE.name}

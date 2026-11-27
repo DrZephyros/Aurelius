@@ -83,7 +83,7 @@ export function AuraStage({ children }: { children?: ReactNode }) {
       <div className="orbit hidden sm:block" style={st({ width: 420, height: 420, right: -110, top: -130, animation: "spin-rev 40s linear infinite", "--oc": "#5cffc4" })} aria-hidden><i /></div>
       {SPARKS.slice(0, 4).map(([l, t, c, d, s], i) => (<i key={i} className="spark" style={st({ left: l, top: t, "--sc": c, "--sl": d, "--sd": s })} aria-hidden />))}
 
-      <div className="relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-14">
+      <div className="relative grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-14">
         <div>{children}</div>
 
         <div className="flex flex-col gap-4">

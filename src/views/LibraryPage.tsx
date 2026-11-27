@@ -100,7 +100,7 @@ function DemoShelf({ list, cats, placeholder }: { list: Demo[]; cats: readonly s
       {shown.length === 0 ? (
         <div className="panel mt-8 p-12 text-center text-dim">Nothing matches “{q}”. <button className="text-aurora underline" onClick={() => { setQ(""); setCat("All"); }}>Reset</button></div>
       ) : (
-        <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-2 xl:grid-cols-3">
           {shown.map((d, i) => (
             <Reveal key={d.slug} delay={(i % 3) * 70}><DemoCard demo={d} index={list.findIndex((x) => x.slug === d.slug)} /></Reveal>
           ))}
@@ -128,7 +128,7 @@ function Overview() {
   const f = useLibFilter();
   const active = isActive(f);
   const hits = useMemo(() => (active ? matchLibrary(f, worlds) : null), [f, active, worlds]);
-  const grid = "grid gap-5 md:grid-cols-2 xl:grid-cols-3";
+  const grid = "grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-2 xl:grid-cols-3";
 
   return (
     <div>
@@ -155,7 +155,7 @@ function Overview() {
           )}
           {hits.components.length + hits.demos.length > 0 && (
             <ResultGroup title="Components" n={hits.components.length + hits.demos.length}>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {hits.components.map((c, i) => (
                   <Link key={c.slug} href={catHref(c.slug)} className="panel group block overflow-hidden !rounded-[22px] transition duration-500 hover:-translate-y-1 hover:border-line-strong">
                     <div className="pointer-events-none"><DemoStage id={`${c.slug}/${itemsOf(c.slug)[0].slug}`} /></div>
@@ -188,7 +188,7 @@ function Overview() {
           <section className="mt-24">
             <SectionHead id="sec-components" n="03" title="Components" count={REG_ITEMS.filter((i) => i.category !== TEXT_EFFECTS).length + ELEMENTS.length} unit="drop-in React pieces" href="/components" accent="#ff7ad9" />
             <p className="-mt-3 mb-6 max-w-2xl text-[14.5px] leading-relaxed text-dim">One file each, zero dependencies, and a README written for your coding agent. Download a folder, hand it over, done.</p>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {REG_CATS.filter((c) => c.slug !== TEXT_EFFECTS).slice(0, 8).map((c, i) => (
                 <Reveal key={c.slug} delay={(i % 4) * 60}>
                   <Link href={catHref(c.slug)} className="panel group block overflow-hidden !rounded-[22px] transition duration-500 hover:-translate-y-1 hover:border-line-strong">
@@ -203,7 +203,7 @@ function Overview() {
 
           <section className="mt-24">
             <SectionHead id="sec-text" n="04" title="Text effects" count={itemsOf(TEXT_EFFECTS).length} unit="import onto any text" href="/text-effects" accent="#ffd28a" />
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {itemsOf(TEXT_EFFECTS).slice(0, 6).map((it, i) => (
                 <Reveal key={it.slug} delay={(i % 3) * 60}>
                   <Link href={itemHref(it.category, it.slug)} className="panel group block overflow-hidden !rounded-[22px] transition duration-500 hover:-translate-y-1 hover:border-line-strong">
@@ -215,7 +215,7 @@ function Overview() {
             </div>
           </section>
 
-          <section className="mt-24 grid gap-4 md:grid-cols-2">
+          <section className="mt-24 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
             {([
               ["/prompts", "Prompts", `${ALL_PROMPTS.length} fill-in-the-blank prompts`, "Make Claude Code, Cursor, Lovable and friends behave. Search, favourite, copy.", "#ff7ad9"],
               ["/bundles", "Bundles", `${BUNDLES.length} immersive 3D sites`, "One theme end to end: a scroll-driven WebGL landing page plus the pricing, sign-in, reservation and account pages that match it.", "#ffd28a"],
@@ -235,7 +235,7 @@ function Overview() {
 
           <Reveal className="mt-20">
             <div className="glass rounded-[26px] p-6 sm:p-10">
-              <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
                 <div>
                   <div className="eyebrow">Beyond the library</div>
                   <h2 className="h-display mt-4 text-[clamp(1.9rem,3.6vw,3rem)]">Want it built — or want to build like this?</h2>

@@ -62,7 +62,7 @@ export function SkillStudio({ layout = "split" }: { layout?: "split" | "stack" }
             onChange={(e) => set({ subject: e.target.value })}
           />
         </Field>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
           <Field label="Audience">
             <input className={field} placeholder="who must it win over?" value={s.audience} onChange={(e) => set({ audience: e.target.value })} />
           </Field>

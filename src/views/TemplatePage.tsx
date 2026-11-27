@@ -68,10 +68,10 @@ export default function TemplatePage({ slug }: { slug: string }) {
       <div className="mt-12"><PreviewFrame slug={t.slug} /></div>
 
       {/* facts */}
-      <section className="mt-20 grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+      <section className="mt-20 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[1.4fr_1fr]">
         <div className="panel p-8">
           <div className="eyebrow">What&apos;s inside</div>
-          <div className="mt-8 grid gap-10 sm:grid-cols-2">
+          <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-10 sm:grid-cols-2">
             <div>
               <h3 className="font-mono text-[11px] tracking-[0.18em] text-dim uppercase">Techniques</h3>
               <ul className="mt-4 space-y-2.5 text-[15px]">
@@ -111,7 +111,7 @@ export default function TemplatePage({ slug }: { slug: string }) {
         <div className="eyebrow">Customise with prompts</div>
         <h2 className="h-display mt-5 text-[clamp(2.2rem,4.6vw,4rem)]">Paste. Fill the brackets. Done.</h2>
         <p className="mt-4 max-w-xl text-[15px] text-dim">Tip: tell your AI tool to read <code className="rounded bg-white/8 px-1.5 py-0.5 font-mono text-xs">AI_CONTEXT.md</code> first — it saves it from exploring the codebase.</p>
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">
           {specific.map((p) => (
             <div key={p.label} className="panel flex flex-col p-6" style={{ borderColor: `${t.accent}33` }}>
               <span className="chip self-start" style={{ color: t.accent }}>{t.name}-specific</span>
@@ -121,7 +121,7 @@ export default function TemplatePage({ slug }: { slug: string }) {
             </div>
           ))}
         </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
+        <div className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">
           {general.map((p) => {
             const body = fill(p.body, t.name);
             return (
@@ -146,7 +146,7 @@ export default function TemplatePage({ slug }: { slug: string }) {
       </section>
 
       {/* quickstart */}
-      <section className="mt-24 grid gap-5 lg:grid-cols-2">
+      <section className="mt-24 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-2">
         <div className="panel p-8">
           <div className="eyebrow">Quick start</div>
           <ol className="mt-8 space-y-6">
@@ -177,7 +177,7 @@ export default function TemplatePage({ slug }: { slug: string }) {
       </section>
 
       {/* pager */}
-      <nav className="mt-24 grid gap-4 sm:grid-cols-2">
+      <nav className="mt-24 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
         {[
           { t: prev, dir: "← Previous" },
           { t: next, dir: "Next →" },

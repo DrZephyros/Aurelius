@@ -293,7 +293,7 @@ function PipelineBody({ heading = true }: { heading?: boolean }) {
       <div ref={wrap} style={pinned ? { height: `calc(100vh + ${N * SEG_VH}vh)` } : undefined}>
         <div className={pinned ? "sticky top-0 flex min-h-screen items-center" : ""}>
           <div className="mx-auto w-full max-w-[1320px] px-5 py-6 sm:px-8">
-            <div className="grid gap-6 lg:grid-cols-[300px_1fr] lg:gap-10" style={{ "--c": c } as CSSProperties}>
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[300px_1fr] lg:gap-10" style={{ "--c": c } as CSSProperties}>
               {/* rail */}
               <div className="relative lg:pt-1">
                 <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] lg:hidden" role="tablist" aria-label="Pipeline phases">
@@ -324,7 +324,7 @@ function PipelineBody({ heading = true }: { heading?: boolean }) {
               <div className="min-w-0">
                 <div ref={card} className="pipe-card transition-transform duration-300 ease-out" onPointerMove={move} onPointerLeave={leave} style={{ "--c": c } as CSSProperties}>
                   <div className="ghost-num" key={`g${active}`} style={{ animation: "phase-in .9s var(--ease-out-expo) both" }} aria-hidden>{p.n}</div>
-                  <div className="relative grid gap-6 p-6 sm:p-9 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:p-11">
+                  <div className="relative grid grid-cols-[minmax(0,1fr)] gap-6 p-6 sm:p-9 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:p-11">
                     <div key={active} className="phase-in flex flex-col">
                       <div className="flex items-center gap-3 font-mono text-[11px] tracking-[0.2em] uppercase" style={{ "--i": 0 } as CSSProperties}>
                         <span className="rounded-full border px-3 py-1" style={{ color: c, borderColor: `${c}66`, background: `${c}14` }}>Gate {p.n}</span>

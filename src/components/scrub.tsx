@@ -54,6 +54,11 @@ export function ScrubSurface({
   useEffect(() => {
     const on = (e: MessageEvent) => {
       if (e.source && e.source === frameRef.current?.contentWindow && e.data?.md === "metrics") setScrollable(!!e.data.scrollable);
+      /* the page scrolls itself (autoplay, wheel): move the slider to follow, unless the viewer is driving it */
+      if (e.source && e.source === frameRef.current?.contentWindow && e.data?.md === "progress" && typeof e.data.p === "number" && !S.current.active && !S.current.touching) {
+        S.current.target = S.current.shown = e.data.p;
+        paint();
+      }
     };
     addEventListener("message", on);
     return () => removeEventListener("message", on);

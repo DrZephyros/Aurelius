@@ -54,24 +54,40 @@ export function indexMarkdown(base: string): string {
   return L.join("\n") + "\n";
 }
 
+/* A template is a flat project: index.html, style.css, main.js and shared/. three.js loads from a pinned CDN build,
+   so nothing needs vendoring or npm install. Only index.html has relative paths, so rewrite them here. */
+const THREE_CDN = "https://cdn.jsdelivr.net/npm/three@0.170.0";
+const flatten = (html: string) =>
+  html
+    .replace(/\.\.\/_shared\//g, "./shared/")
+    .replace(/\.\.\/_vendor\/three\.module\.min\.js/g, `${THREE_CDN}/build/three.module.min.js`)
+    .replace(/\.\.\/_vendor\/addons\//g, `${THREE_CDN}/examples/jsm/`);
+
 export function templateMarkdown(slug: string): string | null {
   const t = TEMPLATES.find((x) => x.slug === slug);
   if (!t) return null;
   const f = (n: string) => RAW_DEMOS[`/demos-src/${slug}/${n}`] ?? "";
   const core = RAW_DEMOS["/demos-src/_shared/core.js"] ?? "";
+  const base = RAW_DEMOS["/demos-src/_shared/base.css"] ?? "";
   return [
     `# ${t.name} — ${t.tagline}`, "", t.blurb, "",
     `- Theme: ${t.theme} · GPU: ${t.gpu} · Sections: ${t.sections}`,
     `- Best for: ${t.bestFor.join(", ")}`,
     `- Techniques: ${t.techniques.join(" · ")}`,
     `- Interactions: ${t.interactions.join(" · ")}`, "",
+    "## Project layout", "",
+    "Create these five files in one folder. No build step and no npm install are needed:", "",
+    "```", "index.html", "style.css", "main.js", "shared/base.css", "shared/core.js", "```", "",
     "## Notes for the agent", "",
-    "- Vanilla JS + three.js. `main.js` imports a shared engine as `@core` (`_shared/core.js`, included below; it re-exports THREE, a scroll playhead, loaders and helpers). Wire `@core` via an import map or a path alias.",
-    "- three.js itself is a normal npm dependency (`three`). Re-use the structure, camera rail and choreography; swap copy and assets.", "",
-    "## index.html", fence("html", f("index.html")), "",
+    "- Vanilla JS + three.js. `main.js` imports the shared engine as `@core` (`shared/core.js`: THREE re-export, scroll playhead, loaders, helpers). The import map in `index.html` already maps `@core`, `three` and `three/addons/` to `./shared/core.js` and a pinned three.js r170 on jsDelivr. Keep those lines.",
+    "- Serve the folder over http, not file://. ES modules and WebGL need it: `npx serve .` or `python -m http.server 8000`.",
+    "- Verify before you finish: load the page in a headless browser, check for zero console errors (a missing file shows as a 404), and screenshot the top and a scrolled position. The hero should show visible copy over the 3D scene.",
+    "- Re-use the structure, camera rail and choreography; swap copy, assets and palette.", "",
+    "## index.html", fence("html", flatten(f("index.html"))), "",
     "## style.css", fence("css", f("style.css")), "",
     "## main.js", fence("js", f("main.js")), "",
-    "## _shared/core.js (the `@core` engine)", fence("js", core),
+    "## shared/base.css (layout and type system)", fence("css", base), "",
+    "## shared/core.js (the `@core` engine)", fence("js", core),
   ].join("\n");
 }
 
