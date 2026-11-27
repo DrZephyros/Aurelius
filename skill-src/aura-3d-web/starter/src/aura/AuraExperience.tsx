@@ -19,6 +19,23 @@ import { bindDom, fitType, trackProgress } from "./choreo";
    · Includes: preloader (tracks real asset loading), WebGL-failure fallback, reduced-motion handling, progress HUD.
    ───────────────────────────────────────────────────────────── */
 
+/** Respect Data Saver / slow connections: the static edition ships the same copy with no 3D payload cost. */
+function saveData() {
+  const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+  return !!c && (c.saveData === true || c.effectiveType === "slow-2g" || c.effectiveType === "2g");
+}
+
+/** true while the viewport is phone-width; updates on rotate/resize */
+function usePhone() {
+  const [m, setM] = useState(() => typeof matchMedia !== "undefined" && matchMedia("(max-width: 760px)").matches);
+  useEffect(() => {
+    const q = matchMedia("(max-width: 760px)"), on = () => setM(q.matches);
+    q.addEventListener("change", on);
+    return () => q.removeEventListener("change", on);
+  }, []);
+  return m;
+}
+
 function hasWebGL() {
   try {
     const c = document.createElement("canvas");
@@ -33,6 +50,8 @@ export interface AuraExperienceProps {
   children?: ReactNode;
   /** scroll distance of the whole experience, in viewport heights. 500 = short film · 800–1200 = feature */
   scrollVh?: number;
+  /** override scroll distance on phones (≤760px). A thumb flick covers ~2× the distance of a wheel notch — 520–700 is typical. Defaults to scrollVh. */
+  scrollVhMobile?: number;
   title?: string;
   /** shown if WebGL is unavailable or fails — a designed still, never a blank page */
   poster?: string;
@@ -41,7 +60,10 @@ export interface AuraExperienceProps {
   onReady?: (h: AuraHandle) => void;
 }
 
-export function AuraExperience({ build, children, scrollVh = 700, title = "", poster, hud = true, className = "", onReady }: AuraExperienceProps) {
+export function AuraExperience({ build, children, scrollVh = 700, scrollVhMobile, title = "", poster, hud = true, className = "", onReady }: AuraExperienceProps) {
+  const phone = usePhone();
+  const vh = phone && scrollVhMobile ? scrollVhMobile : scrollVh;
+  const [nonce, setNonce] = useState(0); // bump → re-mount the engine after a restored context
   const track = useRef<HTMLDivElement>(null);
   const host = useRef<HTMLDivElement>(null);
   const overlay = useRef<HTMLDivElement>(null);
@@ -51,14 +73,20 @@ export function AuraExperience({ build, children, scrollVh = 700, title = "", po
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    if (!hasWebGL()) { setFailed(true); return; }
+    if (!hasWebGL() || saveData()) { setFailed(true); return; }
+    setFailed(false);
     const t = track.current!, hostEl = host.current!, ov = overlay.current!;
     let handle: AuraHandle | null = null, dead = false;
     const t0 = performance.now();
     THREE.DefaultLoadingManager.onProgress = (_u, l, n) => setPct(n ? l / n : 1);
     const update = bindDom(ov);
     const unfit = fitType(ov);
-    mountAura(hostEl, build, { progress: trackProgress(t) })
+    mountAura(hostEl, build, {
+      progress: trackProgress(t),
+      // iOS Safari kills contexts under memory pressure: show the static edition at once, rebuild when the GPU comes back
+      onContextLost: () => !dead && setFailed(true),
+      onContextRestored: () => { if (dead) return; setReady(false); setNonce((n) => n + 1); },
+    })
       .then((h) => {
         if (dead) { h.dispose(); return; }
         handle = h;
@@ -73,10 +101,10 @@ export function AuraExperience({ build, children, scrollVh = 700, title = "", po
       .catch(() => !dead && setFailed(true));
     return () => { dead = true; unfit(); handle?.dispose(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [nonce]);
 
   return (
-    <section ref={track} className={`aura-root ${className}`} style={{ height: `${scrollVh}vh` }} aria-label={title || "Immersive experience"}>
+    <section ref={track} className={`aura-root ${failed ? "is-static" : ""} ${className}`} style={failed ? undefined : { height: `${vh}vh` }} aria-label={title || "Immersive experience"}>
       <div className="aura-stage">
         <div ref={host} className="aura-canvas" aria-hidden />
         {failed && poster && <img src={poster} alt="" className="aura-poster" />}
@@ -85,7 +113,7 @@ export function AuraExperience({ build, children, scrollVh = 700, title = "", po
           <div className="aura-hud" aria-hidden>
             <span className="aura-hud-title">{title}</span>
             <span className="aura-hud-line"><span ref={bar} className="aura-hud-fill" /></span>
-            <span className="aura-hud-hint">Scroll</span>
+            <span className="aura-hud-hint"><span className="aura-hint-d">Scroll</span><span className="aura-hint-m">Swipe</span></span>
           </div>
         )}
         <div className={`aura-loader ${ready || failed ? "is-done" : ""}`} aria-hidden={ready}>

@@ -16,7 +16,7 @@ import { ease, seg } from "./choreo";
    The last frame is composed on purpose: monolith centred, corona ringing its top, CTA below.
    ───────────────────────────────────────────────────────────── */
 
-export function umbra({ env, mobile, quality }: BuildContext): AuraScene {
+export function umbra({ env, mobile }: BuildContext): AuraScene {
   const scene = new THREE.Scene();
   const HORIZON = 0x34150a, ZENITH = 0x04050c;
   scene.background = new THREE.Color(ZENITH);

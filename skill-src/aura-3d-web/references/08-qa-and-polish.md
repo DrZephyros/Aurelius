@@ -25,10 +25,12 @@ What it measures at 14 stops × 3 viewports (a fresh browser per viewport):
 | budgets | > 160 draw calls, > 1.8 M triangles |
 | resilience | page with WebGL disabled (must not crash or hang on the loader), reduced-motion load |
 
-It writes `shots/REPORT.md`, `report.json`, `shots/contact-desktop.png|mobile|wide` and exits non-zero on any **BLOCKER**. It also prints an *automated* score out of 80 (atmosphere 25 · unbroken 20 · rhythm 20 · craft 15). **The remaining 20 points — Authorship — and the real taste judgement are yours.**
+It writes `shots/REPORT.md`, `report.json`, `shots/contact-desktop.png|mobile|wide` and exits non-zero on any **BLOCKER**. It also prints an *automated* score out of 80 (atmosphere 20 · unbroken 15 · rhythm 15 · craft 15 · **mobile & legibility 15**). The mobile pillar is where the audit used to be blind: it measures font sizes, WCAG contrast behind the copy, 44 px tap targets, CTA wrapping, horizontal overflow, the phone draw-call / triangle budget, the presence of a portrait rail and that a real scroll drives the playhead — at 390×844, 360×640 and 844×390 with real touch emulation. **The remaining 20 points — Authorship — and the real taste judgement are yours.**
 
 > **Gate:** 0 blockers → open `contact-desktop.png` and `contact-mobile.png` with your image tool → critique (§2) → fix → re-run. Do this **at least three times** (blockout, light/material, polish).
 >
+> v1 of this audit scored an unmodified starter 80/80 while the mobile frames had a wrapped CTA, 8 px labels, headline-on-rings collisions and a placeholder-looking hero — the rubric could not see them. v2 scores that same build 65/80 with 14 blockers. **Add a check whenever your eyes find something the numbers missed.**
+
 > A green audit proves the film is *mechanically sound*, never that it is *beautiful*. Both reference worlds scored 80/80 only after a real critique pass fixed things the numbers could not see (square stars, water-looking dunes, a hot corona).
 
 Software GL (SwiftShader) is slow but pixel-accurate for composition; ignore its FPS.

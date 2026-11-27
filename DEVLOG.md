@@ -2,6 +2,27 @@
 
 Newest entries first. Repo: `github.com/DrZephyros/Aurelius`, branch `main`.
 
+## 2026-11-27 · AURA v2: mobile contract, honest audit, better hero
+
+### Independent test of the skill (before)
+- Built the starter and ran its own audit in Chromium (SwiftShader). It reproduced **80/80**. The contact sheets showed a flat low-poly hero, a CTA wrapping to two lines at 390px, 8–11px labels, headline-on-rings collisions, and a tiny object on mobile (desktop rail reused). The score missed all of it. Rating: **6.5 / 10**.
+- A stricter v2 audit run on the *unmodified* starter: 65/80, mobile & legibility 0/15 (CTA wrap, 10px HUD, no portrait rail, contrast).
+
+### Changes (skill-src/aura-3d-web)
+- `engine.ts`: `ctx.tier/coarse/portrait`, live `shotsMobile` rail, tan-based lens fit, `portraitLift` view-offset, tiered DPR + MSAA (auto-off on CPU rasterisers), touch-safe parallax + idle sway, context-loss recovery, richer `info()`.
+- `choreo.ts`: `trackProgress` is stable when the mobile URL bar collapses.
+- `aura.css` / `AuraExperience.tsx`: scrim for legibility, 12px+ type, 52px nowrap CTA, hover gating, safe areas, landscape-phone edit, `scrollVhMobile`, static edition for no-WebGL / Data Saver / lost context.
+- `scene.example.ts`: smooth iridescent pebble hero in a designed softbox environment, orbiting spark as the practical light, authored portrait rail, tier budgets.
+- `scripts/audit.mjs`: 5 viewports with real touch emulation; min font size, WCAG contrast against the copy-free frame, 44px targets, CTA wrap, h-scroll, phone budgets, portrait-rail check, real scroll test. Score is now atmosphere 20 / unbroken 15 / rhythm 15 / craft 15 / mobile 15 (+20 human).
+- Docs: new `references/17-mobile-contract.md`; SKILL.md law 11 + verification contract; refs 07/08; README.
+- Site: tsconfig `lib` ES2021, removed unused imports (typecheck is clean), `scripts/gen-skill-raw.mjs` re-embeds the skill into `src/generated`.
+
+### Known gaps
+- Strict audit still flags display type over the hero (OBSIDIAN title, "Now see all of it", ~15–46% of pixels behind under 2:1). The last CSS fix (centred chapters move to the copy zone on phones) was NOT re-audited.
+- No real-device FPS (software GL only); iOS Safari / Android not tested.
+- NOCTA, Umbra and Mira worlds were not re-audited on mobile after the engine change.
+- Build uses the sandbox template package.json / vite config (single-file output); the library generator (`build-agent-files.mjs`) is not wired into `npm run build` here.
+
 ## 2026-11-27 · Audit: AURA rating, website verdict, library fixes
 
 ### Starting point

@@ -8,7 +8,7 @@ import "./aura.css";
    Copy this file, rename the chapters, swap the scene. That is the whole integration. */
 export default function ExampleExperience({ scrollVh = 720 }: { scrollVh?: number }) {
   return (
-    <AuraExperience build={obsidianGate} scrollVh={scrollVh} title="Obsidian Gate">
+    <AuraExperience build={obsidianGate} scrollVh={scrollVh} scrollVhMobile={620} title="Obsidian Gate">
       {/* shot 1 · establish (0 → 0.2): giant type, almost no copy */}
       <div className="aura-giant" data-fit="0.86" data-a="0" data-b="0.2" data-fade="0.05" aria-hidden>OBSIDIAN</div>
       <div className="aura-copy aura-left" data-a="0" data-b="0.19">
@@ -37,7 +37,7 @@ export default function ExampleExperience({ scrollVh = 720 }: { scrollVh?: numbe
       </div>
 
       {/* shot 5 · FINAL IMAGE (0.88 → 1): stays on screen, one CTA */}
-      <div className="aura-copy aura-center aura-hit" data-a="0.88" data-b="1" data-fade="0.05" style={{ top: "auto", bottom: "8vh", translate: "-50% 0" }}>
+      <div className="aura-copy aura-final aura-hit" data-a="0.88" data-b="1" data-fade="0.05">
         <h2 className="aura-h" style={{ fontSize: "clamp(2.4rem,6vw,5.5rem)" }}>Make yours.</h2>
         <a className="aura-cta" href="#start">Start a build</a>
       </div>

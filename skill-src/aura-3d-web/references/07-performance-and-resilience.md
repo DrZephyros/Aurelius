@@ -22,7 +22,7 @@ floor.setEnabled(f.quality > 0.5);
 glassMesh.material = f.quality > 0.6 ? glassPhysical : glassCheap;
 dustNear.points.visible = f.quality > 0.3;
 ```
-Also decide the *initial* quality: mobile starts at 0.75; consider starting low if `navigator.hardwareConcurrency <= 4` or `navigator.deviceMemory <= 4`.
+The *initial* quality and DPR cap are derived from `ctx.tier`: desktop 1.0 · mid phone 0.9 / DPR 1.25 · low phone (≤3 GB or ≤4 cores) 0.85 / DPR 1.0, MSAA ×4 / ×2 / off. The governor then steps down from there.
 
 ## 3 · CPU-side rules
 - **No allocations in `update`** — reuse vectors/colors/dummies. GC pauses = micro-stutter in scroll.
@@ -50,19 +50,19 @@ Also decide the *initial* quality: mobile starts at 0.75; consider starting low 
 6. Serve assets with `Cache-Control: immutable`, gzip/brotli; host heavy files on a CDN.
 
 ## 6 · Responsive design
-- **Portrait phones:** the engine widens FOV (+18°) when aspect < 0.8. Re-check framing: the subject must fit horizontally; move text to the bottom third; hide secondary HUD.
-- Provide a **mobile shot list** if the desktop rail relies on horizontal composition: `const shots = isMobile ? mobileShots : desktopShots`.
-- Reduce counts: particles ×0.35, shards ×0.5, no mirror floor, smaller textures (`ctx.mobile`).
-- Touch scroll is momentum-heavy: if the playhead overshoots, raise damping λ on `(pointer: coarse)`.
+> The full phone contract lives in **`17-mobile-contract.md`** — read it. Summary of what changed in the engine:
+- **Portrait phones:** return `scene.shotsMobile`; the engine swaps rails live (aspect < 0.85), widens the lens through `tan()` to keep the subject's width (no more flat +18°), and lifts the picture with a view-offset (`portraitLift`).
+- Budget by `ctx.tier` (`low | mid | high`), not just `ctx.mobile`: particles ×0.25–0.4, shards ×0.35–0.5, mirror floor only above `low`, geometry detail 12 vs 22.
+- Touch: finger `pointermove` is ignored; coarse pointers get an idle sway. The playhead damping is unchanged — the hold absorbs overshoot.
 - Test 360×640, 390×844, 768×1024, 1440×900, 1920×1080, 2560×1080 (ultrawide: clamp the FOV so nothing important is cropped).
 - `100svh` not `100vh` for the sticky stage (the starter uses both with fallback) to avoid mobile URL-bar jumps.
 
 ## 7 · Fallbacks (non-negotiable)
 | Condition | Behaviour |
 | --- | --- |
-| No WebGL / context creation fails | `AuraExperience` shows the `poster` image and the chapters as static stacked sections (render the chapters list in a plain `<main>` as well). |
+| No WebGL / context creation fails / **Data Saver or 2G** | `AuraExperience` switches to `.is-static`: the chapters as a real, designed, stacked page (gradient poster behind, giant type left-aligned, CTA intact). No 3D payload is requested to render it. |
 | `prefers-reduced-motion` | Playhead is near-instant, no velocity FOV/aberration, no pointer parallax, no blur transitions, reduced grain; scene still scrubs. |
-| Context lost (`webglcontextlost`) | `preventDefault()`, show poster, attempt re-mount on `webglcontextrestored`. |
+| Context lost (`webglcontextlost`) | **Built in:** `preventDefault()`, static edition at once, engine re-mounts on `webglcontextrestored`. |
 | Very low-end (quality hits 0.2 within 3s) | Swap to a **lite** mode: static camera + CSS parallax over the poster layers. |
 | JS disabled | `<noscript>` with the poster + text content + CTA. |
 | Save-Data / slow network | Skip video/frame sequences; load 1k textures; no HDRI. |

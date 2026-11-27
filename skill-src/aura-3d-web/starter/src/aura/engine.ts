@@ -70,6 +70,12 @@ export interface AuraScene {
   exposure?: number;
   bloom?: { strength: number; radius: number; threshold: number };
   grade?: Grade;
+  /** A hand-authored rail for portrait phones (aspect < 0.85). Same story, re-framed: subject high, copy low. Strongly recommended. */
+  shotsMobile?: Shot[];
+  /** fraction of viewport height the whole picture is lifted by in portrait, so the subject sits ABOVE the bottom copy zone. default 0.11, 0 disables */
+  portraitLift?: number;
+  /** 0..1.5 — how strongly the lens widens in portrait so the subject keeps its width (default 1). Use 0 if your rail is already hand-tuned. */
+  portraitFit?: number;
   /** pointer parallax in world units (default 0.8) */
   parallax?: number;
   update(f: Frame): void;
@@ -80,7 +86,14 @@ export interface BuildContext {
   renderer: THREE.WebGLRenderer;
   /** pre-filtered neutral studio environment (PMREM). Assign to scene.environment for instant PBR realism */
   env: THREE.Texture;
+  /** phone / tablet / coarse pointer. Use for COUNTS (particles, shards, segments), not for layout. */
   mobile: boolean;
+  /** viewport is portrait-ish (aspect < 0.85) at build time. The engine re-selects the rail live on rotate/resize. */
+  portrait: boolean;
+  /** coarse pointer (finger). No hover, no cursor parallax. */
+  coarse: boolean;
+  /** device class: "high" desktop · "mid" modern phone · "low" ≤3GB RAM or ≤4 cores. Gate transmission, mirror floor, big particle bands on it. */
+  tier: "low" | "mid" | "high";
   reduced: boolean;
   quality: number;
 }
@@ -92,6 +105,9 @@ export interface AuraOptions {
   maxDpr?: number;
   /** called every frame BEFORE damping to read the raw target progress (e.g. trackProgress(el)) */
   progress?: () => number;
+  /** the WebGL context was lost (iOS Safari does this under memory pressure). Show the poster; the shell re-mounts when it is restored. */
+  onContextLost?: () => void;
+  onContextRestored?: () => void;
 }
 
 export interface AuraInfo {
@@ -105,6 +121,17 @@ export interface AuraInfo {
   camera: { pos: V3; look: V3; fov: number };
   drawCalls: number;
   triangles: number;
+  mobile: boolean;
+  coarse: boolean;
+  /** the browser is rasterising on the CPU (SwiftShader / llvmpipe) — MSAA is skipped automatically */
+  software: boolean;
+  tier: "low" | "mid" | "high";
+  /** effective pixel ratio after the quality governor */
+  dpr: number;
+  /** which rail is live: "mobile" = scene.shotsMobile */
+  rail: "desktop" | "mobile";
+  /** lens widening factor currently applied (1 = none) */
+  fit: number;
 }
 
 export interface AuraHandle {
@@ -184,8 +211,11 @@ function sampleRail(shots: Shot[], p: number, pos: THREE.Vector3, look: THREE.Ve
 export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOptions = {}): Promise<AuraHandle> {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let w = host.clientWidth || innerWidth, h = host.clientHeight || innerHeight;
-  const mobile = w < 760 || matchMedia("(pointer: coarse)").matches;
-  const maxDpr = Math.min(devicePixelRatio || 1, opts.maxDpr ?? (mobile ? 1.25 : 1.75));
+  const coarse = matchMedia("(pointer: coarse)").matches;
+  const mobile = w < 760 || coarse;
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  const tier: "low" | "mid" | "high" = !mobile ? "high" : (nav.deviceMemory ?? 4) <= 3 || (nav.hardwareConcurrency ?? 8) <= 4 ? "low" : "mid";
+  const maxDpr = Math.min(devicePixelRatio || 1, opts.maxDpr ?? (!mobile ? 1.75 : tier === "low" ? 1 : 1.25));
 
   const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance", stencil: false });
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -193,8 +223,8 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
   renderer.domElement.style.cssText = "display:block;width:100%;height:100%";
   host.appendChild(renderer.domElement);
 
-  let quality = mobile ? 0.75 : 1;
-  const dprFor = (q: number) => maxDpr * (0.6 + 0.4 * q);
+  let quality = !mobile ? 1 : tier === "low" ? 0.85 : 0.9; // the governor steps DOWN from here if the device cannot hold ~40fps
+  const dprFor = (q: number) => Math.max(0.75, maxDpr * (0.6 + 0.4 * q));
   let dpr = dprFor(quality);
   renderer.setPixelRatio(dpr);
   renderer.setSize(w, h);
@@ -202,12 +232,18 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
   const pmrem = new THREE.PMREMGenerator(renderer);
   const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-  const built = await build({ renderer, env, mobile, reduced, quality });
+  // CPU rasteriser (no GPU acceleration, headless CI, some VMs): MSAA at 4× would make every frame seconds long
+  const gl = renderer.getContext(), dbg = gl.getExtension("WEBGL_debug_renderer_info");
+  const software = /swiftshader|llvmpipe|software|basic render/i.test(dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : "");
+  const built = await build({ renderer, env, mobile, portrait: w / h < 0.85, coarse, tier, reduced, quality });
   renderer.toneMappingExposure = built.exposure ?? 1;
   const baseFov = built.fov ?? 40;
   const camera = new THREE.PerspectiveCamera(baseFov, w / h, 0.1, 2000);
 
-  const composer = new EffectComposer(renderer);
+  // MSAA on the scene pass (half-float so HDR survives to the bloom + grade). Phones get 2× / none: edges stay clean without the fill-rate bill.
+  const msaa = software ? 0 : !mobile ? 4 : tier === "low" ? 0 : 2;
+  const target = new THREE.WebGLRenderTarget(Math.max(1, Math.round(w * dpr)), Math.max(1, Math.round(h * dpr)), { type: THREE.HalfFloatType, samples: renderer.capabilities.isWebGL2 ? msaa : 0 });
+  const composer = new EffectComposer(renderer, target);
   composer.setPixelRatio(dpr);
   composer.setSize(w, h);
   composer.addPass(new RenderPass(built.scene, camera));
@@ -229,7 +265,7 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
   if (reduced) { U.uGrain.value *= 0.5; U.uAberr.value = 0; }
 
   const S = { locked: false, target: 0, prog: 0, dim: 0, dimT: 0, fade: 0, speed: 0, bank: 0, ptrX: 0, ptrY: 0, tx: 0, ty: 0 };
-  const onMove = (e: PointerEvent) => { S.tx = (e.clientX / innerWidth) * 2 - 1; S.ty = (e.clientY / innerHeight) * 2 - 1; };
+  const onMove = (e: PointerEvent) => { if (e.pointerType === "touch") return; /* a finger drives the scroll, not the parallax */ S.tx = (e.clientX / innerWidth) * 2 - 1; S.ty = (e.clientY / innerHeight) * 2 - 1; };
   addEventListener("pointermove", onMove, { passive: true });
 
   const applyQuality = () => {
@@ -240,10 +276,17 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
     composer.setSize(w, h);
     bloom.enabled = quality > 0.45;
   };
+  let rail: Shot[] = built.shots, railName: "desktop" | "mobile" = "desktop", fit = 1;
+  const lift = built.portraitLift ?? 0.11;
   const resize = () => {
     w = host.clientWidth || innerWidth; h = host.clientHeight || innerHeight;
     renderer.setSize(w, h); composer.setSize(w, h);
     camera.aspect = w / h;
+    const portrait = w / h < 0.85;
+    railName = portrait && built.shotsMobile ? "mobile" : "desktop";
+    rail = railName === "mobile" ? built.shotsMobile! : built.shots;
+    // portrait: lift the picture so the subject sits above the copy zone (a view offset — no scene changes needed)
+    if (portrait && lift > 0) camera.setViewOffset(w, h, 0, Math.round(lift * h), w, h); else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   };
   resize();
@@ -259,8 +302,11 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
   const right = new THREE.Vector3();
   let last = performance.now(), elapsed = 0; // (THREE.Clock is deprecated in recent three)
   let raf = 0, running = true, first = true, frames = 0, acc = 0, fps = 60, ema = 1 / 60;
-  const lastShot = built.shots[built.shots.length - 1].at;
-  if (built.shots[0].at !== 0 || lastShot !== 1) console.warn(`[aura] shots should start at 0 and end at 1 (got ${built.shots[0].at} → ${lastShot}). The camera freezes outside the rail.`);
+  for (const [name, list] of [["shots", built.shots], ["shotsMobile", built.shotsMobile]] as const) {
+    if (!list) continue;
+    if (list[0].at !== 0 || list[list.length - 1].at !== 1) console.warn(`[aura] ${name} should start at 0 and end at 1 (got ${list[0].at} → ${list[list.length - 1].at}). The camera freezes outside the rail.`);
+  }
+  const fitFor = (aspect: number, strength: number) => (aspect >= 1.2 || strength <= 0 ? 1 : Math.min(2.2, Math.pow(1.5 / aspect, 0.85 * strength)) );
 
   const frame = () => {
     if (!running) return;
@@ -296,8 +342,10 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
 
     const p = clamp(S.prog, 0, 0.9999);
     prev.copy(pos);
-    const aspectFov = w / h < 0.8 ? 18 : 0; // portrait phones need a wider lens
-    const { fov, roll } = sampleRail(built.shots, p, pos, look, baseFov);
+    // touch devices have no cursor → a slow idle sway keeps parallax alive without fighting the thumb
+    if (coarse && !S.locked && !reduced) { S.tx = Math.sin(t * 0.35) * 0.5; S.ty = Math.cos(t * 0.27) * 0.3; }
+    fit = fitFor(w / h, railName === "mobile" ? (built.portraitFit ?? 0.55) : (built.portraitFit ?? 1));
+    const { fov, roll } = sampleRail(rail, p, pos, look, baseFov);
     const par = (built.parallax ?? 0.8) * (1 - S.dim * 0.6) * (reduced ? 0 : 1);
     pos.x += S.ptrX * par; pos.y -= S.ptrY * par * 0.55;
     look.x += S.ptrX * par * 1.4; look.y -= S.ptrY * par * 0.8;
@@ -310,8 +358,10 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
     S.bank = damp(S.bank, clamp(lateral, -0.06, 0.06), 3, dt);
     camera.rotateZ(-S.bank * (reduced ? 0 : 1) + (roll * Math.PI) / 180);
     const kick = reduced ? 0 : Math.min(S.speed * 10, 5);
-    if (Math.abs(camera.fov - (fov + aspectFov + kick)) > 0.001) {
-      camera.fov = fov + aspectFov + kick;
+    // keep the subject's WIDTH when the viewport narrows: widen the vertical fov through tan(), never past 78°
+    const vf = Math.min(78, (2 * Math.atan(Math.tan(((fov + kick) * Math.PI) / 360) * fit) * 180) / Math.PI);
+    if (Math.abs(camera.fov - vf) > 0.001) {
+      camera.fov = vf;
       camera.updateProjectionMatrix();
     }
 
@@ -332,13 +382,17 @@ export async function mountAura(host: HTMLElement, build: Builder, opts: AuraOpt
   const seek = (p: number) => { S.locked = true; S.target = S.prog = clamp(p); S.speed = 0; };
   const release = () => { S.locked = false; };
   const info = (): AuraInfo => ({
-    p: S.prog, locked: S.locked, fps, quality, size: [w, h], shots: built.shots,
+    p: S.prog, locked: S.locked, fps, quality, size: [w, h], shots: rail, mobile, coarse, software, tier, dpr, rail: railName, fit,
     camera: { pos: camera.position.toArray() as V3, look: look.toArray() as V3, fov: camera.fov },
     drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
   });
   // agent / QA hook:  window.__aura.seek(0.37)  then screenshot.   ?p=0.37 in the URL does the same on load.
   const urlP = new URLSearchParams(location.search).get("p");
   if (urlP !== null && !Number.isNaN(parseFloat(urlP))) seek(parseFloat(urlP));
+  const lost = (e: Event) => { e.preventDefault(); running = false; cancelAnimationFrame(raf); opts.onContextLost?.(); };
+  const restored = () => opts.onContextRestored?.();
+  renderer.domElement.addEventListener("webglcontextlost", lost);
+  renderer.domElement.addEventListener("webglcontextrestored", restored);
   const hook = { seek, release, info };
   (window as unknown as { __aura?: unknown }).__aura = hook;
 

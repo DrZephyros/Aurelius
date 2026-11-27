@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import { Link } from "@/lib/router";
 import { CopyButton } from "@/components/copy-button";
 import { ARCHETYPES } from "@/lib/skill";

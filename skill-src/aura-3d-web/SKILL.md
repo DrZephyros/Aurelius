@@ -1,6 +1,6 @@
 ---
 name: aura-3d-web
-description: Build AAA-grade, scroll-driven, immersive 3D websites that feel like high-budget game trailers or Awwwards Site-of-the-Year winners — for ANY subject (product launch, portfolio, real estate, brand, restaurant, game, film, SaaS, event, personal site). Use this skill whenever the user asks for a 3D website, an immersive / cinematic / scrollytelling / WebGL / three.js experience, a "wow" or "AAA" landing page, scroll-choreographed animation, a camera that flies through a world, or anything that should make a visitor feel awe. Covers concept, storyboard, asset generation, the cinematic camera engine, lighting, materials, atmosphere, typography, post-processing, performance and a scored QA gate. Works in two modes — WORLD (environment / product / event) and FOLIO (portfolio / studio gallery in depth) — plus a hybrid. Includes 12 art directions (product altar, showroom, estate, instrument, night walk, liquid particles, folio, tunnel, terrain, macro appetite, interface cosmos, light-mode glass), seven worked examples and a $10,000 delivery standard. Do NOT build "just another website" when this skill is active.
+description: Build AAA-grade, scroll-driven, immersive 3D websites that feel like high-budget game trailers or Awwwards Site-of-the-Year winners — for ANY subject (product launch, portfolio, real estate, brand, restaurant, game, film, SaaS, event, personal site). Use this skill whenever the user asks for a 3D website, an immersive / cinematic / scrollytelling / WebGL / three.js experience, a "wow" or "AAA" landing page, scroll-choreographed animation, a camera that flies through a world, or anything that should make a visitor feel awe. Covers concept, storyboard, asset generation, the cinematic camera engine, lighting, materials, atmosphere, typography, post-processing, performance and a scored QA gate. Mobile-first by contract: every site ships a hand-authored portrait rail, a phone-budgeted scene, 44px touch targets, measured contrast and a static edition (see references/17). Works in two modes — WORLD (environment / product / event) and FOLIO (portfolio / studio gallery in depth) — plus a hybrid. Includes 12 art directions (product altar, showroom, estate, instrument, night walk, liquid particles, folio, tunnel, terrain, macro appetite, interface cosmos, light-mode glass), seven worked examples and a $10,000 delivery standard. Do NOT build "just another website" when this skill is active.
 ---
 
 # AURA — the immersive 3D web skill
@@ -40,6 +40,7 @@ If the visitor does not feel something in the first three seconds and again at t
 | writing shaders / particles / dissolves / liquid chrome / caustics | `references/15-shader-recipes.md` |
 | you need to SEE what the user wants — read the two closest | `examples/README.md` + `examples/0N-*.md` |
 | **choosing between WORLD and FOLIO mode (ALWAYS, in Phase 1a — before the direction)**, or building a portfolio / studio / case-study site | `references/16-modes-world-folio-hybrid.md` + `?world=folio` in the starter |
+| **ALWAYS — phones are most of the audience** (portrait rail, tiers, touch, safe areas, budgets, the test matrix) | `references/17-mobile-contract.md` |
 | you want to go BEYOND the starter (raymarched heroes, GPU particles, depth-displaced plates, cinematic type, WebGPU, splats, audio…) and need the world-building recipes | `references/10-frontier-techniques.md` |
 
 3. The working engine is in `starter/` — and it ships **four finished reference worlds** (the fourth, *Mira*, is a FOLIO — `scene.folio.ts`, `?world=folio` — see `references/16`) (add *NOCTA*, a product altar: `scene.halo.ts`, `?world=halo`, with `studio.ts` (designed environment map + product light rig), `rock.ts` (asteroid ground + boulders), `objects.ts` (earbuds with exploded-ascent parts, machined dial, glass bottle)) — study
@@ -57,7 +58,8 @@ If the visitor does not feel something in the first three seconds and again at t
 6. **Type is architecture.** Giant display type (often wider than the viewport) that the world interacts with — occluded by the subject, reflected in the floor, scrubbed in tracking, lit by the scene. Max two typefaces. **Max ~12 words per beat.** The 3D does the talking.
 7. **Pace like a film editor.** Alternate WIDE (breathe) and CLOSE (detail) shots. Something meaningful changes every ~0.8–1.5 screens of scroll. Reserve one **hold** (a stretch of scroll where the camera nearly stops) for each hero moment so people can *feel* it. One crescendo, one release, one final image.
 8. **Restraint.** One hero effect per chapter. A palette of 1 dominant hue + 1 accent + neutrals. Effects you can't justify in the story get deleted. Bloom with a *high threshold* — glow only on things that are supposed to glow.
-9. **60fps is part of the aesthetic.** Adaptive quality, capped DPR, instancing, no per-frame allocations, compressed assets. Mobile gets a *designed* variant (fewer layers, shorter rail, lower DPR), never a broken one. Reduced-motion users get a calm, complete version.
+9. **60fps is part of the aesthetic.** Adaptive quality, capped DPR, instancing, no per-frame allocations, compressed assets. Reduced-motion users get a calm, complete version.
+11. **The phone is a first-class edit, not a fallback.** Return `shotsMobile` (closer, subject in the upper 60 %, less lateral swing) next to `shots`; budget counts by `ctx.tier` (`low`/`mid`/`high`); keep every tap target ≥ 44 px and every readable glyph ≥ 12 px; hold ≥ 4.5:1 contrast over the real frame; ship a static edition for no-WebGL / Data Saver / lost context. The engine does the plumbing (live rail swap, tan-based lens fit, view-offset lift, touch-safe parallax, svh-stable scroll range, context-loss recovery) — **you do the composition** (`references/17-mobile-contract.md`). The audit fails the build if you skip it.
 10. **Look at it.** You must render, screenshot at ≥12 scroll positions, and critique your own frames like a harsh art director before you say "done". At least three polish passes. Score yourself with the rubric in `references/08-qa-and-polish.md`; ship only ≥ 85/100.
 
 ---
@@ -105,7 +107,7 @@ Copy `starter/src/aura/*` into the project (Vite + React is the default; for Nex
 Pass A *Motion:* timing of every entrance, hold lengths, easing, velocity feel. Pass B *Image:* color grade, contrast, highlights, depth separation, kill any flat frame. Pass C *Details:* micro-typography, cursor, loader, hover states, 404, favicon, OG image, scroll-snap-free ending.
 
 ### Phase 7 — QA gate
-Run `node scripts/audit.mjs <url>` (from `starter/`) (see `references/08-qa-and-polish.md`): it seeks the playhead deterministically, captures 14 stops × 3 viewports, measures every frame, lints the shot list and DOM chapters, and tests no-WebGL + reduced-motion. Then **open the contact sheets and critique them**. Also check FPS (`--gpu`), reduced motion, mobile touch scroll, resize, tab-hidden. Score. **If < 85, fix the lowest-scoring category and re-score.** Ship the score in your final message.
+Run `node scripts/audit.mjs <url>` (from `starter/`) (see `references/08-qa-and-polish.md`): it seeks the playhead deterministically, captures 14 stops on desktop / wide / **390×844 touch** and 7 on **360×640** and **844×390**, measures every frame, lints the shot list and DOM chapters, **measures min font size, WCAG contrast against the copy-free frame, 44 px tap targets, CTA wrapping, horizontal overflow, the phone draw-call budget and the portrait rail, proves a real scroll drives the playhead**, and tests no-WebGL + reduced-motion. Then **open the contact sheets and critique them**. Also check FPS (`--gpu`), reduced motion, mobile touch scroll, resize, tab-hidden. Score. **If < 85, fix the lowest-scoring category and re-score.** Ship the score in your final message.
 
 ---
 
@@ -165,12 +167,12 @@ Don't add features. Go through the rubric, find the **lowest-scoring pillar** (A
 
 ## 8 · The verification contract (what "done" means)
 You may not say "done" until ALL of these are true — paste the evidence in your final message:
-1. `node scripts/audit.mjs <url>` (from `starter/`) exits 0 (**no blockers**) on desktop, mobile, wide — and you read `REPORT.md`.
+1. `node scripts/audit.mjs <url>` (from `starter/`) exits 0 (**no blockers**) on desktop, wide, mobile (390×844), small (360×640) and landscape (844×390) — and you read `REPORT.md`.
 2. You opened `contact-desktop.png` and `contact-mobile.png` and wrote a one-line art-director critique **per frame** (poster test · 5 depth planes · light · type) and fixed what you found, ≥ 3 loops.
 3. Frame one has type on screen; the last frame is a composed image with ONE live CTA (the engine hides neither if you start chapter 1 at `data-a="0"` and end the last at `data-b="1"`).
-4. Giant type uses `data-fit` — never guessed vw. Nothing is cropped or collides at 390 px.
+4. Giant type uses `data-fit` — never guessed vw. Nothing is cropped or collides at 390 px, 360 px or in landscape. Your scene returns `shotsMobile`, and `contact-mobile.png` shows the subject high, the copy low and the CTA on ONE line.
 5. `__aura.info().drawCalls` ≤ 160 and the no-WebGL fallback is a designed poster, not a blank page.
-6. Your score table includes the audit's automated points **and** your own judged Authorship points, honestly.
+6. Your score table includes the audit's automated points (atmosphere 20 · unbroken 15 · rhythm 15 · craft 15 · **mobile & legibility 15**) **and** your own judged Authorship points (20) and judged taste, honestly. An automated 80/80 is never a pass on its own: you still read the contact sheets.
 
 ## 9 · The $10,000 bar
 A paid-for site is the film **plus** an end-state, routes, metadata, a designed loader, a mobile edit, a reduced-motion edit, a fallback poster, a hand-off README and one `config.ts` for every knob — see `references/14-premium-delivery.md`. If you only built the hero, you built a demo. Say so, or finish the job.

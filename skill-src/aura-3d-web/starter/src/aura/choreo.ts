@@ -96,9 +96,13 @@ export function fitType(root: HTMLElement) {
 
 /** Scroll progress (0..1) of a tall track element: 0 when its top hits the viewport top, 1 when its bottom hits the viewport bottom. */
 export function trackProgress(track: HTMLElement) {
+  // mobile browsers resize innerHeight as the URL bar collapses (≈ 56–90px). Measure against the LARGEST height seen,
+  // so progress never jumps mid-scroll and always reaches exactly 1 at the end of the track.
+  let maxH = 0;
   return () => {
     const r = track.getBoundingClientRect();
-    const range = r.height - innerHeight;
+    maxH = Math.max(maxH, innerHeight);
+    const range = r.height - maxH - 1;
     return range > 0 ? clamp(-r.top / range) : 0;
   };
 }

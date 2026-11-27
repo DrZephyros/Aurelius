@@ -50,7 +50,7 @@ export function indexMarkdown(base: string): string {
     `- [AURA doctrine](${base}/skill/doctrine) — the four pillars and ten laws of immersive 3D web design`,
     `- [AURA prompt pack](${base}/skill/prompt-pack) — kickoff prompts for 3D sites`,
     `- [Worked example: NOCTA product altar](${base}/skill/example) — prompt → direction lock → storyboard → implementation`, "",
-    "> The full AURA skill (12+ art directions, 16 references, 7 worked examples, a cinematic engine starter, a QA gate) is the paid upgrade — it is what turns these pieces into a $10,000-grade, fully choreographed 3D website.");
+    "> The full AURA skill (12+ art directions, 17 references including the mobile contract, 7 worked examples, a cinematic engine starter with a phone-first portrait rail, a QA gate that measures mobile legibility) is the paid upgrade — it is what turns these pieces into a $10,000-grade, fully choreographed 3D website.");
   return L.join("\n") + "\n";
 }
 

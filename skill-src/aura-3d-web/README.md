@@ -49,3 +49,12 @@ You'll see **Obsidian Gate** (a product world); open `/?world=umbra` for **Umbra
 npm i -D playwright pngjs && npx playwright install chromium
 (cd starter && node scripts/audit.mjs http://localhost:5173)      # deterministic frames + metrics + contact sheets
 ```
+
+
+---
+
+## v2 — mobile contract & honest audit
+
+- **Portrait is a first-class edit.** `scene.shotsMobile`, live rail swap, tan-based lens fit, view-offset lift, tiered budgets (`ctx.tier`), MSAA by tier, touch-safe parallax, svh-stable scroll range, context-loss recovery, static edition (no WebGL / Data Saver). See `references/17-mobile-contract.md`.
+- **A better hero with zero assets.** `scene.example.ts` now builds a smooth iridescent obsidian pebble in a designed softbox environment, lit by an orbiting spark — the flat low-poly gem is gone.
+- **An audit that can see.** Five viewports (390×844 and 360×640 / 844×390 with real touch emulation), min font size, WCAG contrast measured against the copy-free frame, 44 px targets, CTA wrap, horizontal overflow, phone budgets, portrait-rail check, real scroll test. Automated score is now atmosphere 20 · unbroken 15 · rhythm 15 · craft 15 · mobile & legibility 15 = 80, plus 20 human-judged Authorship.
