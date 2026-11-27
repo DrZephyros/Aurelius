@@ -65,14 +65,21 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   white-space: nowrap;
 }
 /* ── THE END CARD. One obvious action, set in the final image. Give the wrapper class "aura-hit" so it is clickable. */
-.aura-cta { position: relative; display: inline-flex; align-items: center; gap: 14px; margin-top: 30px; padding: 18px 30px; min-height: 52px; min-width: 44px; justify-content: center; white-space: nowrap; touch-action: manipulation; -webkit-tap-highlight-color: transparent; border-radius: 999px; color: var(--aura-fg); text-decoration: none; font: 600 13px/1 var(--aura-mono); letter-spacing: 0.22em; text-transform: uppercase; border: 1px solid rgb(255 255 255 / 0.28); background: rgb(255 255 255 / 0.06); backdrop-filter: blur(14px); transition: transform 0.5s var(--aura-ease), background 0.3s, border-color 0.3s, box-shadow 0.4s; }
+.aura-cta { position: relative; display: inline-flex; align-items: center; gap: 14px; margin-top: 30px; padding: 18px 32px; min-height: 56px; min-width: 56px; justify-content: center; white-space: nowrap; touch-action: manipulation; -webkit-tap-highlight-color: transparent; border-radius: 999px; color: var(--aura-cta-fg, var(--aura-fg)); text-decoration: none; font: 600 16px/1.1 var(--aura-mono); letter-spacing: 0.16em; text-transform: uppercase; border: 1px solid var(--aura-cta-border, rgb(255 255 255 / 0.28)); background: var(--aura-cta-bg, rgb(255 255 255 / 0.06)); backdrop-filter: blur(14px); transition: transform 0.5s var(--aura-ease), background 0.3s, border-color 0.3s, box-shadow 0.4s; }
 .aura-cta::after { content: "→"; transition: transform 0.4s var(--aura-ease); }
 /* hover only where a hover exists — on a phone :hover sticks after a tap. :active + :focus-visible give touch + keyboard the same response. */
-.aura-cta:active, .aura-cta:focus-visible { background: var(--aura-accent); color: #02040a; border-color: transparent; box-shadow: 0 0 60px -6px var(--aura-accent); outline: none; }
+.aura-cta:active, .aura-cta:focus-visible { background: var(--aura-accent); color: var(--aura-cta-hover-fg, #02040a); border-color: transparent; box-shadow: 0 0 60px -6px var(--aura-accent); outline: 2px solid var(--aura-accent); outline-offset: 3px; }
 @media (hover: hover) {
-  .aura-cta:hover { background: var(--aura-accent); color: #02040a; border-color: transparent; box-shadow: 0 0 60px -6px var(--aura-accent); transform: translateY(-2px); }
+  .aura-cta:hover { background: var(--aura-accent); color: var(--aura-cta-hover-fg, #02040a); border-color: transparent; box-shadow: 0 0 60px -6px var(--aura-accent); transform: translateY(-2px); }
   .aura-cta:hover::after { transform: translateX(6px); }
 }
+
+/* ── SOUND TOGGLE (frontier/audio.ts). 48px target, always reachable, never autoplays. */
+.aura-sound { position: absolute; z-index: 4; top: max(16px, calc(env(safe-area-inset-top) + 10px)); right: var(--aura-pad); min-width: 48px; min-height: 48px; padding: 0 18px; display: inline-flex; align-items: center; gap: 10px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--aura-fg) 30%, transparent); background: color-mix(in srgb, var(--aura-bg) 55%, transparent); color: var(--aura-fg); font: 600 12px/1 var(--aura-mono); letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(12px); touch-action: manipulation; }
+.aura-sound i { display: inline-flex; gap: 2px; align-items: flex-end; height: 14px; }
+.aura-sound i b { width: 3px; height: 4px; background: currentColor; border-radius: 1px; transition: height 0.3s; }
+.aura-sound[aria-pressed="true"] i b:nth-child(1) { height: 9px; } .aura-sound[aria-pressed="true"] i b:nth-child(2) { height: 14px; } .aura-sound[aria-pressed="true"] i b:nth-child(3) { height: 7px; }
+.aura-sound:focus-visible { outline: 2px solid var(--aura-accent); outline-offset: 3px; }
 
 /* variant: outlined giant type that sits "inside" the scene instead of on top */
 .aura-giant.is-outline { color: transparent; -webkit-text-stroke: 1px rgb(255 255 255 / 0.35); }
@@ -96,7 +103,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 }
 
 /* ── HUD: tiny, mono, always there. Micro-typography is 30% of "expensive". */
-.aura-hud { position: absolute; inset: auto var(--aura-pad) 28px var(--aura-pad); display: flex; align-items: center; gap: 18px; font: 500 11px/1 var(--aura-mono); letter-spacing: 0.26em; text-transform: uppercase; color: var(--aura-dim); pointer-events: none; z-index: 2; bottom: max(28px, calc(env(safe-area-inset-bottom) + 14px)); }
+.aura-hud { position: absolute; inset: auto var(--aura-pad) 28px var(--aura-pad); display: flex; align-items: center; gap: 18px; font: 500 12px/1 var(--aura-mono); letter-spacing: 0.22em; text-transform: uppercase; color: var(--aura-dim); pointer-events: none; z-index: 2; bottom: max(28px, calc(env(safe-area-inset-bottom) + 14px)); }
 .aura-hud-line { flex: 1; height: 1px; background: rgb(255 255 255 / 0.14); position: relative; overflow: hidden; }
 .aura-hud-fill { position: absolute; inset: 0; background: var(--aura-accent); transform-origin: left; transform: scaleX(0); }
 
@@ -121,19 +128,25 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .aura-hint-m { display: inline; }
   .aura-stage::before { --aura-scrim-a: 0.84; background: linear-gradient(to top, rgb(var(--aura-scrim, 3 5 11) / var(--aura-scrim-a)) 0%, rgb(var(--aura-scrim, 3 5 11) / calc(var(--aura-scrim-a) * 0.6)) 34%, transparent 62%); }
 }
-/* ── LANDSCAPE PHONE (short viewport): drop the paragraph, keep the headline + CTA on screen */
+/* ── LANDSCAPE PHONE (short viewport, ≤480px tall): the copy goes to a narrow column, the paragraph and HUD go, giant type is capped by HEIGHT,
+      so nothing is clipped and the hero keeps the other 55% of the screen. */
 @media (max-height: 480px) and (orientation: landscape) {
-  .aura-h { font-size: clamp(1.5rem, 5.4vh, 2.4rem); margin-top: 10px; }
-  .aura-p { display: none; }
-  .aura-left, .aura-right { bottom: max(14vh, 56px); }
-  .aura-final { bottom: max(14vh, 56px); }
-  .aura-cta { margin-top: 14px; padding: 14px 24px; min-height: 48px; }
+  .aura-copy { max-width: min(42vw, 400px); }
+  .aura-h { font-size: clamp(1.4rem, 7vh, 2.2rem); margin-top: 8px; line-height: 1; }
+  .aura-p, .aura-hud, .aura-eyebrow::before { display: none; }
+  .aura-left, .aura-right { top: 50%; bottom: auto; translate: 0 -50%; }
+  .aura-right { right: max(var(--aura-pad), env(safe-area-inset-right)); } .aura-left { left: max(var(--aura-pad), env(safe-area-inset-left)); }
+  .aura-giant { font-size: min(var(--aura-giant-fs, 40vh), 40vh) !important; top: 30%; }
+  .aura-final, .aura-center:not(.aura-giant) { top: 50%; bottom: auto; translate: -50% -50%; max-width: min(70vw, 560px); }
+  .aura-cta { margin-top: 10px; padding: 12px 24px; min-height: 48px; }
+  .aura-sound { min-height: 44px; top: 8px; }
 }
 
 /* ── STATIC EDITION: no WebGL / Data Saver / context lost. Same copy, normal flow, still designed. */
 .aura-root.is-static { height: auto !important; }
 .aura-root.is-static .aura-stage { position: relative; height: auto; min-height: 100svh; overflow: visible; background: radial-gradient(120% 70% at 50% 8%, color-mix(in srgb, var(--aura-accent) 22%, transparent), transparent 62%), var(--aura-bg); }
-.aura-root.is-static .aura-canvas, .aura-root.is-static .aura-hud, .aura-root.is-static .aura-stage::before { display: none; }
+.aura-poster-auto { position: absolute; inset: 0; background: radial-gradient(90% 60% at 70% 20%, color-mix(in srgb, var(--aura-accent) 30%, transparent), transparent 70%), radial-gradient(70% 50% at 20% 85%, color-mix(in srgb, var(--aura-fg) 14%, transparent), transparent 70%); }
+.aura-root.is-static .aura-canvas, .aura-root.is-static .aura-hud, .aura-root.is-static .aura-stage::before, .aura-root.is-static .aura-sound { display: none; }
 .aura-root.is-static .aura-overlay { position: relative; inset: auto; display: flex; flex-direction: column; gap: clamp(36px, 8vh, 72px); padding: calc(var(--aura-pad) * 1.5) var(--aura-pad) calc(var(--aura-pad) * 2); }
 .aura-root.is-static [data-a] { position: relative !important; inset: auto !important; left: auto !important; right: auto !important; top: auto !important; bottom: auto !important; translate: none !important; transform: none !important; filter: none !important; opacity: 1 !important; visibility: visible !important; text-align: left; max-width: 640px; }
 .aura-root.is-static .aura-giant { font-size: clamp(3rem, 15vw, 9rem) !important; letter-spacing: -0.03em; scale: none; text-align: left; white-space: normal; }

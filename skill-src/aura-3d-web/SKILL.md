@@ -41,12 +41,23 @@ If the visitor does not feel something in the first three seconds and again at t
 | you need to SEE what the user wants — read the two closest | `examples/README.md` + `examples/0N-*.md` |
 | **choosing between WORLD and FOLIO mode (ALWAYS, in Phase 1a — before the direction)**, or building a portfolio / studio / case-study site | `references/16-modes-world-folio-hybrid.md` + `?world=folio` in the starter |
 | **ALWAYS — phones are most of the audience** (portrait rail, tiers, touch, safe areas, budgets, the test matrix) | `references/17-mobile-contract.md` |
+| **v18: frontier modules (SDF/GPU particles/splats/AO/DOF/probe/audio/WebGPU), looks, measured budget, portable contract, fallbacks, audit v3** | `references/18-frontier-modules-and-portability.md` |
 | you want to go BEYOND the starter (raymarched heroes, GPU particles, depth-displaced plates, cinematic type, WebGPU, splats, audio…) and need the world-building recipes | `references/10-frontier-techniques.md` |
 
 3. The working engine is in `starter/` — and it ships **four finished reference worlds** (the fourth, *Mira*, is a FOLIO — `scene.folio.ts`, `?world=folio` — see `references/16`) (add *NOCTA*, a product altar: `scene.halo.ts`, `?world=halo`, with `studio.ts` (designed environment map + product light rig), `rock.ts` (asteroid ground + boulders), `objects.ts` (earbuds with exploded-ascent parts, machined dial, glass bottle)) — study
    the closest to your brief. The original two: to study: *Obsidian Gate* (an object / product — `scene.example.ts`) and *Umbra* (an event: terrain + eclipse sky + light shafts + a monolith — `scene.umbra.ts`, built only from the helpers, ~190 lines). Run either with `npm run dev` (`?world=umbra`). **Copy it. Do not rewrite it.** It already implements the damped scroll playhead, a **deterministic `window.__aura.seek(p)` / `?p=` QA hook, procedural sky + eclipse, light shafts, haze, glow, dunes (`atmosphere.ts`, `terrain.ts`), measured fit-to-viewport giant type (`fitType`), the shot-list camera, post stack, adaptive quality, DOM choreography, particles, reflective floor, depth-displaced images and a React shell. Your job is the *world*, the *camera moves* and the *story* — that is where the value is.
 
 ---
+
+## 0b · What v18 changed (read before trusting an old habit)
+
+* **Pick a LOOK first** (`looks.ts`, ref 18 §2) — the mirror-floor/bloom/dust recipe is one of six, and the audit fingerprints your look so convergence is a finding.
+* **Frontier modules ship as code** (`starter/src/aura/frontier/`, `post.ts`): ray-marched metaball hero, GPU particles, Gaussian splats, AO, bokeh DOF, live probe, procedural audio, WebGPU track. `?world=meridian` is the reference. One per chapter.
+* **Budgets are measured** (`ctx.budget`, `ctx.tier`), not guessed from width. Real-device proof = `?aura-debug=1` + `window.__aura.perf()`.
+* **Scenes are portable** (`contract.ts`, `createMinimalHost`, `adaptLegacy`) — never write a shim that hard-codes pointer/quality/reduced-motion.
+* **The audit v3 is class-agnostic and glyph-accurate and says "hygiene", not "quality".** Ship on the human `TASTE.md` total (≥ 85), not on the 80-point floor.
+* **Fallbacks are part of the deliverable**: static edition with readable copy + action, reduced motion that actually stops. Both are audited.
+* Light-mode worlds are first-class (`scene.mode = "light"`).
 
 ## 1 · The ten laws (non-negotiable)
 

@@ -1,316 +1,386 @@
 #!/usr/bin/env node
 /* ─────────────────────────────────────────────────────────────────────────────
-   AURA · audit.mjs — the QA gate an agent can actually run.
+   AURA · audit.mjs v3 — the QA gate an agent can actually run. HYGIENE, not taste.
 
    npm i -D playwright pngjs && npx playwright install chromium
-   node scripts/audit.mjs http://localhost:5173 [--out shots] [--stops 14] [--gpu] [--only desktop,mobile] [--quick] [--scale 0.5] [--timeout 120000]
+   node scripts/audit.mjs <url | --serve dist> [--out shots] [--stops 14] [--only desktop,mobile] [--quick] [--scale 0.5]
+        [--profile strict|standard|lenient] [--tsc] [--poster] [--throttle 4] [--gpu] [--compare prev/report.json]
+        [--config aura.audit.json] [--tier-desktop high] [--tier-touch mid]
 
-   What it does (deterministically — it uses window.__aura.seek(p), not scroll timing):
-     1. loads the page at 5 viewports: desktop 1440×900 · wide 1920×1080 · MOBILE 390×844 (real touch emulation: coarse pointer, isMobile) · small phone 360×640 · landscape phone 844×390
-     2. seeks the playhead to N stops, screenshots each, and MEASURES every frame
-        (luminance, contrast, blown highlights, crushed blacks, edge energy, frame-to-frame change)
-     3. MEASURES LEGIBILITY AND TOUCH: min font size, WCAG contrast of every text run against the frame rendered WITHOUT the copy, 44px tap targets, CTA wrapping, horizontal overflow, mobile draw-call/triangle budget, portrait rail present, and that a real scroll drives the playhead
-     3b. reads the DOM chapters at every stop → copy that collides, copy that leaves the viewport,
-        an empty opening frame, an empty / CTA-less closing frame
-     4. lints the shot list (covers 0→1, has a HOLD, wide/close alternation, no teleports)
-     5. reloads with WebGL disabled and with prefers-reduced-motion → proves the fallbacks
-     6. writes  <out>/REPORT.md  <out>/report.json  <out>/contact-<viewport>.png  and exits 1 if it finds BLOCKERS.
-
-   It cannot judge taste. After it passes, OPEN contact-desktop.png and critique it like an art director (references/08).
-   NOTE: software GL (no --gpu) gives real pixels but meaningless FPS — only trust fps with --gpu on a real machine.
+   WHAT CHANGED IN v3 (each item answers a failure reported against v2):
+   · CLASS-AGNOSTIC. Text, CTAs, tap targets and collisions are found from the rendered DOM (visible text nodes, a[href]/button/[role=button]),
+     not from .aura-cta / .aura-hit / .aura-* hooks. A site that names things .tw-cta is judged on what it shows. Chapter-level rhythm checks run
+     only when chapters exist ([data-a], [data-aura-chapter], or `chapters` in aura.audit.json) — and are skipped, never failed, when they do not.
+   · THE SCRIM COUNTS. Contrast is measured per GLYPH PIXEL: one frame with every glyph made transparent (stage, scrim, overlay gradients, button
+     fills all stay), one frame with only the glyphs on a transparent page (alpha = exact glyph coverage). Deepening --aura-scrim-a, an overlay
+     gradient or a stage scrim now changes the number. Every contrast finding prints the measured scrim alpha that would fix it.
+   · FAIR TO GIANT TYPE. Because only glyph pixels are sampled (not the line box), a display word crossing a bright ring is judged on the letters.
+   · MODE-AWARE. scene.mode === "light" inverts the brightness expectations (a bone-white world is not "too bright").
+   · FALLBACKS ARE VERIFIED: no-WebGL must show readable copy + an action + no stuck loader; reduced motion must really STOP (two frames a second
+     apart must be identical, no infinite CSS animation running, window.__aura.info().motion.frozen).
+   · MISSING ASSETS: any 4xx/5xx, and any asset URL that answers 200 with text/html (an SPA fallback hiding a 404), is a blocker.
+   · TYPES: --tsc runs the project's own typecheck.
+   · COMPARABLE: report.json stamps AUDIT_VERSION, profile and every threshold. --compare prev/report.json prints new/fixed findings and the look
+     fingerprint distance, so "the gate got stricter" and "the scene regressed" can be told apart — and "this looks like the last world" is a finding.
+   · FLOORS, NOT CEILINGS: the score is capped per rule so one repeated defect cannot zero a pillar; it measures that nothing is BROKEN. It
+     cannot say a scene is good. TASTE.md is written next to the report with a rubric — fill it in from the contact sheets.
+   Software GL (no --gpu) gives real pixels but meaningless FPS. Real-device numbers: open the site with ?aura-debug=1 and read window.__aura.perf().
    ───────────────────────────────────────────────────────────────────────────── */
 import { chromium } from "playwright";
 import { PNG } from "pngjs";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, existsSync, statSync } from "node:fs";
+import { createServer } from "node:http";
+import { extname, join, normalize } from "node:path";
+import { execSync } from "node:child_process";
 
+export const AUDIT_VERSION = "3.0";
 const argv = process.argv.slice(2);
 const flag = (n, d) => { const i = argv.indexOf(`--${n}`); return i < 0 ? d : argv[i + 1] && !argv[i + 1].startsWith("--") ? argv[i + 1] : true; };
-const url = argv.find((a) => /^https?:/.test(a)) ?? "http://localhost:5173";
 const out = flag("out", "shots");
 const N = Number(flag("stops", 14));
-const gpu = !!flag("gpu", false);
-const only = flag("only", null);
-// --scale 0.5 halves every viewport (4× faster on software GL); --timeout raises the per-action limit for slow machines
-const SCALE = Number(flag("scale", 1));
-const TIMEOUT = Number(flag("timeout", 120000));
-const quick = !!flag("quick", false);
+const gpu = !!flag("gpu", false), quick = !!flag("quick", false), SCALE = Number(flag("scale", 1)), TIMEOUT = Number(flag("timeout", 150000));
+const PROFILE = String(flag("profile", "standard")), K = { strict: 0.7, standard: 1, lenient: 1.4 }[PROFILE] ?? 1; // K scales every tolerance
+const onlySet = typeof flag("only", null) === "string" ? flag("only").split(",") : null;
+const cfgPath = flag("config", existsSync("aura.audit.json") ? "aura.audit.json" : null);
+const CFG = { chapters: "[data-a],[data-aura-chapter]", ignore: "", hud: ".aura-hud,[data-aura-hud]", ...(cfgPath && existsSync(cfgPath) ? JSON.parse(readFileSync(cfgPath, "utf8")) : {}) };
+const T = { // every threshold, stamped into report.json
+  tinyPx: 11, smallTouchPx: 12, ctaTouchPx: 15, tap: 44, bodyFail3: 0.1 * K, bodyWarn45: 0.15 * K, largeFail2: 0.2 * K, largeWarn3: 0.25 * K,
+  dark: 0.035, bright: 0.62, flat: 0.045, blown: 0.025, dead: 0.35, jump: 26, phoneCalls: 90, phoneTris: 400000, rmDelta: 0.05,
+};
+mkdirSync(out, { recursive: true });
+
+/* ── static server (for --serve dist): real 404s for missing files, SPA fallback ONLY for extension-less routes ── */
+let server = null, url = argv.find((a) => /^https?:/.test(a));
+if (flag("serve", false)) {
+  const root = String(flag("serve")), MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg", ".json": "application/json", ".svg": "image/svg+xml", ".glb": "model/gltf-binary", ".woff2": "font/woff2", ".splat": "application/octet-stream" };
+  server = createServer((req, res) => {
+    const p = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname)).replace(/^(\.\.[/\\])+/, "");
+    let f = join(root, p); if (existsSync(f) && statSync(f).isDirectory()) f = join(f, "index.html");
+    if (!existsSync(f)) { if (extname(p)) { res.writeHead(404); return res.end("not found"); } f = join(root, "index.html"); }
+    res.writeHead(200, { "content-type": MIME[extname(f)] ?? "application/octet-stream" }); res.end(readFileSync(f));
+  }).listen(0);
+  url = `http://localhost:${server.address().port}/`;
+}
+url = url ?? "http://localhost:4173";
+const withQ = (u, q) => u + (u.includes("?") ? "&" : "?") + q;
+
 const ALL_VP = [
   { n: "desktop", w: 1440, h: 900, touch: false, N }, { n: "mobile", w: 390, h: 844, touch: true, N }, { n: "wide", w: 1920, h: 1080, touch: false, N },
   { n: "small", w: 360, h: 640, touch: true, N: Math.min(N, 7) }, { n: "landscape", w: 844, h: 390, touch: true, N: Math.min(N, 7) },
 ];
-const onlySet = typeof only === "string" ? only.split(",") : null; // --only desktop,mobile
-// --scale shrinks desktop-type viewports only (software GL is slow); touch viewports ALWAYS run at true phone size — their pixels are the thing under test
-const VIEWPORTS = ALL_VP.filter((v) => (onlySet ? onlySet.includes(v.n) : !quick || !["small", "landscape"].includes(v.n))).map((v) => (v.touch ? v : { ...v, w: Math.round(v.w * SCALE), h: Math.round(v.h * SCALE) }));
-const mkStops = (n) => Array.from({ length: n }, (_, i) => +(i / (n - 1)).toFixed(4)).map((p) => (p >= 1 ? 1 : p));
-mkdirSync(out, { recursive: true });
+const VIEWPORTS = ALL_VP.filter((v) => (onlySet ? onlySet.includes(v.n) : !quick || !["small", "landscape", "wide"].includes(v.n))).map((v) => (v.touch ? v : { ...v, w: Math.round(v.w * SCALE), h: Math.round(v.h * SCALE) }));
+const mkStops = (n) => Array.from({ length: n }, (_, i) => +(i / (n - 1)).toFixed(4));
 
-const issues = []; // { level: "BLOCKER" | "WARN", vp, p, code, msg }
+const issues = [];
 const add = (level, vp, p, code, msg) => issues.push({ level, vp, p, code, msg });
 
-/* ── image metrics (on a 1/4 downsample) ── */
+/* ── pixel maths ── */
 function metrics(png) {
-  const { width: W, height: H, data } = png;
-  const step = 4, lum = [];
+  const { width: W, height: H, data } = png, step = 4, lum = [], hist = new Map();
   let hi = 0, lo = 0, edge = 0, n = 0, sat = 0;
   for (let y = 0; y < H; y += step) for (let x = 0; x < W; x += step) {
-    const i = (y * W + x) * 4, r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255;
-    const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    lum.push(l); n++;
-    if (l > 0.97) hi++;
-    if (l < 0.02) lo++;
-    sat += Math.max(r, g, b) - Math.min(r, g, b);
+    const i = (y * W + x) * 4, r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255, l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    lum.push(l); n++; if (l > 0.97) hi++; if (l < 0.02) lo++; sat += Math.max(r, g, b) - Math.min(r, g, b);
+    const key = ((data[i] >> 6) << 4) | ((data[i + 1] >> 6) << 2) | (data[i + 2] >> 6); hist.set(key, (hist.get(key) ?? 0) + 1);
     if (x + step < W) { const j = (y * W + x + step) * 4; edge += Math.abs(l - (0.2126 * data[j] + 0.7152 * data[j + 1] + 0.0722 * data[j + 2]) / 255); }
   }
-  const mean = lum.reduce((a, b) => a + b, 0) / n;
-  const sd = Math.sqrt(lum.reduce((a, b) => a + (b - mean) ** 2, 0) / n);
-  return { mean, sd, blown: hi / n, crushed: lo / n, edge: edge / n, sat: sat / n, small: { lum, W: Math.ceil(W / step), H: Math.ceil(H / step) } };
+  const mean = lum.reduce((a, b) => a + b, 0) / n, sd = Math.sqrt(lum.reduce((a, b) => a + (b - mean) ** 2, 0) / n);
+  return { mean, sd, blown: hi / n, crushed: lo / n, edge: edge / n, sat: sat / n, hist, n, small: { lum } };
 }
 const lin = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
 const relLum = (r, g, b) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-/** linear-luminance percentiles of a pixel rect (the BRIGHTEST part behind a text run decides legibility) */
-function rectLum(png, x0, y0, x1, y1) {
-  const { width: W, height: H, data } = png;
-  x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0)); x1 = Math.min(W, Math.ceil(x1)); y1 = Math.min(H, Math.ceil(y1));
-  const v = [];
-  for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) { const i = (y * W + x) * 4; v.push(relLum(data[i], data[i + 1], data[i + 2])); }
-  if (!v.length) return null;
-  v.sort((a, b) => a - b);
-  return { p50: v[Math.floor(v.length * 0.5)], v };
-}
-const parseRgba = (c) => { const m = /rgba?\(([^)]+)\)/.exec(c || ""); if (!m) return [255, 255, 255, 1]; const a = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number); return [a[0], a[1], a[2], a[3] === undefined || Number.isNaN(a[3]) ? 1 : a[3]]; };
+const ratio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+const parseRgba = (c) => { const m = /rgba?\(([^)]+)\)/.exec(c || ""); if (!m) return [0, 0, 0, 1]; const a = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return [a[0], a[1], a[2], a[3] === undefined || Number.isNaN(a[3]) ? 1 : a[3]]; };
 const delta = (a, b) => { let s = 0; const L = Math.min(a.length, b.length); for (let i = 0; i < L; i++) s += Math.abs(a[i] - b[i]); return (s / L) * 100; };
-
 function sheet(pngs, cols, tw, file) {
-  const th = Math.round((tw * pngs[0].height) / pngs[0].width), rows = Math.ceil(pngs.length / cols);
-  const o = new PNG({ width: cols * tw, height: rows * th });
-  pngs.forEach((im, k) => {
-    const ox = (k % cols) * tw, oy = Math.floor(k / cols) * th;
-    for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++) {
-      const si = (Math.floor((y * im.height) / th) * im.width + Math.floor((x * im.width) / tw)) * 4, di = ((oy + y) * o.width + ox + x) * 4;
-      o.data[di] = im.data[si]; o.data[di + 1] = im.data[si + 1]; o.data[di + 2] = im.data[si + 2]; o.data[di + 3] = 255;
-    }
-  });
+  const th = Math.round((tw * pngs[0].height) / pngs[0].width), rows = Math.ceil(pngs.length / cols), o = new PNG({ width: cols * tw, height: rows * th });
+  pngs.forEach((im, k) => { const ox = (k % cols) * tw, oy = Math.floor(k / cols) * th; for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++) { const si = (Math.floor((y * im.height) / th) * im.width + Math.floor((x * im.width) / tw)) * 4, di = ((oy + y) * o.width + ox + x) * 4; o.data[di] = im.data[si]; o.data[di + 1] = im.data[si + 1]; o.data[di + 2] = im.data[si + 2]; o.data[di + 3] = 255; } });
   writeFileSync(file, PNG.sync.write(o));
 }
 
+/** Glyph-pixel contrast. back = frame with glyphs transparent (scrim, overlays, button fills KEPT). mask = glyphs alone on a transparent page. */
+function glyphContrast(back, mask, r) {
+  const { width: W, height: H } = back, x0 = Math.max(0, Math.floor(r.x - 2)), y0 = Math.max(0, Math.floor(r.y - 2)), x1 = Math.min(W, Math.ceil(r.r + 2)), y1 = Math.min(H, Math.ceil(r.b + 2));
+  let amax = 0; for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) amax = Math.max(amax, mask.data[(y * W + x) * 4 + 3]);
+  if (amax < 40) return null; // nothing drawn (fully faded) — not a legibility problem
+  const cut = amax * 0.55, ratios = [], lb = [], lt = [];
+  for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) {
+    const i = (y * W + x) * 4, a = mask.data[i + 3];
+    if (a < cut) continue;
+    const al = a / 255, B = [back.data[i], back.data[i + 1], back.data[i + 2]], Tt = [mask.data[i], mask.data[i + 1], mask.data[i + 2]];
+    const Lb = relLum(...B), Lt = relLum(...Tt.map((c, k) => c * al + B[k] * (1 - al))); // what the eye gets: glyph colour at its own alpha over the real backdrop
+    ratios.push(ratio(Lt, Lb)); lb.push(Lb); lt.push(Lt);
+  }
+  if (ratios.length < 6) return null;
+  const f = (th) => ratios.filter((q) => q < th).length / ratios.length;
+  const med = (v) => v.slice().sort((a, b) => a - b)[Math.floor(v.length / 2)];
+  const Lt = med(lt), Lb90 = lb.slice().sort((a, b) => a - b)[Math.floor(lb.length * 0.9)], Lb10 = lb.slice().sort((a, b) => a - b)[Math.floor(lb.length * 0.1)];
+  return { f45: f(4.5), f3: f(3), f2: f(2), worst: ratios.slice().sort((a, b) => a - b)[Math.floor(ratios.length * 0.1)], Lt, Lb90, Lb10, n: ratios.length };
+}
+/** the extra scrim alpha (toward black for light glyphs, toward white for dark glyphs) that lifts the worst glyph pixels to `th`:1 */
+function scrimFix(c, th) {
+  if (c.Lt >= c.Lb90) { const need = (c.Lt + 0.05) / th - 0.05; return c.Lb90 <= 0 ? 0 : Math.max(0, 1 - need / c.Lb90); } // light text: darken the bright pixels
+  const need = th * (c.Lt + 0.05) - 0.05; return c.Lb10 >= 1 ? 0 : Math.max(0, (need - c.Lb10) / (1 - c.Lb10)); // dark text: lighten the dark pixels
+}
+
 const ARGS = gpu ? ["--ignore-gpu-blocklist", "--enable-webgl"] : ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--enable-webgl"];
-// AURA_CHROME=/path/to/chromium lets locked-down sandboxes (no root, missing system libs) use any Chromium build
 const launch = async () => {
   try { return await chromium.launch({ args: ARGS, executablePath: process.env.AURA_CHROME || undefined }); }
-  catch (e) {
-    console.error("\n✖ Could not start Chromium.\n  · not installed:        npx playwright install chromium\n  · missing system libs:  sudo npx playwright install-deps chromium   (Linux)\n  · no root / locked box: AURA_CHROME=/path/to/chrome node scripts/audit.mjs <url>\n\n" + String(e.message).split("\n")[0]);
-    process.exit(2);
+  catch (e) { console.error("\n✖ Could not start Chromium.\n  · not installed:        npx playwright install chromium\n  · missing system libs:  sudo npx playwright install-deps chromium\n  · no root:              AURA_CHROME=/path/to/chrome node scripts/audit.mjs <url>\n\n" + String(e.message).split("\n")[0]); process.exit(2); }
+};
+const TEXT_OFF = "*{color:transparent!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important;-webkit-text-stroke:0!important;caret-color:transparent!important}*::placeholder{color:transparent!important}";
+const GLYPHS_ONLY = "html,body,*,*::before,*::after{background:transparent!important;background-image:none!important;box-shadow:none!important;border-color:transparent!important;backdrop-filter:none!important;outline-color:transparent!important}canvas,video,img,svg,picture{visibility:hidden!important}*{text-shadow:none!important}";
+
+/** runs the DOM collector inside the page. Class-agnostic: every visible text node + every interactive element. */
+const COLLECT = ({ chapters, ignore, hud }) => {
+  const vw = innerWidth, vh = innerHeight, runs = [], taps = [];
+  const chainOpacity = (el) => { let o = 1; for (let e = el; e && e !== document.documentElement; e = e.parentElement) { const cs = getComputedStyle(e); if (cs.visibility === "hidden" || cs.display === "none") return 0; o *= +cs.opacity; } return o; };
+  const owners = new Map(); const ownerId = (el) => { const c = el.closest(chapters) || el.closest("a,button,[role=button],h1,h2,h3,h4,p,li,label,span,div") || el; if (!owners.has(c)) owners.set(c, owners.size); return owners.get(c); };
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n; (n = w.nextNode());) {
+    const t = n.textContent.trim(); if (!t) continue;
+    const el = n.parentElement; if (!el || el.closest("script,style,noscript,canvas,[aria-hidden=true] .aura-sr") || (ignore && el.closest(ignore))) continue;
+    const op = chainOpacity(el); if (op < 0.35) continue;
+    const rg = document.createRange(); rg.selectNodeContents(n); const rs = [...rg.getClientRects()].filter((q) => q.width > 1 && q.height > 1); if (!rs.length) continue;
+    const r = rg.getBoundingClientRect(); if (r.right < 0 || r.bottom < 0 || r.left > vw || r.top > vh) continue;
+    const cs = getComputedStyle(el), px = parseFloat(cs.fontSize), cta = el.closest("a[href],button,[role=button]");
+    runs.push({ t: t.slice(0, 28), px, color: cs.color, x: r.left, y: r.top, r: r.right, b: r.bottom, lines: new Set(rs.map((q) => Math.round(q.top / 4))).size, hud: !!el.closest(hud), giant: px >= 64 || !!el.closest("[data-fit],.aura-giant"), cta: !!cta, owner: ownerId(el), op });
   }
-}; // a fresh browser per viewport: software GL leaks memory across big canvases
+  for (const e of document.querySelectorAll("a[href],button,[role=button],input,select,textarea,summary")) {
+    if (ignore && e.closest(ignore)) continue;
+    const op = chainOpacity(e); if (op < 0.9) continue;
+    const r = e.getBoundingClientRect(); if (r.width < 1 || r.height < 1 || r.right < 0 || r.bottom < 0 || r.left > vw || r.top > vh) continue;
+    taps.push({ t: (e.textContent || e.getAttribute("aria-label") || e.tagName).trim().slice(0, 20), w: r.width, h: r.height, inline: getComputedStyle(e).display === "inline" && !!e.closest("p,li"), px: parseFloat(getComputedStyle(e).fontSize), hud: !!e.closest(hud) });
+  }
+  return { vw, vh, runs, taps, sw: document.documentElement.scrollWidth, text: document.body.innerText.trim().length };
+};
+
 let browser;
-const frames = {}, meta = {};
+const frames = {}, meta = {}, fp = { hist: new Map(), luma: [], edge: [], sat: [] }, assets = [];
 
 /* ── 1–4 · the main pass ── */
 for (const vp of VIEWPORTS) {
   browser = await launch();
-  const bctx = await browser.newContext({ viewport: { width: vp.w, height: vp.h }, deviceScaleFactor: 1, isMobile: vp.touch, hasTouch: vp.touch }); // touch viewports are REAL mobile emulation → (pointer: coarse), so the engine takes its phone path
-  const page = await bctx.newPage();
-  page.setDefaultTimeout(TIMEOUT);
+  const bctx = await browser.newContext({ viewport: { width: vp.w, height: vp.h }, deviceScaleFactor: 1, isMobile: vp.touch, hasTouch: vp.touch });
+  const page = await bctx.newPage(); page.setDefaultTimeout(TIMEOUT);
   const logs = [];
   page.on("console", (m) => (m.type() === "error" || (m.type() === "warning" && /\[aura\]/.test(m.text()))) && logs.push(m.text()));
   page.on("pageerror", (e) => logs.push("pageerror: " + e.message));
-  await page.goto(url, { waitUntil: "networkidle" });
-  try { await page.waitForFunction(() => window.__aura, null, { timeout: 25000 }); }
+  page.on("response", (r) => { const u = r.url(); if (!u.startsWith("http")) return; const ct = r.headers()["content-type"] || ""; if (r.status() >= 400) assets.push(`${r.status()} ${u}`); else if (/\.(js|css|png|jpe?g|webp|svg|glb|gltf|splat|woff2?|json|mp3|ogg)(\?|$)/i.test(u) && /text\/html/.test(ct)) assets.push(`200-as-HTML ${u}`); });
+  if (flag("throttle", false)) { const c = await bctx.newCDPSession(page); await c.send("Emulation.setCPUThrottlingRate", { rate: Number(flag("throttle")) }); }
+  const tier = vp.touch ? flag("tier-touch", "mid") : flag("tier-desktop", "high"); // visual fidelity of the tier the viewport stands for (software GL would otherwise force "low")
+  await page.goto(withQ(url, `tier=${tier}`), { waitUntil: "networkidle" });
+  try { await page.waitForFunction(() => window.__aura, null, { timeout: 60000 }); }
   catch { add("BLOCKER", vp.n, null, "no-engine", "window.__aura never appeared — WebGL failed to start or the experience did not mount. Check console output."); await browser.close(); continue; }
-  await page.waitForTimeout(1800); // loader wipe
+  await page.waitForFunction(() => !document.querySelector(".aura-loader:not(.is-done)"), null, { timeout: 60000 }).catch(() => {});
+  await page.waitForTimeout(1500);
 
   const info = await page.evaluate(() => window.__aura.info());
-  meta[vp.n] = { shots: info.shots, size: info.size };
-  const chapters = await page.evaluate(() => [...document.querySelectorAll("[data-a]")].map((e) => ({ a: +e.dataset.a, b: +e.dataset.b, fade: +(e.dataset.fade ?? 0.05), text: (e.textContent || "").trim().replace(/\s+/g, " "), words: ((e.querySelector("h1,h2,h3")?.textContent || e.textContent || "").trim().split(/\s+/).filter(Boolean).length), giant: e.classList.contains("aura-giant") })));
-  meta[vp.n].chapters = chapters;
-
-  const rows = [];
-  const stops = mkStops(vp.N);
+  meta[vp.n] = { shots: info.shots, size: info.size, tier: info.tier, device: info.device, mode: info.mode, rail: info.rail };
+  const chapters = await page.evaluate((sel) => [...document.querySelectorAll(sel)].map((e) => ({ a: +(e.dataset.a ?? e.dataset.auraA ?? 0), b: +(e.dataset.b ?? e.dataset.auraB ?? 1), text: (e.textContent || "").trim().replace(/\s+/g, " "), words: (e.querySelector("h1,h2,h3")?.textContent || e.textContent || "").trim().split(/\s+/).filter(Boolean).length, giant: !!e.matches("[data-fit],.aura-giant") })), CFG.chapters);
+  const light = info.mode === "light";
+  const rows = [], stops = mkStops(vp.N);
   for (const p of stops) {
     await page.evaluate((q) => window.__aura.seek(q), p);
     await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
-    await page.waitForTimeout(gpu ? 120 : 380);
-    const dom = await page.evaluate(() => {
-      const vw = innerWidth, vh = innerHeight;
-      const vis = [...document.querySelectorAll("[data-a]")].filter((e) => getComputedStyle(e).visibility !== "hidden" && +getComputedStyle(e).opacity > 0.35)
-        .map((e) => { const rg = document.createRange(); rg.selectNodeContents(e); const r = rg.getBoundingClientRect(); /* measure the TEXT, not the (often full-width) element box */ return { t: (e.textContent || "").trim().slice(0, 28), x: r.left, y: r.top, r: r.right, b: r.bottom, giant: e.classList.contains("aura-giant"), cta: !!e.querySelector("a,button") }; });
-      const links = [...document.querySelectorAll(".aura-overlay a, .aura-overlay button")].filter((e) => { const s = getComputedStyle(e); const w = e.closest("[data-a]"); return s.visibility !== "hidden" && (!w || +getComputedStyle(w).opacity > 0.5); }).length;
-      /* every visible text run: size, colour, box — for min-font + contrast checks */
-      const runs = [];
-      const add = (el, hud) => {
-        const owner = el.closest("[data-a]");
-        const op = owner ? +getComputedStyle(owner).opacity : 1;
-        if (owner && (getComputedStyle(owner).visibility === "hidden" || op < 0.9)) return;
-        const tn = [...el.childNodes].filter((n) => n.nodeType === 3 && n.textContent.trim());
-        if (!tn.length) return;
-        const rg = document.createRange(); rg.setStartBefore(tn[0]); rg.setEndAfter(tn[tn.length - 1]);
-        const rs = [...rg.getClientRects()]; if (!rs.length) return;
-        const r = rg.getBoundingClientRect(); const cs = getComputedStyle(el);
-        runs.push({ t: tn.map((n) => n.textContent.trim()).join(" ").slice(0, 24), px: parseFloat(cs.fontSize), color: cs.color, x: r.left, y: r.top, r: r.right, b: r.bottom, lines: new Set(rs.map((q) => Math.round(q.top / 4))).size, hud, giant: !!el.closest(".aura-giant"), cta: !!el.closest("a,button") });
-      };
-      document.querySelectorAll(".aura-overlay *").forEach((el) => add(el, false));
-      document.querySelectorAll(".aura-hud *").forEach((el) => add(el, true));
-      const taps = [...document.querySelectorAll(".aura-overlay a, .aura-overlay button")].filter((e) => { const w = e.closest("[data-a]"); return getComputedStyle(e).visibility !== "hidden" && (!w || +getComputedStyle(w).opacity > 0.9); }).map((e) => { const r = e.getBoundingClientRect(); return { t: (e.textContent || "").trim().slice(0, 20), w: r.width, h: r.height }; });
-      return { vw, vh, vis, links, runs, taps, sw: document.documentElement.scrollWidth };
-    });
-    const buf = await page.screenshot({ path: `${out}/${vp.n}-${String(Math.round(p * 100)).padStart(3, "0")}.png` });
-    const png = PNG.sync.read(buf);
+    await page.waitForTimeout(gpu ? 120 : 450);
+    const dom = await page.evaluate(COLLECT, CFG);
+    const png = PNG.sync.read(await page.screenshot({ path: `${out}/${vp.n}-${String(Math.round(p * 100)).padStart(3, "0")}.png` }));
     const m = metrics(png);
-    /* the same frame WITHOUT copy → what the text actually sits on (the scrim is part of the stage, so it is included) */
-    const textRuns = dom.runs.filter((r) => !r.hud);
-    let back = null;
-    if (textRuns.length) {
-      await page.evaluate(() => document.querySelectorAll(".aura-overlay").forEach((e) => (e.style.visibility = "hidden")));
-      back = PNG.sync.read(await page.screenshot());
-      await page.evaluate(() => document.querySelectorAll(".aura-overlay").forEach((e) => (e.style.visibility = "")));
+    dom.contrast = [];
+    const body = dom.runs.filter((r) => !r.hud);
+    if (body.length || (flag("poster", false) && p === 0)) {
+      const h1 = await page.addStyleTag({ content: TEXT_OFF }); await page.waitForTimeout(60);
+      const back = PNG.sync.read(await page.screenshot()); await h1.evaluate((e) => e.remove());
+      if (flag("poster", false) && p === 0) writeFileSync(`${out}/poster-${vp.n}.png`, PNG.sync.write(back));
+      if (body.length) {
+        const h2 = await page.addStyleTag({ content: GLYPHS_ONLY }); await page.waitForTimeout(60);
+        const mask = PNG.sync.read(await page.screenshot({ omitBackground: true })); await h2.evaluate((e) => e.remove());
+        for (const r of body) { const c = glyphContrast(back, mask, r); if (c) dom.contrast.push({ t: r.t, px: r.px, large: r.px >= 24 || r.giant, giant: r.giant, cta: r.cta, ...c }); }
+      }
     }
-    dom.contrast = textRuns.map((r) => {
-      const L = back && rectLum(back, r.x - 4, r.y - 2, r.r + 4, r.b + 2); if (!L) return null;
-      const [R, G, B, A] = parseRgba(r.color);
-      const eff = A * relLum(R, G, B) + (1 - A) * L.p50; // translucent text blends with what is behind it
-      /* share of the pixels behind this text run that FAIL a contrast ratio (WCAG per-pixel, against the copy-free frame). Display type may cross a few bright lines; it may not sit on a bright field. */
-      const frac = (th) => L.v.filter((l) => (Math.max(eff, l) + 0.05) / (Math.min(eff, l) + 0.05) < th).length / L.v.length;
-      return { t: r.t, px: r.px, large: r.px >= 24 || r.giant, f45: frac(4.5), f3: frac(3), f2: frac(2), cta: r.cta };
-    }).filter(Boolean);
     rows.push({ p, ...m, dom, png });
-    frames[vp.n] = frames[vp.n] ?? [];
-    frames[vp.n].push(png);
+    (frames[vp.n] ??= []).push(png);
+    if (!vp.touch && vp.n === "desktop") { for (const [k, v] of m.hist) fp.hist.set(k, (fp.hist.get(k) ?? 0) + v); fp.luma.push(m.mean); fp.edge.push(m.edge); fp.sat.push(m.sat); }
   }
 
   /* per-frame checks */
   rows.forEach((r, i) => {
-    const tag = `p=${r.p}`;
-    if (r.mean < 0.035) add(i === 0 ? "BLOCKER" : "WARN", vp.n, r.p, "dark", `frame is nearly black (mean luma ${r.mean.toFixed(3)}) — expose, add a rim/practical, or this is a loader leak`);
-    if (r.mean > 0.62) add("WARN", vp.n, r.p, "bright", `frame is very bright (${r.mean.toFixed(2)}) — the genre wants light with intent; lower exposure, raise bloom threshold`);
-    if (r.sd < 0.045 && r.mean > 0.02) add("WARN", vp.n, r.p, "flat", `flat frame (contrast σ ${r.sd.toFixed(3)}) — add a rim light, depth separation or atmosphere`);
-    if (r.blown > 0.025) add("WARN", vp.n, r.p, "blown", `${(r.blown * 100).toFixed(1)}% of pixels clipped to white — bloom threshold too low or emissive too hot`);
-    if (r.edge < 0.004 && r.mean > 0.02) add("WARN", vp.n, r.p, "empty", `almost no detail (edge energy ${r.edge.toFixed(4)}) — the frame is empty; where is the subject?`);
-    const { vis, vw, vh, links } = r.dom;
-    for (const e of vis) {
-      if (e.x < -2 || e.r > vw + 2 + (e.giant ? 0 : 0) || e.y < -2 || e.b > vh + 2) add(e.giant ? "BLOCKER" : "WARN", vp.n, r.p, "clipped-copy", `“${e.t}” leaves the viewport (${Math.round(e.x)},${Math.round(e.y)} → ${Math.round(e.r)},${Math.round(e.b)} of ${vw}×${vh}) — use data-fit for giant type, check mobile layout`);
-    }
-    for (let a = 0; a < vis.length; a++) for (let b = a + 1; b < vis.length; b++) {
-      const A = vis[a], B = vis[b];
+    const bright = light ? r.mean < 0.3 : r.mean > T.bright, dark = light ? false : r.mean < T.dark;
+    if (dark) add(i === 0 ? "BLOCKER" : "WARN", vp.n, r.p, "dark", `frame is nearly black (mean luma ${r.mean.toFixed(3)}) — expose, add a rim/practical, or this is a loader leak`);
+    if (bright) add("WARN", vp.n, r.p, "bright", light ? `light-mode frame is murky (luma ${r.mean.toFixed(2)}) — lift the key / ground` : `frame is very bright (${r.mean.toFixed(2)}) — lower exposure, raise bloom threshold`);
+    if (r.sd < T.flat && (light || r.mean > 0.02)) add("WARN", vp.n, r.p, "flat", `flat frame (contrast σ ${r.sd.toFixed(3)}) — add a rim light, depth separation or atmosphere`);
+    if (r.blown > T.blown && !light) add("WARN", vp.n, r.p, "blown", `${(r.blown * 100).toFixed(1)}% of pixels clipped to white — bloom threshold too low or emissive too hot`);
+    if (r.edge < 0.004 && r.mean > 0.02) add("WARN", vp.n, r.p, "empty", `almost no detail (edge energy ${r.edge.toFixed(4)}) — where is the subject?`);
+    const { runs, vw, vh, taps } = r.dom;
+    for (const e of runs) if (!e.hud && (e.x < -2 || e.r > vw + 2 || e.y < -2 || e.b > vh + 2)) add(e.giant ? "BLOCKER" : "WARN", vp.n, r.p, "clipped-copy", `“${e.t}” leaves the viewport (${Math.round(e.x)},${Math.round(e.y)} → ${Math.round(e.r)},${Math.round(e.b)} of ${vw}×${vh}) — ${vh < 500 ? "short landscape: use the landscape-phone rules in aura.css (narrow column, height-capped giant type)" : "use data-fit for giant type, check the phone layout"}`);
+    for (let a = 0; a < runs.length; a++) for (let b = a + 1; b < runs.length; b++) {
+      const A = runs[a], B = runs[b]; if (A.owner === B.owner || A.hud || B.hud) continue;
       const ox = Math.min(A.r, B.r) - Math.max(A.x, B.x), oy = Math.min(A.b, B.b) - Math.max(A.y, B.y);
       if (ox > 6 && oy > 6) add("BLOCKER", vp.n, r.p, "collision", `“${A.t}” overlaps “${B.t}” by ${Math.round(ox)}×${Math.round(oy)}px — re-position or re-window the chapters`);
     }
-    /* ── legibility + touch (measured, not hoped) ── */
-    r.dom.runs.forEach((q) => {
-      if (q.px < 11) add(q.hud ? "WARN" : "BLOCKER", vp.n, r.p, "tiny-text", `“${q.t}” is ${q.px.toFixed(1)}px — nothing a person must read may be under 11px (12px on phones)`);
-      else if (vp.touch && q.px < 12 && !q.hud) add("WARN", vp.n, r.p, "small-text", `“${q.t}” is ${q.px.toFixed(1)}px on a touch viewport — use ≥12px`);
+    runs.forEach((q) => {
+      if (q.px < T.tinyPx) add(q.hud ? "WARN" : "BLOCKER", vp.n, r.p, "tiny-text", `“${q.t}” is ${q.px.toFixed(1)}px — nothing a person must read may be under ${T.tinyPx}px`);
+      else if (vp.touch && q.px < T.smallTouchPx) add("WARN", vp.n, r.p, "small-text", `“${q.t}” is ${q.px.toFixed(1)}px on a touch viewport — use ≥${T.smallTouchPx}px (chapter labels, HUD)`);
       if (q.cta && q.lines > 1) add("BLOCKER", vp.n, r.p, "cta-wrap", `CTA “${q.t}” wraps onto ${q.lines} lines — white-space:nowrap + a shorter label`);
+      if (q.cta && vp.touch && q.px < T.ctaTouchPx) add("WARN", vp.n, r.p, "cta-font", `CTA “${q.t}” is ${q.px.toFixed(1)}px on a phone — use ≥${T.ctaTouchPx}px`);
     });
     r.dom.contrast.forEach((c) => {
-      // body text: WARN if >10% of the backdrop is under 4.5:1, BLOCKER if >15% is under 3:1 · large/display type: WARN >12% under 3:1, BLOCKER >15% under 2:1
-      if (c.large ? c.f2 > 0.15 : c.f3 > 0.15) add("BLOCKER", vp.n, r.p, "contrast-fail", `“${c.t}” sits on a field that fails WCAG (${Math.round((c.large ? c.f2 : c.f3) * 100)}% of the pixels behind it are under ${c.large ? 2 : 3}:1) — deepen the scrim (--aura-scrim-a) or move the subject`);
-      else if (c.large ? c.f3 > 0.12 : c.f45 > 0.1) add("WARN", vp.n, r.p, "contrast", `“${c.t}” is borderline (${Math.round((c.large ? c.f3 : c.f45) * 100)}% of the pixels behind it are under ${c.large ? 3 : 4.5}:1) — raise --aura-scrim-a or re-frame`);
+      const fixFor = (th) => `measured fix: raise the scrim under it by ≈${Math.ceil(scrimFix(c, th) * 100)}% (--aura-scrim-a / the overlay gradient — they now count), or move the subject out from behind it`;
+      if (c.large ? c.f2 > T.largeFail2 : c.f3 > T.bodyFail3) add("BLOCKER", vp.n, r.p, "contrast-fail", `“${c.t}” — ${Math.round((c.large ? c.f2 : c.f3) * 100)}% of its GLYPH pixels are under ${c.large ? 2 : 3}:1 (worst 10% ≈ ${c.worst.toFixed(1)}:1). ${fixFor(c.large ? 2.5 : 3.5)}`);
+      else if (c.large ? c.f3 > T.largeWarn3 : c.f45 > T.bodyWarn45) add("WARN", vp.n, r.p, "contrast", `“${c.t}” is borderline (${Math.round((c.large ? c.f3 : c.f45) * 100)}% of glyph pixels under ${c.large ? 3 : 4.5}:1). ${fixFor(c.large ? 3.2 : 4.8)}`);
     });
-    if (vp.touch) r.dom.taps.forEach((t) => Math.min(t.w, t.h) < 44 && add("BLOCKER", vp.n, r.p, "tap-target", `“${t.t}” is ${Math.round(t.w)}×${Math.round(t.h)}px — touch targets must be ≥44×44`));
+    if (vp.touch) taps.forEach((t) => !t.inline && Math.min(t.w, t.h) < T.tap && add("BLOCKER", vp.n, r.p, "tap-target", `“${t.t}” is ${Math.round(t.w)}×${Math.round(t.h)}px — touch targets must be ≥${T.tap}×${T.tap}`));
     if (r.dom.sw > r.dom.vw + 1) add("BLOCKER", vp.n, r.p, "h-scroll", `page is ${r.dom.sw}px wide in a ${r.dom.vw}px viewport — horizontal scroll on a phone`);
-    if (i === 0 && vis.length === 0) add("BLOCKER", vp.n, r.p, "empty-open", "opening frame has no type on screen — chapter 1 must start at data-a=0 (it is visible in frame one)");
+    if (i === 0 && !runs.length) add("BLOCKER", vp.n, r.p, "empty-open", "opening frame has no readable type — the first frame must carry the title");
     if (i === rows.length - 1) {
-      if (vis.length === 0) add("BLOCKER", vp.n, r.p, "empty-close", "closing frame has no copy — the last chapter must end at data-b=1 and STAY");
-      else if (links === 0) add("BLOCKER", vp.n, r.p, "no-cta", "closing frame has no visible link/button — the final image needs ONE obvious action (.aura-cta inside .aura-hit)");
+      if (!runs.length) add("BLOCKER", vp.n, r.p, "empty-close", "closing frame has no copy — the last chapter must stay on screen");
+      else if (!taps.filter((t) => !t.hud).length) add("BLOCKER", vp.n, r.p, "no-cta", "closing frame shows no link or button — the final image needs ONE obvious action (any a[href]/button; the class name does not matter)");
     }
-    void tag;
   });
-  /* motion between stops */
   for (let i = 1; i < rows.length; i++) {
-    const d = delta(rows[i - 1].small.lum, rows[i].small.lum);
-    rows[i].delta = d;
-    if (d < 0.35) add("WARN", vp.n, rows[i].p, "dead-zone", `frame barely changes from p=${rows[i - 1].p} (Δ${d.toFixed(2)}) — fine if this is a deliberate HOLD, otherwise the scroll is dead here`);
-    if (d > 26) add("WARN", vp.n, rows[i].p, "jump-cut", `frame changes violently from p=${rows[i - 1].p} (Δ${d.toFixed(1)}) — a cut, not a glide. Check shot spacing / teleporting position`);
+    const d = delta(rows[i - 1].small.lum, rows[i].small.lum); rows[i].delta = d;
+    if (d < T.dead) add("WARN", vp.n, rows[i].p, "dead-zone", `frame barely changes from p=${rows[i - 1].p} (Δ${d.toFixed(2)}) — fine if a deliberate HOLD`);
+    if (d > T.jump) add("WARN", vp.n, rows[i].p, "jump-cut", `frame changes violently from p=${rows[i - 1].p} (Δ${d.toFixed(1)}) — a cut, not a glide`);
   }
-  /* ── mobile edit: budget + portrait rail + real scroll drives the playhead ── */
   {
     const inf = await page.evaluate(() => window.__aura.info());
     if (vp.touch) {
-      if (inf.drawCalls > 90) add("WARN", vp.n, null, "mobile-draw-calls", `${inf.drawCalls} draw calls on a phone (budget 90) — instance, merge, drop the mirror floor`);
-      if (inf.triangles > 400000) add("WARN", vp.n, null, "mobile-triangles", `${(inf.triangles / 1e3).toFixed(0)}k triangles on a phone (budget 400k) — lower geometry detail on ctx.tier`);
-      if (vp.w / vp.h < 0.85 && inf.rail !== "mobile") add("WARN", vp.n, null, "no-mobile-rail", "portrait is reusing the desktop rail — author scene.shotsMobile (closer, subject high, less lateral swing)");
-      if (!inf.coarse) add("WARN", vp.n, null, "touch-emulation", "viewport was not detected as coarse-pointer — the phone path may not be exercised");
+      if (inf.drawCalls > T.phoneCalls) add("WARN", vp.n, null, "mobile-draw-calls", `${inf.drawCalls} draw calls on a phone (budget ${T.phoneCalls})`);
+      if (inf.triangles > T.phoneTris) add("WARN", vp.n, null, "mobile-triangles", `${(inf.triangles / 1e3).toFixed(0)}k triangles on a phone (budget ${T.phoneTris / 1e3}k)`);
+      if (vp.w / vp.h < 0.85 && inf.rail !== "mobile") add("WARN", vp.n, null, "no-mobile-rail", "portrait is reusing the desktop rail — author scene.shotsMobile");
+      if (!inf.coarse) add("WARN", vp.n, null, "touch-emulation", "viewport was not detected as coarse-pointer");
     }
     if (vp.n === "desktop" || vp.n === "mobile") {
-      await page.evaluate(() => window.__aura.release());
-      await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(500);
-      await page.evaluate(() => scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * 0.5));
-      await page.waitForTimeout(gpu ? 1500 : 3500);
+      await page.evaluate(() => window.__aura.release()); await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(500);
+      await page.evaluate(() => scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * 0.5)); await page.waitForTimeout(gpu ? 1500 : 4500);
       const after = await page.evaluate(() => { const i = window.__aura.info(); return { p: i.p, locked: i.locked }; });
-      if (Math.abs(after.p - 0.5) > 0.12 || after.locked) add("BLOCKER", vp.n, null, "scroll-not-driving", `scrolling to 50% put the playhead at ${after.p.toFixed(2)} (locked=${after.locked}) — scroll must drive the camera (trackProgress / sticky stage)`);
+      if (Math.abs(after.p - 0.5) > 0.12 || after.locked) add("BLOCKER", vp.n, null, "scroll-not-driving", `scrolling to 50% put the playhead at ${after.p.toFixed(2)} (locked=${after.locked}) — scroll must drive the camera`);
     }
   }
-  /* shot-list lint (once) */
   if (vp.n === VIEWPORTS[0].n) {
     const s = info.shots, dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-    if (s.length < 5) add("WARN", vp.n, null, "few-shots", `only ${s.length} shots — a 7–10 shot rail reads as a film; 3–4 reads as a tour`);
+    if (s.length < 5) add("WARN", vp.n, null, "few-shots", `only ${s.length} shots — a 7–10 shot rail reads as a film`);
     if (s[0].at !== 0 || s[s.length - 1].at !== 1) add("BLOCKER", vp.n, null, "rail-range", "shots must start at at:0 and end at at:1");
     for (let i = 1; i < s.length; i++) if (s[i].at <= s[i - 1].at) add("BLOCKER", vp.n, null, "rail-order", `shot ${i} (at ${s[i].at}) is not after shot ${i - 1}`);
     let hold = false; for (let i = 1; i < s.length; i++) if (dist(s[i].pos, s[i - 1].pos) < 1.2 && dist(s[i].look, s[i - 1].look) < 1.2 && s[i].at - s[i - 1].at > 0.05) hold = true;
-    if (!hold) add("WARN", vp.n, null, "no-hold", "no HOLD found (two consecutive shots with ~identical pos+look). Every hero moment needs a stretch where the camera nearly stops");
+    if (!hold) add("WARN", vp.n, null, "no-hold", "no HOLD found (two consecutive shots with ~identical pos+look)");
     const fovs = s.map((x) => x.fov ?? 40); let swings = 0; for (let i = 1; i < fovs.length; i++) if (Math.abs(fovs[i] - fovs[i - 1]) >= 8) swings++;
-    if (swings < 2) add("WARN", vp.n, null, "no-alternation", "lens never changes character (fov swings < 2) — alternate wide (45+) and telephoto (≤30) shots");
-    for (let i = 1; i < s.length; i++) if (dist(s[i].pos, s[i - 1].pos) > 70) add("WARN", vp.n, null, "teleport", `shots ${i - 1}→${i} move ${dist(s[i].pos, s[i - 1].pos).toFixed(0)} units — over a short scroll range that will whip. Space them out or add an intermediate shot`);
+    if (swings < 2) add("WARN", vp.n, null, "no-alternation", "lens never changes character (fov swings < 2) — alternate wide and telephoto");
+    for (let i = 1; i < s.length; i++) if (dist(s[i].pos, s[i - 1].pos) > 70) add("WARN", vp.n, null, "teleport", `shots ${i - 1}→${i} move ${dist(s[i].pos, s[i - 1].pos).toFixed(0)} units`);
     const ch = chapters.filter((c) => !c.giant).sort((a, b) => a.a - b.a);
-    if (!ch.length) add("WARN", vp.n, null, "no-chapters", "no [data-a] chapters found");
-    else {
+    if (ch.length) { // chapter rhythm only when chapters exist — a differently-built site is skipped, not failed
       if (ch[0].a > 0.001) add("WARN", vp.n, null, "late-open", `first chapter starts at ${ch[0].a}, not 0`);
       if (ch[ch.length - 1].b < 0.999) add("WARN", vp.n, null, "early-close", `last chapter ends at ${ch[ch.length - 1].b}, not 1`);
-      let reach = 0; for (const c of ch) { if (c.a - reach > 0.2) add("WARN", vp.n, null, "silence", `no copy between p=${reach.toFixed(2)} and ${c.a.toFixed(2)} (${((c.a - reach) * 100).toFixed(0)}% of the film) — intentional silence is good up to ~15%`); reach = Math.max(reach, c.b); }
-      ch.forEach((c) => c.words > 14 && add("WARN", vp.n, null, "wordy", `chapter “${c.text.slice(0, 30)}…” headline has ${c.words} words — max ~12 per beat; the 3D does the talking`));
-    }
-    if (info.drawCalls > 160) add("WARN", vp.n, null, "draw-calls", `${info.drawCalls} draw calls — instance repeated meshes, merge statics`);
-    if (info.triangles > 1.8e6) add("WARN", vp.n, null, "triangles", `${(info.triangles / 1e6).toFixed(1)}M triangles — decimate / LOD`);
+      let reach = 0; for (const c of ch) { if (c.a - reach > 0.2) add("WARN", vp.n, null, "silence", `no copy between p=${reach.toFixed(2)} and ${c.a.toFixed(2)}`); reach = Math.max(reach, c.b); }
+      ch.forEach((c) => c.words > 14 && add("WARN", vp.n, null, "wordy", `chapter “${c.text.slice(0, 30)}…” headline has ${c.words} words — max ~12 per beat`));
+    } else meta[vp.n].chaptersSkipped = true;
+    if (info.drawCalls > 160) add("WARN", vp.n, null, "draw-calls", `${info.drawCalls} draw calls`);
+    if (info.triangles > 1.8e6) add("WARN", vp.n, null, "triangles", `${(info.triangles / 1e6).toFixed(1)}M triangles`);
   }
-  meta[vp.n].rows = rows.map(({ p, mean, sd, blown, crushed, edge, sat, delta: d }) => ({ p, mean: +mean.toFixed(3), sd: +sd.toFixed(3), blown: +blown.toFixed(4), crushed: +crushed.toFixed(3), edge: +edge.toFixed(4), sat: +sat.toFixed(3), delta: d === undefined ? null : +d.toFixed(2) }));
-  meta[vp.n].fps = (await page.evaluate(() => window.__aura.info().fps));
+  meta[vp.n].rows = rows.map(({ p, mean, sd, blown, edge, delta: d }) => ({ p, mean: +mean.toFixed(3), sd: +sd.toFixed(3), blown: +blown.toFixed(4), edge: +edge.toFixed(4), delta: d === undefined ? null : +d.toFixed(2) }));
+  meta[vp.n].fps = await page.evaluate(() => window.__aura.perf?.() ?? null);
   logs.forEach((l) => add(/pageerror|Error/i.test(l) ? "BLOCKER" : "WARN", vp.n, null, "console", l.slice(0, 220)));
   const portrait = vp.w / vp.h < 0.85;
   sheet(frames[vp.n], portrait ? 7 : 4, portrait ? 190 : 420, `${out}/contact-${vp.n}.png`);
   await browser.close();
 }
+[...new Set(assets)].forEach((a) => add("BLOCKER", "all", null, "asset-404", `${a} — a missing asset (or an SPA fallback answering 200 with HTML for a file that does not exist)`));
 
-/* ── 5 · resilience: no WebGL, reduced motion ── */
+/* ── 5 · resilience: no WebGL, reduced motion (VERIFIED, not just "no crash") ── */
 {
   browser = await launch();
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   await ctx.addInitScript(() => { const g = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (t, ...a) { return /webgl/i.test(t) ? null : g.call(this, t, ...a); }; });
   const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", (e) => errs.push(e.message));
-  await pg.goto(url, { waitUntil: "networkidle" }); await pg.waitForTimeout(1500);
-  const body = await pg.evaluate(() => ({ text: document.body.innerText.trim().length, loaderUp: !!document.querySelector(".aura-loader:not(.is-done)"), poster: !!document.querySelector(".aura-poster") }));
+  await pg.goto(url, { waitUntil: "networkidle" }); await pg.waitForTimeout(2000);
+  const nw = await pg.evaluate(COLLECT, CFG);
+  const loader = await pg.evaluate(() => { const l = document.querySelector(".aura-loader"); return !!l && getComputedStyle(l).visibility !== "hidden" && !l.classList.contains("is-done") && l.getBoundingClientRect().top >= 0; });
+  await pg.screenshot({ path: `${out}/fallback-nowebgl.png` });
   if (errs.length) add("BLOCKER", "no-webgl", null, "fallback-crash", "page throws without WebGL: " + errs[0].slice(0, 160));
-  else if (body.loaderUp) add("BLOCKER", "no-webgl", null, "fallback-stuck", "without WebGL the loader never clears — the visitor sees a permanent loading screen");
-  else if (body.text < 20 && !body.poster) add("WARN", "no-webgl", null, "fallback-empty", "without WebGL the page is empty — pass a poster image and keep copy in the DOM");
+  else if (loader) add("BLOCKER", "no-webgl", null, "fallback-stuck", "without WebGL the loader never clears — the visitor sees a permanent loading screen");
+  else if (nw.text < 120 || !nw.runs.length) add("BLOCKER", "no-webgl", null, "fallback-empty", `without WebGL the visitor sees ${nw.text} characters of copy — the static edition must carry the whole story (headline, support, action)`);
+  else if (!nw.taps.length) add("BLOCKER", "no-webgl", null, "fallback-no-action", "without WebGL there is no link or button on screen");
   await ctx.close();
+
   const rm = await browser.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" });
   const pr = await rm.newPage(); const e2 = []; pr.on("pageerror", (e) => e2.push(e.message));
-  await pr.goto(url, { waitUntil: "networkidle" }); await pr.waitForTimeout(2500);
+  await pr.goto(withQ(url, `tier=${flag("tier-desktop", "high")}`), { waitUntil: "networkidle" });
+  await pr.waitForFunction(() => window.__aura, null, { timeout: 60000 }).catch(() => {});
+  await pr.waitForTimeout(3500);
   if (e2.length) add("BLOCKER", "reduced-motion", null, "rm-crash", e2[0].slice(0, 160));
+  else if (await pr.evaluate(() => !!window.__aura)) {
+    const st = await pr.evaluate(() => ({ m: window.__aura.info().motion, anim: document.getAnimations().filter((a) => a.playState === "running" && a.effect?.getTiming().iterations === Infinity).length }));
+    const A = PNG.sync.read(await pr.screenshot()); await pr.waitForTimeout(1500); const B = PNG.sync.read(await pr.screenshot());
+    const d = delta(metrics(A).small.lum, metrics(B).small.lum);
+    if (!st.m.reduced) add("BLOCKER", "reduced-motion", null, "rm-ignored", "prefers-reduced-motion is set but the engine reports reduced=false");
+    else if (!st.m.frozen) add("BLOCKER", "reduced-motion", null, "rm-not-frozen", `ambient time advanced to ${st.m.ambientTime.toFixed(2)}s under reduced motion — scene idle motion must be driven by Frame.time`);
+    if (d > T.rmDelta) add("BLOCKER", "reduced-motion", null, "rm-moving", `two frames 1.5 s apart differ by Δ${d.toFixed(3)} (limit ${T.rmDelta}) — something is still moving under reduced motion (grain, particles, CSS, video)`);
+    if (st.anim) add("WARN", "reduced-motion", null, "rm-css-anim", `${st.anim} infinite CSS animation(s) still running under reduced motion`);
+    meta.reducedMotion = { ...st, delta: +d.toFixed(4) };
+  }
   await rm.close();
+  // the opposite check: a normal-motion page that never changes is a dead scene, not a calm one
+  const nm = await browser.newContext({ viewport: { width: 1280, height: 800 } }); const pn = await nm.newPage();
+  await pn.goto(withQ(url, `tier=${flag("tier-desktop", "high")}`), { waitUntil: "networkidle" }); await pn.waitForFunction(() => window.__aura, null, { timeout: 60000 }).catch(() => {}); await pn.waitForTimeout(2500);
+  if (await pn.evaluate(() => !!window.__aura)) {
+    const A = PNG.sync.read(await pn.screenshot()); await pn.waitForTimeout(1200); const B = PNG.sync.read(await pn.screenshot());
+    if (delta(metrics(A).small.lum, metrics(B).small.lum) < 0.01) add("WARN", "motion", null, "dead-scene", "nothing moves for 1.2 s at a fixed playhead — add ambient life (drift, shimmer, orbit) driven by Frame.time");
+  }
+  await nm.close();
 }
-await browser.close();
+await browser?.close();
+server?.close();
 
-/* ── score (the half a machine can judge) ── */
+/* ── typecheck ── */
+if (flag("tsc", false)) {
+  try { execSync("npx tsc --noEmit", { stdio: "pipe" }); } catch (e) { add("BLOCKER", "project", null, "tsc", String(e.stdout || e.message).split("\n").filter(Boolean).slice(0, 3).join(" | ").slice(0, 400)); }
+}
+
+/* ── fingerprint of the look (for convergence detection) ── */
+const top = [...fp.hist.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => ({ rgb: [((k >> 4) & 3) * 85, ((k >> 2) & 3) * 85, (k & 3) * 85], share: v }));
+const tot = top.reduce((a, b) => a + b.share, 0) || 1; top.forEach((t) => (t.share = +(t.share / tot).toFixed(3)));
+const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+const fingerprint = { palette: top, luma: +avg(fp.luma).toFixed(3), edge: +avg(fp.edge).toFixed(4), sat: +avg(fp.sat).toFixed(3) };
+const fpDist = (a, b) => Math.hypot(Math.abs(a.luma - b.luma) * 2, Math.abs(a.sat - b.sat) * 2, Math.abs(a.edge - b.edge) * 20, ...a.palette.slice(0, 2).map((c, i) => Math.hypot(...c.rgb.map((v, k) => (v - (b.palette[i]?.rgb[k] ?? 0)) / 255)) * 0.5));
+
+/* ── score: FLOORS. Per-rule caps so one repeated defect cannot zero a pillar. ── */
 const vpm = VIEWPORTS[0].n, rowsD = meta[vpm]?.rows ?? [];
 const cnt = (code, vp) => issues.filter((i) => i.code === code && (!vp || i.vp === vp)).length;
+const pen = (code, each, cap, vp) => Math.min(cap, cnt(code, vp) * each);
 const blockers = issues.filter((i) => i.level === "BLOCKER").length;
 const frac = (bad) => Math.max(0, 1 - bad / Math.max(1, rowsD.length));
 const atmosphere = Math.round(20 * (frac(cnt("flat", vpm) + cnt("empty", vpm)) * 0.4 + frac(cnt("blown", vpm) + cnt("bright", vpm)) * 0.2 + frac(cnt("dark", vpm)) * 0.4));
-const unbroken = Math.max(0, Math.round(15 - cnt("jump-cut") * 3 - cnt("console") * 4 - cnt("rail-range") * 10 - cnt("rail-order") * 5 - cnt("teleport") * 3 - cnt("no-engine") * 20));
-const rhythm = Math.max(0, Math.round(15 - cnt("no-hold") * 6 - cnt("no-alternation") * 4 - cnt("few-shots") * 3 - cnt("silence") * 2 - cnt("dead-zone", vpm) * 1.2 - cnt("wordy") * 1.5 - cnt("empty-open") * 6 - cnt("empty-close") * 6 - cnt("no-cta") * 4 - cnt("late-open") * 2 - cnt("early-close") * 2));
-const craft = Math.max(0, Math.round(15 - cnt("collision") * 3 - cnt("clipped-copy") * 2 - cnt("fallback-crash") * 8 - cnt("fallback-stuck") * 8 - cnt("fallback-empty") * 3 - cnt("draw-calls") * 3 - cnt("triangles") * 3));
-/* MOBILE & LEGIBILITY — 15 pts. Every phone-breaking defect costs; contrast/tiny-text/tap/overflow are the usual killers. */
-const mobilePts = Math.max(0, Math.round(15 - cnt("tiny-text") * 1.5 - cnt("small-text") * 0.4 - cnt("cta-wrap") * 4 - cnt("tap-target") * 4 - cnt("h-scroll") * 6 - cnt("contrast") * 0.5 - cnt("contrast-fail") * 1.5 - cnt("mobile-draw-calls") * 2 - cnt("mobile-triangles") * 2 - cnt("no-mobile-rail") * 3 - cnt("scroll-not-driving") * 8 - cnt("touch-emulation") * 2));
+const unbroken = Math.max(0, Math.round(15 - pen("jump-cut", 3, 9) - pen("console", 4, 8) - pen("rail-range", 10, 10) - pen("rail-order", 5, 10) - pen("teleport", 3, 6) - pen("no-engine", 20, 20) - pen("asset-404", 5, 10) - pen("tsc", 8, 8) - pen("dead-scene", 3, 3)));
+const rhythm = Math.max(0, Math.round(15 - pen("no-hold", 6, 6) - pen("no-alternation", 4, 4) - pen("few-shots", 3, 3) - pen("silence", 2, 6) - pen("dead-zone", 1.2, 5, vpm) - pen("wordy", 1.5, 4.5) - pen("empty-open", 6, 6) - pen("empty-close", 6, 6) - pen("no-cta", 4, 4) - pen("late-open", 2, 2) - pen("early-close", 2, 2)));
+const craft = Math.max(0, Math.round(15 - pen("collision", 3, 9) - pen("clipped-copy", 2, 8) - pen("fallback-crash", 8, 8) - pen("fallback-stuck", 8, 8) - pen("fallback-empty", 6, 6) - pen("fallback-no-action", 3, 3) - pen("draw-calls", 3, 3) - pen("triangles", 3, 3) - pen("rm-moving", 5, 5) - pen("rm-not-frozen", 4, 4) - pen("rm-ignored", 4, 4) - pen("rm-crash", 6, 6)));
+const mobilePts = Math.max(0, Math.round(15 - pen("tiny-text", 1.5, 5) - pen("small-text", 0.4, 2) - pen("cta-wrap", 4, 4) - pen("cta-font", 0.5, 1.5) - pen("tap-target", 4, 6) - pen("h-scroll", 6, 6) - pen("contrast", 0.5, 2) - pen("contrast-fail", 1.5, 6) - pen("mobile-draw-calls", 2, 2) - pen("mobile-triangles", 2, 2) - pen("no-mobile-rail", 3, 3) - pen("scroll-not-driving", 8, 8) - pen("touch-emulation", 2, 2)));
 const auto = atmosphere + unbroken + rhythm + craft + mobilePts;
+
+/* ── compare ── */
+let cmp = "";
+const cmpPath = flag("compare", null);
+if (typeof cmpPath === "string" && existsSync(cmpPath)) {
+  const prev = JSON.parse(readFileSync(cmpPath, "utf8")), key = (i) => `${i.level}|${i.code}|${i.vp}`;
+  const a = new Set(prev.issues.map(key)), b = new Set(issues.map(key));
+  const fresh = [...b].filter((k) => !a.has(k)), fixed = [...a].filter((k) => !b.has(k));
+  const dist = prev.fingerprint ? fpDist(fingerprint, prev.fingerprint) : null;
+  cmp = `\n## Compared with ${cmpPath} (audit ${prev.auditVersion ?? "≤2"}, profile ${prev.profile ?? "?"} → now ${AUDIT_VERSION}/${PROFILE})\n` +
+    `${prev.auditVersion !== AUDIT_VERSION ? `**The gate itself changed between these runs** (${prev.auditVersion ?? "v2"} → ${AUDIT_VERSION}); score deltas are not comparable. Compare issue lists instead.\n` : "Same gate version: score deltas are comparable.\n"}` +
+    `- new: ${fresh.join(", ") || "none"}\n- fixed: ${fixed.join(", ") || "none"}\n` + (dist !== null ? `- look distance: ${dist.toFixed(3)}${dist < 0.12 ? " — **CONVERGENCE: this world looks like the compared one.** Change ground, key/sky colours and grade (looks.ts)." : ""}\n` : "");
+  if (dist !== null && dist < 0.12) add("WARN", "all", null, "look-convergence", `look fingerprint is ${dist.toFixed(3)} from ${cmpPath} — pick a different look (references/18)`);
+}
 
 const grouped = {};
 issues.forEach((i) => { const k = `${i.level}|${i.code}|${i.vp}`; (grouped[k] = grouped[k] ?? { ...i, ps: [] }).ps.push(i.p); });
 const lines = Object.values(grouped).sort((a, b) => (a.level === b.level ? 0 : a.level === "BLOCKER" ? -1 : 1)).map((g) => `- **${g.level}** \`${g.code}\` · ${g.vp}${g.ps.some((p) => p !== null) ? ` · p=${g.ps.filter((p) => p !== null).join(", ")}` : ""} — ${g.msg}`);
-const md = `# AURA audit — ${url}\n\n**Automated score: ${auto}/80** (atmosphere ${atmosphere}/20 · unbroken ${unbroken}/15 · rhythm ${rhythm}/15 · craft ${craft}/15 · mobile & legibility ${mobilePts}/15) · blockers: ${blockers}\n\n` +
-  `The remaining **20 points (Authorship)** and the real judgement of every other pillar are YOURS: open \`${out}/contact-desktop.png\` and \`${out}/contact-mobile.png\`, then critique like a harsh art director (references/08-qa-and-polish.md). Ship only when the human-judged total is ≥ 85.\n\n` +
-  `## Issues\n${lines.join("\n") || "_none_"}\n\n## Per-frame (${vpm})\n| p | luma | σ | blown | edge | Δ prev |\n|---|---|---|---|---|---|\n${rowsD.map((r) => `| ${r.p} | ${r.mean} | ${r.sd} | ${r.blown} | ${r.edge} | ${r.delta ?? "—"} |`).join("\n")}\n\n` +
-  `Shots: ${(meta[vpm]?.shots ?? []).length} · draw-call/triangle/fps numbers are in report.json (fps only meaningful with --gpu).\n`;
+const md = `# AURA audit v${AUDIT_VERSION} (${PROFILE}) — ${url}\n\n**Hygiene score: ${auto}/80** (atmosphere ${atmosphere}/20 · unbroken ${unbroken}/15 · rhythm ${rhythm}/15 · craft ${craft}/15 · mobile & legibility ${mobilePts}/15) · blockers: ${blockers}\n\n` +
+  `> This number says nothing is BROKEN. It does not say the work is GOOD — a 6.5/10 and a 7.5/10 site have both scored 80/80 and 65/80. Fill in \`${out}/TASTE.md\` from the contact sheets; ship on the human total.\n${cmp}\n` +
+  `## Issues\n${lines.join("\n") || "_none_"}\n\n## Device\n${Object.entries(meta).filter(([, v]) => v?.device).map(([k, v]) => `- ${k}: tier **${v.tier}** · ${v.device.renderer.slice(0, 60)} · ${v.device.source}${v.device.gpuMsPerMP ? ` ${v.device.gpuMsPerMP.toFixed(2)} ms/MP` : ""} · ${v.mode} mode · rail ${v.rail}${v.chaptersSkipped ? " · no chapters found (rhythm checks skipped)" : ""}`).join("\n")}\n\n` +
+  `## Per-frame (${vpm})\n| p | luma | σ | blown | edge | Δ prev |\n|---|---|---|---|---|---|\n${rowsD.map((r) => `| ${r.p} | ${r.mean} | ${r.sd} | ${r.blown} | ${r.edge} | ${r.delta ?? "—"} |`).join("\n")}\n`;
 writeFileSync(`${out}/REPORT.md`, md);
-writeFileSync(`${out}/report.json`, JSON.stringify({ url, auto: { total: auto, atmosphere, unbroken, rhythm, craft, mobile: mobilePts }, blockers, issues, meta: Object.fromEntries(Object.entries(meta).map(([k, v]) => [k, { ...v, shots: undefined, rows: v.rows }])) }, null, 2));
+writeFileSync(`${out}/TASTE.md`, `# TASTE — human rubric (the half no script can score)\n\nOpen \`contact-desktop.png\`, \`contact-mobile.png\`, \`fallback-nowebgl.png\`. Score each 0–10, be harsh, write one sentence of evidence.\n\n| # | Question | /10 | Evidence |\n|---|---|---|---|\n| 1 | Hero: would you screenshot it? Is it unlike a default primitive? | | |\n| 2 | Is there a frame in the middle you could print as a poster? | | |\n| 3 | Does each chapter change the PICTURE, not just the text? | | |\n| 4 | Type: does the world interact with it (depth, occlusion, light)? | | |\n| 5 | Palette: one dominant hue, one accent, discipline? | | |\n| 6 | Does it look like the last world you shipped? (fingerprint: ${JSON.stringify(fingerprint.palette.slice(0, 2).map((c) => c.rgb))}, luma ${fingerprint.luma}) | | |\n| 7 | Pacing: crescendo, hold, release — felt, not just linted? | | |\n| 8 | Phone: is it a re-composed edit or the desktop shrunk? | | |\n| 9 | Final frame: poster-grade, one obvious action? | | |\n| 10 | Authorship: could this ship on another brand unchanged? (it must not) | | |\n\n**Total /100:** ____  ·  ship at ≥ 85 · below 70, redo the hero before anything else.\n`);
+writeFileSync(`${out}/report.json`, JSON.stringify({ auditVersion: AUDIT_VERSION, profile: PROFILE, thresholds: T, url, auto: { total: auto, atmosphere, unbroken, rhythm, craft, mobile: mobilePts }, blockers, issues, fingerprint, meta: Object.fromEntries(Object.entries(meta).map(([k, v]) => [k, { ...v, shots: undefined }])) }, null, 2));
 console.log(md);
-console.log(`\n→ ${out}/REPORT.md · ${out}/contact-*.png   (now LOOK at the contact sheets)`);
+console.log(`\n→ ${out}/REPORT.md · ${out}/TASTE.md · ${out}/contact-*.png   (now LOOK at the contact sheets)`);
 process.exit(blockers ? 1 : 0);

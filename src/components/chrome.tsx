@@ -116,6 +116,7 @@ export function SiteNav() {
 
           <nav className="hidden items-center gap-1 rounded-full border border-line bg-[rgb(6_10_20/0.55)] p-1 shadow-[0_1px_0_0_rgb(255_255_255/0.06)_inset,0_20px_50px_-30px_#000] backdrop-blur-xl md:flex" aria-label="Main">
             <Link href="/" className={pill(path === "/")} aria-current={path === "/" ? "page" : undefined}>{dot(path === "/")}Showcase</Link>
+            <Link href="/frontier" className={pill(path === "/frontier")} aria-current={path === "/frontier" ? "page" : undefined}>{dot(path === "/frontier")}Frontier</Link>
 
             <div ref={wrap} className="relative" onPointerEnter={(e) => e.pointerType === "mouse" && enter()} onPointerLeave={(e) => e.pointerType === "mouse" && leave()}>
               <div className={`${pill(lib)} !gap-0 !p-0`}>
@@ -216,6 +217,7 @@ export function SiteFooter() {
         <div className="space-y-3 text-sm">
           <div className="eyebrow !text-dim">Product</div>
           <Link className="block text-aurora hover:text-fg" href="/skill">AURA — the skill</Link>
+          <Link className="block text-dim hover:text-fg" href="/frontier">AURA v18 · live frontier world</Link>
           <Link className="block text-dim hover:text-fg" href="/services#pipeline">The pipeline</Link>
           <Link className="block text-dim hover:text-fg" href="/services#pricing">Pricing</Link>
           <Link className="block text-dim hover:text-fg" href="/services#faq">FAQ</Link>

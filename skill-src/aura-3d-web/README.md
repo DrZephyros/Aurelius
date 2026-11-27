@@ -58,3 +58,11 @@ npm i -D playwright pngjs && npx playwright install chromium
 - **Portrait is a first-class edit.** `scene.shotsMobile`, live rail swap, tan-based lens fit, view-offset lift, tiered budgets (`ctx.tier`), MSAA by tier, touch-safe parallax, svh-stable scroll range, context-loss recovery, static edition (no WebGL / Data Saver). See `references/17-mobile-contract.md`.
 - **A better hero with zero assets.** `scene.example.ts` now builds a smooth iridescent obsidian pebble in a designed softbox environment, lit by an orbiting spark — the flat low-poly gem is gone.
 - **An audit that can see.** Five viewports (390×844 and 360×640 / 844×390 with real touch emulation), min font size, WCAG contrast measured against the copy-free frame, 44 px targets, CTA wrap, horizontal overflow, phone budgets, portrait-rail check, real scroll test. Automated score is now atmosphere 20 · unbroken 15 · rhythm 15 · craft 15 · mobile & legibility 15 = 80, plus 20 human-judged Authorship.
+
+
+## v18 — frontier edition
+- New: `references/18-frontier-modules-and-portability.md`; `starter/src/aura/{contract,device,post,looks,portable,scene.meridian}.ts`, `frontier/{sdf,gpgpu,splat,probe,audio,webgpu}.ts`, `?world=meridian`.
+- Engine: measured device budget + bidirectional governor, real reduced-motion (frozen ambient time, on-demand render), AO + bokeh DOF from a depth pre-pass, `__aura.perf()`, `?aura-debug=1`, `?tier=`.
+- Audit v3: class-agnostic, glyph-pixel contrast that sees the scrim, mode-aware, verified fallbacks, asset-404 / SPA-fallback detection, `--tsc`, `--compare`, look fingerprint, `TASTE.md`.
+- Hygiene: `three` pinned (0.187.0), strict `tsconfig`, `VERSION` + `skill.json`.
+- Honest limits: WebGPU track not executed in CI (no adapter); real-device FPS is yours to measure (`?aura-debug=1`); SSR is intentionally not faked.

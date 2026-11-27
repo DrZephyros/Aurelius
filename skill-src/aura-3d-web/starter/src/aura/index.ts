@@ -12,3 +12,14 @@ export { createStudioEnv, productRig, createContactShadow, type StripSpec } from
 export { createRockGround, createBoulders, fbm2, type RockGroundOptions } from "./rock";
 export { folio, PROJECTS as FOLIO_PROJECTS, folioAt } from "./scene.folio";
 export { earbuds, dial, bottle, type ExplodePart } from "./objects";
+export { measureDevice, BUDGETS } from "./device";
+export { DepthPrepass, createAoPass, createDofPass } from "./post";
+export { LOOKS, applyLookCss, type Look } from "./looks";
+export { createMinimalHost, adaptLegacy, railSampler, type LegacyBuilt } from "./portable";
+export { createLiquidMetal, type LiquidMetalOptions } from "./frontier/sdf";
+export { createGpuParticles, particleSide, type GpuParticlesOptions } from "./frontier/gpgpu";
+export { createSplats, loadSplat, trim as trimSplats, generateKnot, generateCloud, type SplatData } from "./frontier/splat";
+export { createLiveProbe } from "./frontier/probe";
+export { createScore, type AuraScore, type ScoreOptions } from "./frontier/audio";
+export { meridian, MERIDIAN_SHOTS } from "./scene.meridian";
+// WebGPU track is intentionally NOT exported here (import "./frontier/webgpu" dynamically).

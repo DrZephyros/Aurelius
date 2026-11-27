@@ -7,10 +7,11 @@
    (The original scripts/gen-raw.ts that produced these is not in the repo; this reproduces the same output shape
     for the skill portion only. The demos / kit / registry maps are untouched.) */
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, relative } from "node:path";
 
 const ROOT = "skill-src/aura-3d-web";
-const TEXT = /\.(md|ts|tsx|css|html|json|mjs|js)$/i;
+const TEXT = /(\.(md|ts|tsx|css|html|json|mjs|js)|^VERSION)$/i;
 const SKIP = new Set(["node_modules", "dist", "shots", ".git"]);
 const FREE = new Set([
   "examples/01-nocta-earbuds-product.md",
@@ -28,6 +29,12 @@ const walk = (dir) =>
     return statSync(p).isDirectory() ? walk(p) : TEXT.test(n) ? [p] : [];
   });
 
+// v18: skill.json is the manifest of the single source of truth (version + sha256 of every file)
+{
+  const list = walk(ROOT).map((p) => relative(ROOT, p).split("\\").join("/")).filter((f) => f !== "skill.json").sort();
+  const manifest = { name: "aura-3d-web", version: readFileSync(join(ROOT, "VERSION"), "utf8").trim(), three: JSON.parse(readFileSync(join(ROOT, "starter/package.json"), "utf8")).dependencies.three, files: Object.fromEntries(list.map((f) => [f, createHash("sha256").update(readFileSync(join(ROOT, f))).digest("hex").slice(0, 16)])) };
+  writeFileSync(join(ROOT, "skill.json"), JSON.stringify(manifest, null, 2) + "\n");
+}
 const files = walk(ROOT).map((p) => relative(ROOT, p).split("\\").join("/")).sort((a, b) => {
   // README + SKILL first, then examples / references / starter / templates (matches the previous ordering)
   const rank = (x) => (x === "README.md" ? 0 : x === "SKILL.md" ? 1 : x.startsWith("examples/") ? 2 : x.startsWith("references/") ? 3 : x.startsWith("starter/") ? 4 : 5);

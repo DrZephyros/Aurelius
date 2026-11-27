@@ -9,6 +9,7 @@ import DemoPage from "@/views/DemoPage";
 import PromptsPage from "@/views/PromptsPage";
 import { CheckoutPage, DownloadPage } from "@/views/SkillCheckout";
 import ServicesPage from "@/views/ServicesPage";
+import FrontierPage from "@/views/FrontierPage";
 import BundlesIndex from "@/bundles/BundlesIndex";
 import BundleShell from "@/bundles/BundleShell";
 import { ComponentsHub, CategoryView, ItemView } from "@/views/RegistryViews";
@@ -64,6 +65,7 @@ function Routes() {
   if (m) return catBySlug(m[1]) && REG_CATS.some((c) => c.slug === m![1]) ? <CategoryView key={m[1]} category={m[1]} /> : <NotFound />;
   if (path === "/components") return <ComponentsHub />;
   if (path === "/text-effects") return <CategoryView key="te" category={TEXT_EFFECTS} />;
+  if (path === "/frontier") return <FrontierPage />;
   if (path === "/library") return <LibraryPage key="all" shelf="all" />;
   if (path === "/landing-pages") return <LibraryPage key="worlds" shelf="worlds" />;
   if (path === "/pages") return <LibraryPage key="pages" shelf="pages" />;

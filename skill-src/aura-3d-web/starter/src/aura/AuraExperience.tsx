@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 import { mountAura, type Builder, type AuraHandle } from "./engine";
 import { bindDom, fitType, trackProgress } from "./choreo";
+import { applyLookCss, type Look } from "./looks";
+import type { AuraScore } from "./frontier/audio";
 
 /* ─────────────────────────────────────────────────────────────
    AURA · AuraExperience — drop-in React shell.
@@ -18,6 +20,9 @@ import { bindDom, fitType, trackProgress } from "./choreo";
    · Children are the DOM overlay. Elements with data-a / data-b are choreographed from the SAME damped playhead as the camera.
    · Includes: preloader (tracks real asset loading), WebGL-failure fallback, reduced-motion handling, progress HUD.
    ───────────────────────────────────────────────────────────── */
+
+/** ?static=1 forces the static edition (QA for the no-WebGL path without disabling WebGL). */
+const forceStatic = () => new URLSearchParams(location.search).has("static");
 
 /** Respect Data Saver / slow connections: the static edition ships the same copy with no 3D payload cost. */
 function saveData() {
@@ -57,23 +62,30 @@ export interface AuraExperienceProps {
   poster?: string;
   hud?: boolean;
   className?: string;
+  /** a look (looks.ts): its CSS variables are applied to the root so type, scrim and CTA match the world */
+  look?: Look;
+  /** a procedural score (frontier/audio.ts). Adds the Sound toggle; off until the visitor opts in. */
+  score?: AuraScore;
   onReady?: (h: AuraHandle) => void;
 }
 
-export function AuraExperience({ build, children, scrollVh = 700, scrollVhMobile, title = "", poster, hud = true, className = "", onReady }: AuraExperienceProps) {
+export function AuraExperience({ build, children, scrollVh = 700, scrollVhMobile, title = "", poster, hud = true, className = "", look, score, onReady }: AuraExperienceProps) {
   const phone = usePhone();
   const vh = phone && scrollVhMobile ? scrollVhMobile : scrollVh;
   const [nonce, setNonce] = useState(0); // bump → re-mount the engine after a restored context
-  const track = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLElement | null>(null);
   const host = useRef<HTMLDivElement>(null);
   const overlay = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLSpanElement>(null);
   const [pct, setPct] = useState(0);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [sound, setSound] = useState(false);
+  const rootRef = useRef<HTMLElement | null>(null);
+  useEffect(() => { if (look && rootRef.current) applyLookCss(rootRef.current, look); }, [look]);
 
   useEffect(() => {
-    if (!hasWebGL() || saveData()) { setFailed(true); return; }
+    if (!hasWebGL() || saveData() || forceStatic()) { setFailed(true); return; }
     setFailed(false);
     const t = track.current!, hostEl = host.current!, ov = overlay.current!;
     let handle: AuraHandle | null = null, dead = false;
@@ -92,6 +104,7 @@ export function AuraExperience({ build, children, scrollVh = 700, scrollVhMobile
         handle = h;
         h.onFrame((f) => {
           update(f.p);
+          score?.update(f.p, f.velocity);
           if (bar.current) bar.current.style.transform = `scaleX(${f.p})`;
         });
         onReady?.(h);
@@ -104,10 +117,10 @@ export function AuraExperience({ build, children, scrollVh = 700, scrollVhMobile
   }, [nonce]);
 
   return (
-    <section ref={track} className={`aura-root ${failed ? "is-static" : ""} ${className}`} style={failed ? undefined : { height: `${vh}vh` }} aria-label={title || "Immersive experience"}>
+    <section ref={(el) => { track.current = el; rootRef.current = el; }} className={`aura-root ${failed ? "is-static" : ""} ${className}`} style={failed ? undefined : { height: `${vh}vh` }} aria-label={title || "Immersive experience"}>
       <div className="aura-stage">
         <div ref={host} className="aura-canvas" aria-hidden />
-        {failed && poster && <img src={poster} alt="" className="aura-poster" />}
+        {failed && (poster ? <img src={poster} alt="" className="aura-poster" /> : <div className="aura-poster-auto" aria-hidden />)}
         <div ref={overlay} className="aura-overlay">{children}</div>
         {hud && (
           <div className="aura-hud" aria-hidden>
@@ -115,6 +128,11 @@ export function AuraExperience({ build, children, scrollVh = 700, scrollVhMobile
             <span className="aura-hud-line"><span ref={bar} className="aura-hud-fill" /></span>
             <span className="aura-hud-hint"><span className="aura-hint-d">Scroll</span><span className="aura-hint-m">Swipe</span></span>
           </div>
+        )}
+        {score && !failed && (
+          <button type="button" className="aura-sound" aria-pressed={sound} onClick={async () => { const on = await score.toggle(); setSound(on); if (on) score.hit(660); }}>
+            <i aria-hidden><b /><b /><b /></i>{sound ? "Sound on" : "Sound off"}
+          </button>
         )}
         <div className={`aura-loader ${ready || failed ? "is-done" : ""}`} aria-hidden={ready}>
           <span className="aura-loader-n">{String(Math.round(pct * 100)).padStart(3, "0")}</span>
