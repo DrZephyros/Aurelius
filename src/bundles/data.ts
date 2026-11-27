@@ -161,6 +161,48 @@ export const BUNDLES: Bundle[] = [
       listLabel: "Your team", items: [["Hanne L. · lead climber", "Joined Jan", "Confirmed"], ["Jonas V.", "Joined Jan", "Confirmed"], ["Open place", "1 left", "Invite"]],
     },
   },
+  {
+    slug: "tidewell",
+    name: "Tidewell",
+    wordmark: "TIDEWELL 300",
+    tagline: "A dive watch built for where the light stops.",
+    blurb: "Descend 300 metres with a dive watch in a rising, lit abyss. Surface light fades as you sink, the dial lights its markers with depth, and the case turns in the dark. A product bundle: cinematic landing, models, a sign-in, an order flow and a dive log in deep teal and lume green.",
+    category: "Product · Dive watch",
+    gpu: "Heavy",
+    theme: { accent: "#7affd0", accent2: "#3fd9c4", bg: "#03080d", fg: "#eefaf9", muted: "#7c9aa0", card: "#071820", display: GROT, radius: 12 },
+    hero: { kicker: "Tidewell 300 · pressure test", sub: "Rated to 300 metres. Lit to the last marker, however deep the light goes.", cta: "Reserve yours", hint: "Scroll to descend" },
+    chapters: [
+      { kicker: "01 — Surface", title: "Light breaks on the steel.", body: "Sun falls through the water in long shafts. The case takes it first, then gives it back in a single line.", side: "left" },
+      { kicker: "02 — Descent", title: "The dark arrives as you sink.", body: "Every marker on the dial stays unlit until the depth reaches it, then glows for as long as you need to read it.", stat: ["300 m", "tested depth rating"], side: "right" },
+      { kicker: "03 — The dial", title: "Lume that charges with depth.", body: "A rotating bezel, a sapphire crystal and markers that drink the surface light and hold it in the abyss.", stat: ["120", "minute bezel clicks"], side: "left" },
+      { kicker: "04 — The abyss", title: "Built to be read in the dark.", body: "A titanium case, a rubber strap and a movement that keeps time through a long dive and the long climb back.", stat: ["±2 s", "daily accuracy"], side: "right" },
+      { kicker: "05 — Reserve", title: "Wear the deep.", body: "Limited to a single run of pieces. Reserve yours now and it ships in a sealed case.", side: "center" },
+    ],
+    nav: { pricing: "Models", signin: "Dive log", reserve: "Reserve", account: "Collection" },
+    pose: { pricing: 0.3, signin: 0.04, reserve: 0.8, account: 0.93 },
+    techniques: ["Procedural dial with depth-lit markers", "Rising light shafts keyed to the playhead", "Rounded-box case and rubber strap", "Studio PMREM environment on steel", "Mirror floor reflection", "Portrait rail for phones"],
+    pricing: {
+      eyebrow: "Models", title: "Three depths of commitment.", lead: "Same movement and lume. Choose the case and the strap for the water you dive.",
+      toggle: ["Buy outright", "12-month plan"], unit: ["one-time", "per month × 12"], note: "Plans include the Dive log app and a free strap change each year.",
+      plans: [
+        { id: "shore", name: "Shore", price: [690, 60], blurb: "Steel case, rubber strap. Everyday depth.", features: ["Brushed steel case", "100 m rating", "Rubber strap", "Dive log app"] },
+        { id: "abyss", name: "Abyss", price: [1290, 112], blurb: "Titanium case, sapphire crystal, the full lume.", hot: true, features: ["Grade 5 titanium", "300 m rating", "Sapphire crystal", "Charging lume", "Dive log app included"] },
+        { id: "trench", name: "Trench Pro", price: [2490, 216], blurb: "Limited run with a sealed case and service plan.", features: ["Limited numbered run", "300 m rating", "Sealed presentation case", "Lifetime service", "Priority strap changes"] },
+      ],
+      faq: [["Is it waterproof?", "Yes. Tested to 300 m. Service it every five years to keep the seal."], ["Does it need a battery?", "No. It is a mechanical movement that runs for about 60 hours on a full wind."], ["Can I return it?", "30 days, free return label."]],
+    },
+    signin: { title: "Open the dive log.", lead: "Sign in to see your dives, depth records and service dates.", cta: "Sign in", quote: ["The markers light as you go down. It feels like the watch knows where you are.", "Marta L. — diver, 40 m"] },
+    reserve: {
+      title: "Reserve your Tidewell.", lead: "Pick a case and a strap. Nothing is charged today.", dateLabel: "Earliest ship date", qtyLabel: "Watches", qtyMax: 3,
+      mult: "qty", extraMult: "qty", unit: "watch", confirm: "Your Tidewell is reserved.",
+      extras: [{ id: "strap", label: "Spare strap", price: 80 }, { id: "case", label: "Sealed case", price: 120 }, { id: "service", label: "Service plan (2 yr)", price: 150 }],
+    },
+    account: {
+      title: "Collection", stats: [["Dives logged", "42", "all time"], ["Max depth", "238 m", "personal best"], ["Next service", "Mar 2027", "scheduled"]],
+      chartLabel: "Depth per dive — last 12 dives", chart: [38, 52, 40, 61, 75, 58, 90, 84, 66, 102, 96, 118],
+      listLabel: "Your watches", items: [["Tidewell Abyss", "Titanium · 300 m", "Active"], ["Tidewell Shore", "Steel · 100 m", "Spare"]],
+    },
+  },
 ];
 
 export const bundleBySlug = (s: string) => BUNDLES.find((b) => b.slug === s);

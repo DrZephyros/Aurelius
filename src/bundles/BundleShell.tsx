@@ -7,11 +7,12 @@ import { mountWorld, type Builder, type World } from "./engine";
 import { buildYoru } from "./scenes/yoru";
 import { buildHelm } from "./scenes/helm";
 import { buildAltai } from "./scenes/altai";
+import { buildTidewell } from "./scenes/tidewell";
 import { BundleLanding } from "./BundleLanding";
 import { AccountPage, PricingPage, ReservePage, SignInPage } from "./BundlePages";
 import "./bundle.css";
 
-const SCENES: Record<string, Builder> = { yoru: buildYoru, helm: buildHelm, altai: buildAltai };
+const SCENES: Record<string, Builder> = { yoru: buildYoru, helm: buildHelm, altai: buildAltai, tidewell: buildTidewell };
 
 /** One bundle, full-screen. The WebGL world is mounted once per bundle and survives page changes,
  *  so moving between the landing and the pricing / sign-in / reserve / account pages glides the camera along its rail. */
